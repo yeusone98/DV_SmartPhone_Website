@@ -66,7 +66,6 @@ const updateProduct = async (id, updateData) => {
     }
 }
 
-
 const deleteProduct = async (id) => {
     const result = await GET_DB()
         .collection(PRODUCT_COLLECTION_NAME)

@@ -1,6 +1,6 @@
 import { productModel } from '~/models/productModel'
 import { StatusCodes } from 'http-status-codes'
-import { ObjectId } from 'mongodb';
+import { ObjectId } from 'mongodb'
 const createProduct = async (req, res, next) => {
     try {
         const { file } = req
@@ -52,21 +52,21 @@ const getProductById = async (req, res, next) => {
 
 const updateProduct = async (req, res, next) => {
     try {
-        const { id } = req.params;
-        console.log('Product ID received from params:', id); // Log ID từ params
+        const { id } = req.params
+        console.log('Product ID received from params:', id) // Log ID từ params
 
-        const data = req.body;
+        const data = req.body
 
         if (!id) {
-            return res.status(400).json({ message: 'Product ID is missing in the request URL' });
+            return res.status(400).json({ message: 'Product ID is missing in the request URL' })
         }
 
         // Nếu có file, thêm URL hình ảnh vào dữ liệu
         if (req.file) {
-            data.image_url = req.file.path;
+            data.image_url = req.file.path
         }
 
-        const objectId = new ObjectId(id); // Chuyển `id` sang ObjectId
+        const objectId = new ObjectId(id) // Chuyển `id` sang ObjectId
         console.log('Converted ObjectId:', objectId)
 
         const updatedProduct = await productModel.updateProduct(objectId, data)
@@ -76,19 +76,27 @@ const updateProduct = async (req, res, next) => {
         console.error('Error updating product:', error)
         next(error)
     }
-};
+}
 
-  
+
 const deleteProduct = async (req, res, next) => {
     try {
         const { id } = req.params
-        const sellerId = req.jwtDecoded._id // Lấy seller_id từ JWT
+        const user = req.jwtDecoded // Lấy thông tin user từ JWT
+
+        // Tìm sản phẩm theo ID
         const product = await productModel.findProductById(id)
 
-        if (!product || product.seller_id !== sellerId) {
+        if (!product) {
+            return res.status(StatusCodes.NOT_FOUND).json({ message: 'Product not found!' })
+        }
+
+        // Nếu user không phải admin và không phải seller, chặn quyền xóa
+        if (user.role !== 'admin' && product.seller_id !== user._id) {
             return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Not allowed!' })
         }
 
+        // Thực hiện xóa sản phẩm
         const result = await productModel.deleteProduct(id)
 
         if (result) {
@@ -97,9 +105,11 @@ const deleteProduct = async (req, res, next) => {
             res.status(StatusCodes.NOT_FOUND).json({ message: 'Product not found!' })
         }
     } catch (error) {
+        console.error('Error in deleteProduct:', error.message)
         next(error)
     }
 }
+
 
 export const productController = {
     createProduct,
