@@ -29,8 +29,8 @@ const START_SERVER = () => {
     app.use(errorHandlingMiddleware)
 
     if (env.BUILD_MODE === 'production') {
-        app.listen(process.env.PORT(), () => {
-            console.log(`3. Production: Hello ${env.AUTHOR}, Back-end Server is running successfully at Host: ${ env.LOCAL_DEV_APP_HOST } and Port: ${ env.LOCAL_DEV_APP_PORT }/`)
+        app.listen(process.env.PORT, () => {
+            console.log(`3. Production: Hello ${env.AUTHOR}, Back-end Server is running successfully at Host: ${ env.LOCAL_DEV_APP_HOST } and Port: ${ env.PORT }/`)
         })
     }
 
