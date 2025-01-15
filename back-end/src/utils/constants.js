@@ -1,6 +1,7 @@
 import { env } from '~/config/environment'
 export const WHITELIST_DOMAINS = [
     'http://localhost:5173'
+    
     //.. Ví dụ sau này deploy lên domain chính thức ...vv
 ]
 
