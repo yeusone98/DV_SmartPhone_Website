@@ -30,7 +30,7 @@ const START_SERVER = () => {
 
     if (env.BUILD_MODE === 'production') {
         app.listen(process.env.PORT, () => {
-            console.log(`3. Production: Hello ${env.AUTHOR}, Back-end Server is running successfully at PORT: ${ env.PORT }/`)
+            console.log(`3. Production: Hello ${env.AUTHOR}, Back-end Server is running successfully at PORT: ${ process.env.PORT }/`)
         })
     }
     else {
