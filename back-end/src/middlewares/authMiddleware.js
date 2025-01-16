@@ -50,7 +50,7 @@ const isAuthorized = async (req, res, next) => {
 
 const isAdmin = (req, res, next) => {
     const user = req.jwtDecoded // Lấy thông tin user từ middleware isAuthorized
-
+    console.log(user.email)
     if (user.role !== 'admin') {
         return next(new ApiError(StatusCodes.FORBIDDEN, 'Forbidden! Admin access required.')) // Trả về lỗi 403 nếu không phải admin
     }
