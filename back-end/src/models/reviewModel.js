@@ -9,6 +9,7 @@ const REVIEW_COLLECTION_NAME = 'reviews'
 const REVIEW_SCHEMA = Joi.object({
     product_id: Joi.string().required(), // ID của sản phẩm (string dạng ObjectId)
     customer_id: Joi.string().required(), // ID của người dùng (string dạng ObjectId)
+    username: Joi.string().required(),
     rating: Joi.number().min(1).max(5).required(), // Số sao (1-5)
     comment: Joi.string().required(), // Nội dung bình luận
     createdAt: Joi.date().timestamp().default(Date.now) // Ngày tạo

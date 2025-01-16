@@ -1,18 +1,27 @@
 import { reviewModel } from '~/models/reviewModel'
 import { StatusCodes } from 'http-status-codes'
+import { ObjectId } from 'mongodb'
+import { GET_DB } from '~/config/mongodb'
 import { create } from 'lodash'
 
 const createReview = async (req, res, next) => {
     try {
         const { product_id, rating, comment } = req.body;
-        console.log('JWT Decoded:', req.jwtDecoded);
-        const customer_id = req.jwtDecoded?._id; // Đảm bảo token hợp lệ
-        
+        const customer_id = req.jwtDecoded?._id;
+
         if (!customer_id) throw new Error('Unauthorized!');
+
+        // Truy vấn cơ sở dữ liệu để lấy username
+        const user = await GET_DB().collection('users').findOne({ _id: new ObjectId(customer_id) });
+
+        if (!user) throw new Error('User not found!');
+
+        const username = user.username; // Lấy username từ cơ sở dữ liệu
 
         const newReview = {
             product_id,
             customer_id,
+            username, // Thêm username vào review
             rating,
             comment,
             createdAt: new Date()
@@ -24,6 +33,7 @@ const createReview = async (req, res, next) => {
         next(error);
     }
 };
+
 
 
 
