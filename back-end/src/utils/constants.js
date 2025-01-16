@@ -1,6 +1,6 @@
 import { env } from '~/config/environment'
 export const WHITELIST_DOMAINS = [
-    'https://dv-smartphone-website.onrender.com'
+    'http://localhost:5173'
 
     //.. Ví dụ sau này deploy lên domain chính thức ...vv
 ]
