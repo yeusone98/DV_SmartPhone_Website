@@ -37,9 +37,35 @@ const createCart = async (data) => {
 
 // Hàm tìm giỏ hàng của người dùng theo customer_id
 const findCartByUserId = async (userId) => {
-    const db = GET_DB()
-    return await db.collection(CART_COLLECTION_NAME).findOne({ customer_id: userId })
-}
+    const db = GET_DB();
+    const cart = await db.collection(CART_COLLECTION_NAME).findOne({ customer_id: userId });
+
+    if (!cart) return null;
+
+    // Lấy thông tin chi tiết sản phẩm từ collection `products`
+    const productIds = cart.products.map((item) => new ObjectId(item.product_id)); // Chuyển các `product_id` thành ObjectId
+    const productsDetails = await db
+        .collection('products')
+        .find({ _id: { $in: productIds } })
+        .toArray();
+
+    // Kết hợp `name` từ `products` vào `cart.products`
+    const productsWithName = cart.products.map((cartItem) => {
+        const productDetail = productsDetails.find(
+            (product) => product._id.toString() === cartItem.product_id
+        );
+        return {
+            ...cartItem,
+            name: productDetail?.name || 'Unknown Product', // Nếu không tìm thấy, đặt tên mặc định
+        };
+    });
+
+    return {
+        ...cart,
+        products: productsWithName, // Cập nhật danh sách sản phẩm với tên
+    };
+};
+
 
 
 // Hàm thêm sản phẩm vào giỏ hàng
