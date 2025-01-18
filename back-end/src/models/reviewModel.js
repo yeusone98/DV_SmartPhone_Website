@@ -7,13 +7,21 @@ const REVIEW_COLLECTION_NAME = 'reviews'
 
 // **Schema Validation** cho Review
 const REVIEW_SCHEMA = Joi.object({
-    product_id: Joi.string().required(), // ID của sản phẩm (string dạng ObjectId)
-    customer_id: Joi.string().required(), // ID của người dùng (string dạng ObjectId)
+    product_id: Joi.string().required(),
+    customer_id: Joi.string().required(),
     username: Joi.string().required(),
-    rating: Joi.number().min(1).max(5).required(), // Số sao (1-5)
-    comment: Joi.string().required(), // Nội dung bình luận
-    createdAt: Joi.date().timestamp().default(Date.now) // Ngày tạo
-})
+    rating: Joi.number().min(1).max(5).required(),
+    comment: Joi.string().required(),
+    replies: Joi.array().items(
+        Joi.object({
+            admin_id: Joi.string().required(), // ID của admin phản hồi
+            admin_name: Joi.string().required(), // Tên admin
+            reply: Joi.string().required(), // Nội dung phản hồi
+            createdAt: Joi.date().timestamp().default(Date.now)
+        })
+    ).default([]), // Mặc định là mảng rỗng
+    createdAt: Joi.date().timestamp().default(Date.now)
+});
 
 // **Validate dữ liệu trước khi lưu**
 const validateBeforeCreate = async (data) => {
@@ -46,8 +54,22 @@ const deleteReviewById = async (reviewId) => {
     return result.deletedCount > 0 // Trả về true nếu xóa thành công
 }
 
+
+const addReplyToReview = async (reviewId, reply) => {
+    const result = await GET_DB()
+        .collection(REVIEW_COLLECTION_NAME)
+        .updateOne(
+            { _id: new ObjectId(reviewId) },
+            { $push: { replies: reply } } // Thêm phản hồi vào mảng `replies`
+        );
+    return result.modifiedCount > 0;
+};
+
+
+
 export const reviewModel = {
     createReview,
     getReviewsByProduct,
-    deleteReviewById
+    deleteReviewById,
+    addReplyToReview
 }

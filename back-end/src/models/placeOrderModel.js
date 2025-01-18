@@ -1,16 +1,16 @@
-import Joi from 'joi'
-import { GET_DB } from '~/config/mongodb'
+import Joi from 'joi';
+import { GET_DB } from '~/config/mongodb';
 
-const ORDER_COLLECTION_NAME = 'orders'
+const ORDER_COLLECTION_NAME = 'orders';
 
 const ORDER_SCHEMA = Joi.object({
     customer_id: Joi.string().required(),
-    category_id: Joi.string().required(),
     products: Joi.array().items(
         Joi.object({
             product_id: Joi.string().required(),
             quantity: Joi.number().integer().required(),
-            price: Joi.string().required()
+            price: Joi.string().required(),
+            name: Joi.string().required() // Thêm trường name
         })
     ).required(),
     total_price: Joi.string().required(),
@@ -27,16 +27,17 @@ const ORDER_SCHEMA = Joi.object({
     phone_number: Joi.string().required(),
     createdAt: Joi.date().timestamp().default(Date.now),
     updatedAt: Joi.date().timestamp().default(null)
-})
+});
+
 
 const validateBeforeCreate = async (data) => {
-    return await ORDER_SCHEMA.validateAsync(data, { abortEarly: false })
-}
+    return await ORDER_SCHEMA.validateAsync(data, { abortEarly: false });
+};
 
 const createOrder = async (data) => {
     const validData = await validateBeforeCreate(data);
     const result = await GET_DB().collection(ORDER_COLLECTION_NAME).insertOne(validData);
-    
+
     // Trả về dữ liệu đơn hàng đã chèn, sử dụng insertedId
     return {
         ...validData,
@@ -46,4 +47,4 @@ const createOrder = async (data) => {
 
 export const placeOrderModel = {
     createOrder
-}
+};
