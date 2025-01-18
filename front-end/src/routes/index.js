@@ -7,6 +7,7 @@ import SignInPage from "../pages/SignInPage/SignInPage";
 import SignUpPage from "../pages/SignUpPage/SignUpPage";
 import ProductDetailPage from "../pages/ProductDetailPage/ProductDetailPage";
 import CartPage from "../pages/CartPage/CartPage";
+import TestPage from "../pages/TestPage/TestPage";
 
 
 const routes = [
@@ -61,6 +62,12 @@ const routes = [
     {
         path: '/search',
         page: CartPage,
+        isShowHeader: true,
+
+    },
+    {
+        path: '/test',
+        page: TestPage,
         isShowHeader: true,
 
     },

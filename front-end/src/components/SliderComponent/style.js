@@ -9,3 +9,9 @@ export const WrapperSlider = styled.div`
 export const WrapperImgSlide = styled(Image)`
   border-radius: 10px;
 `
+
+export const QuantityContainer = styled.div`
+  display: flex;
+  align-items: center;
+  margin: 16px 0;
+`;

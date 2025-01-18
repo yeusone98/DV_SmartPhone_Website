@@ -41,6 +41,8 @@ export const WrapperProducts = styled.div`
   gap: 20px;
   justify-content: center;
   flex-wrap: wrap;
+  border-radius: 5px;
+  border: 1px rgb(231, 231, 231) solid;
 `;
 export const WrapperBottonMore = styled(ButtonComponent)`
   border: 1px solid rgb(63, 113, 250);
@@ -65,3 +67,7 @@ export const WrapperTextTitleProduct = styled.div`
   margin-top:10px;
   margin-bottom: 10px;
 `;
+export const WrapperSlideProduct = styled.div`
+  border: 1px solid rgb(231, 231, 231) ;
+  border-radius: 5px;
+`

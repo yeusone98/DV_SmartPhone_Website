@@ -5,7 +5,7 @@ import slider3 from "../../assets/images/slide3.png";
 import CardComponent from "../../components/CardComponent/CardComponent";
 import SliderComponent from "../../components/SliderComponent/SliderComponent";
 import TypeProduct from "../../components/TypeProduct/TypeProduct";
-import { WrapperBottonMore, WrapperProductList, WrapperProductListCetegory, WrapperProducts, WrapperTextTitleProduct, WrapperTypeProduct } from "./style";
+import { WrapperBottonMore, WrapperProductList, WrapperProductListCetegory, WrapperProducts, WrapperSlideProduct, WrapperTextTitleProduct, WrapperTypeProduct } from "./style";
 import SliderComponentListProduct from "../../components/SliderComponentListProduct/SliderComponentListProduct";
 import { Link } from "react-router-dom";
 
@@ -33,16 +33,18 @@ const homePage = () => {
           <WrapperTextTitleProduct>
             <WrapperProductList>SẢN PHẨM DÀNH CHO BẠN <WrapperProductListCetegory>Phù hợp nhất</WrapperProductListCetegory></WrapperProductList>
           </WrapperTextTitleProduct>
-          <SliderComponentListProduct arrImages={[
-            <Link to={'/product-detail'} style={{textDecoration:'none'}}><CardComponent key={1} /> </Link>,
-            <Link to={'/product-detail'} style={{textDecoration:'none'}}><CardComponent key={2} /> </Link>,
-            <Link to={'/product-detail'} style={{textDecoration:'none'}}><CardComponent key={3} /> </Link>,
-            <Link to={'/product-detail'} style={{textDecoration:'none'}}><CardComponent key={4} /> </Link>,
-            <Link to={'/product-detail'} style={{textDecoration:'none'}}><CardComponent key={5} /> </Link>,
-            <Link to={'/product-detail'} style={{textDecoration:'none'}}><CardComponent key={6} /> </Link>,
-            <Link to={'/product-detail'} style={{textDecoration:'none'}}><CardComponent key={7} /> </Link>,
-            <Link to={'/product-detail'} style={{textDecoration:'none'}}><CardComponent key={8} /> </Link>,
-          ]}/>
+          <WrapperSlideProduct>
+            <SliderComponentListProduct arrImages={[
+              <Link to={'/product-detail'} style={{textDecoration:'none'}}><CardComponent key={1} /> </Link>,
+              <Link to={'/product-detail'} style={{textDecoration:'none'}}><CardComponent key={2} /> </Link>,
+              <Link to={'/product-detail'} style={{textDecoration:'none'}}><CardComponent key={3} /> </Link>,
+              <Link to={'/product-detail'} style={{textDecoration:'none'}}><CardComponent key={4} /> </Link>,
+              <Link to={'/product-detail'} style={{textDecoration:'none'}}><CardComponent key={5} /> </Link>,
+              <Link to={'/product-detail'} style={{textDecoration:'none'}}><CardComponent key={6} /> </Link>,
+              <Link to={'/product-detail'} style={{textDecoration:'none'}}><CardComponent key={7} /> </Link>,
+              <Link to={'/product-detail'} style={{textDecoration:'none'}}><CardComponent key={8} /> </Link>,
+            ]}/>
+          </WrapperSlideProduct>
 
           <WrapperTextTitleProduct>
             <WrapperProductList>DANH SÁCH SẢN PHẨM <WrapperProductListCetegory>Mới nhất</WrapperProductListCetegory></WrapperProductList>
