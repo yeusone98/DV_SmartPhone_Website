@@ -1,134 +1,257 @@
 import React, { useState } from 'react';
-import { DownOutlined } from '@ant-design/icons';
-import { Dropdown, Space } from 'antd';
 import styled from 'styled-components';
+import { Layout, Menu, Card, Table, Typography, Input, Badge, Avatar, Space, Statistic } from 'antd';
+import {
+  DashboardOutlined,
+  ShoppingCartOutlined,
+  UserOutlined,
+  InboxOutlined,
+  BellOutlined,
+  SettingOutlined,
+  SearchOutlined,
+  ArrowUpOutlined
+} from '@ant-design/icons';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import OrderManagement from '../OrderMangagerComponent/OrderManagerComponent';
 
-const VariantContainer = styled.div`
-  width: 100%;
-  max-width: 500px;
-  padding: 16px;
+const { Header, Sider, Content } = Layout;
+const { Title } = Typography;
+
+// Styled Components
+const StyledLayout = styled(Layout)`
+  min-height: 100vh;
 `;
 
-const DropdownTrigger = styled.div`
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #d9d9d9;
-  border-radius: 6px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
+const StyledSider = styled(Sider)`
+  .ant-layout-sider-children {
+    position: fixed;
+    width: 200px;
+    height: 100vh;
+  }
+  
+  .logo {
+    height: 32px;
+    margin: 16px;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+`;
+
+const StyledHeader = styled(Header)`
   background: white;
-
-  &:hover {
-    border-color: #4096ff;
-  }
-`;
-
-const VariantItem = styled.div`
+  padding: 0 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #f5f5f5;
-  }
-
-  ${props => props.selected && `
-    background-color: #e6f4ff;
-  `}
+  position: fixed;
+  width: calc(100% - 200px);
+  z-index: 1;
 `;
 
-const ColorPreview = styled.div`
-  width: 32px;
-  height: 48px;
-  border-radius: 4px;
-  border: 1px solid ${props => props.color === '#FFFFFF' ? '#E5E7EB' : props.color};
-  background-color: ${props => props.color};
+const StyledContent = styled(Content)`
+  margin: 88px 24px 24px;
+  overflow: initial;
 `;
 
-const SizePreview = styled.div`
-  width: 32px;
-  height: 48px;
-  margin-left: 4px;
-  background-color: #f5f5f5;
-  border-radius: 4px;
+const StatsContainer = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  margin-bottom: 24px;
 `;
 
-const PreviewContainer = styled.div`
-  display: flex;
-  align-items: center;
+const ChartCard = styled(Card)`
+  margin-bottom: 24px;
 `;
 
-const VariantInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-`;
+// Sample Data
+const salesData = [
+  { name: 'Jan', sales: 4000 },
+  { name: 'Feb', sales: 3000 },
+  { name: 'Mar', sales: 5000 },
+  { name: 'Apr', sales: 2780 },
+  { name: 'May', sales: 1890 },
+  { name: 'Jun', sales: 2390 },
+];
 
-const PriceContainer = styled.div`
-  text-align: right;
-`;
+const orderColumns = [
+  {
+    title: 'Order ID',
+    dataIndex: 'id',
+    key: 'id',
+  },
+  {
+    title: 'Customer',
+    dataIndex: 'customer',
+    key: 'customer',
+  },
+  {
+    title: 'Product',
+    dataIndex: 'product',
+    key: 'product',
+  },
+  {
+    title: 'Amount',
+    dataIndex: 'amount',
+    key: 'amount',
+  },
+  {
+    title: 'Status',
+    dataIndex: 'status',
+    key: 'status',
+    render: (status) => (
+      <Badge 
+        status={status === 'Completed' ? 'success' : 'processing'} 
+        text={status} 
+      />
+    ),
+  },
+];
 
-const CurrentPrice = styled.div`
-  color: #ff4d4f;
-  font-weight: 500;
-`;
-
-const OriginalPrice = styled.div`
-  color: #bfbfbf;
-  text-decoration: line-through;
-  font-size: 12px;
-`;
+const orderData = [
+  {
+    key: '1',
+    id: '#12345',
+    customer: 'John Doe',
+    product: 'iPhone 13 Pro',
+    amount: '$999',
+    status: 'Completed',
+  },
+  {
+    key: '2',
+    id: '#12346',
+    customer: 'Jane Smith',
+    product: 'Samsung S21',
+    amount: '$899',
+    status: 'Pending',
+  },
+];
 
 const TestComponent = () => {
-  const [selectedVariant, setSelectedVariant] = useState('128GB | Đỏ');
-
-  const variants = [
-    { id: 1, name: '128GB | Đỏ', price: 19490000, originalPrice: 21000000, color: '#FF0000' },
-    { id: 2, name: '128GB | Xanh lá', price: 19490000, originalPrice: 23000000, color: '#90EE90' },
-    { id: 3, name: '128GB | Tím', price: 19490000, originalPrice: 25000000, color: '#800080' },
-    { id: 4, name: '128GB | Đen', price: 19490000, originalPrice: 23000000, color: '#000000' },
-    { id: 5, name: '128GB | Trắng', price: 19490000, originalPrice: 24000000, color: '#FFFFFF' },
-    { id: 6, name: '128GB | Vàng', price: 19490000, originalPrice: 24000000, color: '#FFD700' },
-  ];
-
-  const items = variants.map(variant => ({
-    key: variant.id,
-    label: (
-      <VariantItem selected={selectedVariant === variant.name}>
-        <VariantInfo>
-          <PreviewContainer>
-            <ColorPreview color={variant.color} />
-            <SizePreview />
-          </PreviewContainer>
-          <span>{variant.name}</span>
-        </VariantInfo>
-        <PriceContainer>
-          <CurrentPrice>{variant.price.toLocaleString()}đ</CurrentPrice>
-          <OriginalPrice>{variant.originalPrice.toLocaleString()}đ</OriginalPrice>
-        </PriceContainer>
-      </VariantItem>
-    ),
-    onClick: () => setSelectedVariant(variant.name),
-  }));
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <VariantContainer>
-      <Dropdown
-        menu={{ items }}
-        trigger={['click']}
-        placement="bottomLeft"
-        overlayStyle={{ width: '100%' }}
+
+    <StyledLayout>
+      <StyledSider 
+        trigger={null} 
+        collapsible 
+        collapsed={collapsed}
       >
-        <DropdownTrigger>
-          <span>{selectedVariant}</span>
-          <DownOutlined />
-        </DropdownTrigger>
-      </Dropdown>
-    </VariantContainer>
+        <div className="logo">Phone Store</div>
+        <Menu
+          theme="dark"
+          mode="inline"
+          defaultSelectedKeys={['1']}
+          items={[
+            {
+              key: '1',
+              icon: <DashboardOutlined />,
+              label: 'Dashboard',
+            },
+            {
+              key: '2',
+              icon: <InboxOutlined />,
+              label: 'Products',
+            },
+            {
+              key: '3',
+              icon: <ShoppingCartOutlined />,
+              label: 'Orders',
+            },
+            {
+              key: '4',
+              icon: <UserOutlined />,
+              label: 'Customers',
+            },
+          ]}
+        />
+      </StyledSider>
+      
+      <Layout>
+        <StyledHeader>
+          <Input
+            prefix={<SearchOutlined />}
+            placeholder="Search..."
+            style={{ width: 200 }}
+          />
+          <Space size="large">
+            <Badge count={5}>
+              <BellOutlined style={{ fontSize: 20 }} />
+            </Badge>
+            <SettingOutlined style={{ fontSize: 20 }} />
+            <Avatar icon={<UserOutlined />} />
+          </Space>
+        </StyledHeader>
+        
+        <StyledContent>
+          <StatsContainer>
+            <Card>
+              <Statistic
+                title="Total Revenue"
+                value={45231}
+                precision={2}
+                prefix="$"
+                suffix={<small style={{ color: '#3f8600' }}>+20.1%</small>}
+              />
+            </Card>
+            <Card>
+              <Statistic
+                title="Total Orders"
+                value={1205}
+                prefix={<ShoppingCartOutlined />}
+                suffix={<small style={{ color: '#3f8600' }}>+12.5%</small>}
+              />
+            </Card>
+            <Card>
+              <Statistic
+                title="Total Customers"
+                value={3456}
+                prefix={<UserOutlined />}
+                suffix={<small style={{ color: '#3f8600' }}>+8.2%</small>}
+              />
+            </Card>
+            <Card>
+              <Statistic
+                title="Total Products"
+                value={85}
+                prefix={<InboxOutlined />}
+                suffix={<small style={{ color: '#3f8600' }}>+5.4%</small>}
+              />
+            </Card>
+          </StatsContainer>
+
+          <ChartCard title="Sales Overview">
+            <ResponsiveContainer width="100%" height={400}>
+              <LineChart data={salesData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Line 
+                  type="monotone" 
+                  dataKey="sales" 
+                  stroke="#1890ff" 
+                  strokeWidth={2}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </ChartCard>
+
+          <Card title="Recent Orders">
+            <Table 
+              columns={orderColumns} 
+              dataSource={orderData} 
+              pagination={{ pageSize: 5 }}
+            />
+          </Card>
+        </StyledContent>
+      </Layout>
+    </StyledLayout>
   );
 };
 

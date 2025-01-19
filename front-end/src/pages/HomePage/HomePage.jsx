@@ -5,7 +5,7 @@ import slider3 from "../../assets/images/slide3.png";
 import CardComponent from "../../components/CardComponent/CardComponent";
 import SliderComponent from "../../components/SliderComponent/SliderComponent";
 import TypeProduct from "../../components/TypeProduct/TypeProduct";
-import { WrapperBottonMore, WrapperProductList, WrapperProductListCetegory, WrapperProducts, WrapperSlideProduct, WrapperTextTitleProduct, WrapperTypeProduct } from "./style";
+import { SpaceFooter, WrapperBottonMore, WrapperProductList, WrapperProductListCetegory, WrapperProducts, WrapperSlideProduct, WrapperTextTitleProduct, WrapperTypeProduct } from "./style";
 import SliderComponentListProduct from "../../components/SliderComponentListProduct/SliderComponentListProduct";
 import { Link } from "react-router-dom";
 
@@ -65,8 +65,9 @@ const homePage = () => {
             </WrapperProducts>
           <div style={{display:'flex',justifyContent:'center',marginTop:'10px' }}>
           <WrapperBottonMore textButton={'Xem thêm'} type='outline' styleButton={{border:'1px solid rgb(0, 69, 255)',color:'rgb(0, 69, 255)', width:'240px',height:'38px'}}/>
-
           </div>
+          <SpaceFooter/>
+
         </div>
         
     </>
@@ -74,11 +75,3 @@ const homePage = () => {
 };
 
 export default homePage;
-<div>
-  <div
-    id="slide-container"
-    style={{ backgroundColor: "#efefef", padding: "0 120px" }}
-  >
-    <SliderComponent arrImages={[slider1, slider2, slider3]} />
-  </div>
-</div>;

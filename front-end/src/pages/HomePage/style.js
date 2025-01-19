@@ -47,15 +47,14 @@ export const WrapperProducts = styled.div`
 export const WrapperBottonMore = styled(ButtonComponent)`
   border: 1px solid rgb(63, 113, 250);
   color: rgb(0, 69, 255);
-  width: 240px;
+  width: 440px;
   height: 38px;
   font-weight: 500;
 
   &:hover {
-    background: rgb(86, 131, 255);
-    color: #fff;
+    background: rgb(209, 219, 223);
     span {
-      color: #fff;
+      color: rgb(0, 69, 255);
     }
   }
 `;
@@ -70,4 +69,8 @@ export const WrapperTextTitleProduct = styled.div`
 export const WrapperSlideProduct = styled.div`
   border: 1px solid rgb(231, 231, 231) ;
   border-radius: 5px;
+`
+export const SpaceFooter = styled.div`
+  height: 20px;
+
 `

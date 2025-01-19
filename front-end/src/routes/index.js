@@ -8,6 +8,7 @@ import SignUpPage from "../pages/SignUpPage/SignUpPage";
 import ProductDetailPage from "../pages/ProductDetailPage/ProductDetailPage";
 import CartPage from "../pages/CartPage/CartPage";
 import TestPage from "../pages/TestPage/TestPage";
+import AdminDashboard from "../components/AdminDashBoard/AdmindashBoard";
 
 
 const routes = [
@@ -64,11 +65,18 @@ const routes = [
         page: CartPage,
         isShowHeader: true,
 
+    }
+    ,
+    {
+        path: '/dashboard',
+        page: AdminDashboard,
+        isShowHeader: false,
+
     },
     {
         path: '/test',
         page: TestPage,
-        isShowHeader: true,
+        isShowHeader: false,
 
     },
     {

@@ -1,13 +1,17 @@
 import React from 'react'
 import HeaderComponent from '../HeaderComponent/HeaderComponent'
 import FooterComponent from '../FooterComponent/FooterComponent'
+import { WrapperDefault, WrapperDefaultMain } from './style'
 
 const DefaultComponent = ({children}) => {
   return (
-    <div>
+    <WrapperDefault>
+      <WrapperDefaultMain>
       <HeaderComponent/>
         {children}
-    </div>
+      <FooterComponent/>
+      </WrapperDefaultMain>
+    </WrapperDefault>
   )
 }
 
