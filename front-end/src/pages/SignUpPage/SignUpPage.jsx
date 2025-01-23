@@ -1,78 +1,84 @@
-import { Button, Divider, Form, Input, Select } from 'antd';
-import React from 'react'
-import { FormContainer, Logo, SocialButtons, StyledButton, WrapperSocialButtons, WrapperTextSignUp, WrapperTextSignUpSmall } from './style';
-import { Option } from 'antd/es/mentions';
-import logo from  '../../assets/images/logo-bluef.png'
-import googlelogo from '../../assets/images/google.png'
-import facebooklogo from '../../assets/images/facebook.png'
-
+import React, { useState } from 'react';
+import { Form, Input, Divider, message } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import {
+  FormContainer,
+  Logo,
+  SocialButtons,
+  StyledButton,
+  WrapperSocialButtons,
+  WrapperTextSignUp,
+  WrapperTextSignUpSmall,
+} from './style';
+import logo from '../../assets/images/logo-bluef.png';
+import googlelogo from '../../assets/images/google.png';
+import facebooklogo from '../../assets/images/facebook.png';
+import { registerUserAPI } from '../../apis';
 
 const SignUpPage = () => {
-  const onFinish = (values) => {
-    console.log('Received values: ', values);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  // Hàm xử lý đăng ký
+  const handleRegister = async (values) => {
+    const { email, password } = values;
+    setLoading(true);
+
+    try {
+      // Gửi yêu cầu đăng ký đến API
+      const user = await registerUserAPI({ email, password });
+      message.success('Đăng ký thành công!');
+      navigate(`/login?registeredEmail=${user.email}`); // Điều hướng đến trang đăng nhập
+    } catch (error) {
+      // Hiển thị lỗi nếu có
+      message.error(error.response?.data?.message || 'Đăng ký thất bại. Vui lòng thử lại!');
+    } finally {
+      setLoading(false);
+    }
   };
+
   return (
     <FormContainer>
+      {/* Logo */}
       <Logo>
-        <img style={{height:'40px', width:'160px'}} src={logo} alt="Logo" />
+        <img style={{ height: '40px', width: '160px' }} src={logo} alt="Logo" />
       </Logo>
+
+      {/* Tiêu đề */}
       <WrapperTextSignUp>Đăng ký tài khoản</WrapperTextSignUp>
+
+      {/* Form đăng ký */}
       <Form
         name="register"
-        onFinish={onFinish}
+        onFinish={handleRegister}
         layout="vertical"
         requiredMark={false}
       >
-        <Form.Item
-          label="Nhập họ và tên"
-          name="fullname"
-          rules={[{ required: true, message: 'Vui lòng nhập họ và tên!' }]}
-        >
-          <Input placeholder="Nhập họ và tên" />
-        </Form.Item>
-
-        <Form.Item
-          label="Nhập số điện thoại"
-          name="phone"
-          rules={[
-            { required: true, message: 'Vui lòng nhập số điện thoại!' },
-            { pattern: /^[0-9]{10,11}$/, message: 'Số điện thoại không hợp lệ!' }
-          ]}
-        >
-          <Input placeholder="Nhập số điện thoại" />
-        </Form.Item>
-
+        {/* Nhập email */}
         <Form.Item
           label="Nhập email"
           name="email"
-          rules={[{ type: 'email', message: 'Email không hợp lệ!' }]}
+          rules={[
+            { required: true, message: 'Vui lòng nhập email!' },
+            { type: 'email', message: 'Email không hợp lệ!' },
+          ]}
         >
-          <Input placeholder="Nhập email (không bắt buộc)" />
+          <Input placeholder="Nhập email" />
         </Form.Item>
 
-        <Form.Item
-          label="Tỉnh/ thành phố"
-          name="city"
-          rules={[{ required: true, message: 'Vui lòng chọn tỉnh/thành phố!' }]}
-        >
-          <Select placeholder="Chọn tỉnh/thành phố">
-            <Option value="hanoi">Hà Nội</Option>
-            <Option value="hcm">TP. Hồ Chí Minh</Option>
-            <Option value="danang">Đà Nẵng</Option>
-          </Select>
-        </Form.Item>
-
+        {/* Nhập mật khẩu */}
         <Form.Item
           label="Nhập mật khẩu"
           name="password"
           rules={[
             { required: true, message: 'Vui lòng nhập mật khẩu!' },
-            { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự!' }
+            { min: 6, message: 'Mật khẩu phải có ít nhất 6 ký tự!' },
           ]}
         >
           <Input.Password placeholder="Nhập mật khẩu" />
         </Form.Item>
 
+        {/* Xác nhận mật khẩu */}
         <Form.Item
           label="Nhập lại mật khẩu"
           name="confirmPassword"
@@ -92,27 +98,35 @@ const SignUpPage = () => {
           <Input.Password placeholder="Nhập lại mật khẩu" />
         </Form.Item>
 
-        <StyledButton type="primary" htmlType="submit">
+        {/* Nút đăng ký */}
+        <StyledButton type="primary" htmlType="submit" loading={loading}>
           Đăng ký
         </StyledButton>
       </Form>
 
+      {/* Phân cách */}
       <Divider>
         <span>Hoặc</span>
       </Divider>
 
+      {/* Đăng ký bằng Google/Facebook */}
       <WrapperSocialButtons>
-        <SocialButtons  textButton={'Google'} icon={<img style={{height:'35px', width:'37px'}} src={googlelogo} alt="Google" />} />
-         
-        <SocialButtons  textButton={'Facebook'} icon={<img style={{height:'35px', width:'37px'}} src={facebooklogo} alt="facebook" />} />
-          
+        <SocialButtons
+          textButton={'Google'}
+          icon={<img style={{ height: '35px', width: '37px' }} src={googlelogo} alt="Google" />}
+        />
+        <SocialButtons
+          textButton={'Facebook'}
+          icon={<img style={{ height: '35px', width: '37px' }} src={facebooklogo} alt="Facebook" />}
+        />
       </WrapperSocialButtons>
 
+      {/* Liên kết đến đăng nhập */}
       <WrapperTextSignUpSmall>
-        Bạn đã có tài khoản? <a href="/login" >Đăng nhập ngay</a>
+        Bạn đã có tài khoản? <a href="/login">Đăng nhập ngay</a>
       </WrapperTextSignUpSmall>
     </FormContainer>
-  )
-}
+  );
+};
 
-export default SignUpPage
+export default SignUpPage;

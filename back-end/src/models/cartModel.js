@@ -21,12 +21,12 @@ const CART_SCHEMA = Joi.object({
 })
 
 // Hàm validate dữ liệu trước khi tạo giỏ hàng
-const validateBeforeCreate = async (data) => {
+const validateBeforeCreate = async(data) => {
     return await CART_SCHEMA.validateAsync(data, { abortEarly: false })
 }
 
 // Hàm tạo giỏ hàng mới
-const createCart = async (data) => {
+const createCart = async(data) => {
     const validData = await validateBeforeCreate({
         ...data,
         customer_id: data.customer_id.toString() // Lưu customer_id dưới dạng string
@@ -36,7 +36,7 @@ const createCart = async (data) => {
 }
 
 // Hàm tìm giỏ hàng của người dùng theo customer_id
-const findCartByUserId = async (userId) => {
+const findCartByUserId = async(userId) => {
     const db = GET_DB();
     const cart = await db.collection(CART_COLLECTION_NAME).findOne({ customer_id: userId });
 
@@ -69,7 +69,7 @@ const findCartByUserId = async (userId) => {
 
 
 // Hàm thêm sản phẩm vào giỏ hàng
-const addProductToCart = async (userId, productId, quantity, price) => {
+const addProductToCart = async(userId, productId, quantity, price) => {
     const db = GET_DB()
 
     const cart = await db.collection(CART_COLLECTION_NAME).findOne({ customer_id: userId })
@@ -112,7 +112,7 @@ const addProductToCart = async (userId, productId, quantity, price) => {
 
 
 // Hàm cập nhật số lượng sản phẩm trong giỏ hàng
-const updateProductQuantity = async (userId, productId, quantity) => {
+const updateProductQuantity = async(userId, productId, quantity) => {
     const db = GET_DB()
 
     const cart = await db.collection(CART_COLLECTION_NAME).findOne({ customer_id: userId })
@@ -141,7 +141,7 @@ const updateProductQuantity = async (userId, productId, quantity) => {
 
 
 // Hàm xóa sản phẩm khỏi giỏ hàng
-const removeProductFromCart = async (userId, productId) => {
+const removeProductFromCart = async(userId, productId) => {
     const db = GET_DB()
 
     // Tìm giỏ hàng theo customer_id (loại bỏ new ObjectId nếu customer_id là string)
@@ -166,7 +166,7 @@ const removeProductFromCart = async (userId, productId) => {
     return cart
 }
 
-const removeCart = async (userId) => {
+const removeCart = async(userId) => {
     const db = GET_DB()
     await db.collection(CART_COLLECTION_NAME).deleteOne({ customer_id: userId })
 }

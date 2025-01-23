@@ -9,7 +9,9 @@ import ProductDetailPage from "../pages/ProductDetailPage/ProductDetailPage";
 import CartPage from "../pages/CartPage/CartPage";
 import TestPage from "../pages/TestPage/TestPage";
 import AdminDashboard from "../components/AdminDashBoard/AdmindashBoard";
-
+import AccountVerification from "../pages/AccountVerification/AccountVerification";
+import ForgotPassword from "../pages/AccountVerification/ForgotPassword";
+import ResetPassword from "../pages/AccountVerification/ResetPassword";
 
 const routes = [
     {
@@ -79,13 +81,32 @@ const routes = [
         isShowHeader: false,
 
     },
+
+    {
+        path: '/account/verification',
+        page: AccountVerification,
+        isShowHeader: false,
+    },
+
+    {
+        path: '/forgot-password',
+        page: ForgotPassword,
+        isShowHeader: false,
+    },
+
+    {
+        path: '/reset-password',
+        page: ResetPassword,
+        isShowHeader: false,
+    },
+
     {
         path: '*',
         page: NotFoundPage,
         isShowHeader: true,
     },
-    
-   
+
+
 ]
 
 export default routes

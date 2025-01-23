@@ -1628,7 +1628,7 @@ cors@^2.8.5:
 
 cross-env@^7.0.3:
   version "7.0.3"
-  resolved "https://registry.npmjs.org/cross-env/-/cross-env-7.0.3.tgz"
+  resolved "https://registry.yarnpkg.com/cross-env/-/cross-env-7.0.3.tgz#865264b29677dc015ba8418918965dd232fc54cf"
   integrity sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==
   dependencies:
     cross-spawn "^7.0.1"
@@ -2940,6 +2940,7 @@ node-releases@^2.0.18:
     "@getbrevo/brevo" "^2.0.0-beta.4"
     async-exit-hook "^2.0.1"
     bcryptjs "2.4.3"
+    cloudinary "^2.5.1"
     cookie-parser "^1.4.7"
     cors "^2.8.5"
     cross-env "^7.0.3"
@@ -2952,7 +2953,8 @@ node-releases@^2.0.18:
     mongodb "^6.12.0"
     ms "^2.1.3"
     multer "^1.4.5-lts.1"
-    nodejs-expressjs-mongodb-base-project "file:C:/Users/tanvu/AppData/Local/Yarn/Cache/v6/npm-nodejs-expressjs-mongodb-base-project-1.0.0-7c2fff5f-37fc-4ce1-b63c-cc7c595aab54-1736532494578/node_modules/nodejs-expressjs-mongodb-base-project"
+    multer-storage-cloudinary "^4.0.0"
+    nodejs-expressjs-mongodb-base-project "file:C:/Users/admin/AppData/Local/Yarn/Cache/v6/npm-nodejs-expressjs-mongodb-base-project-1.0.0-dca81871-a557-41d3-aed0-992d464e0965-1737357770358/node_modules/nodejs-expressjs-mongodb-base-project"
     react-router-dom "^6.21.3"
     uuid "^9.0.1"
 
