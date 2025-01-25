@@ -2,11 +2,6 @@ import authorizedAxiosInstance from '../utils/authorizeAxios';
 import { API_ROOT } from '../utils/constants';
 import { message } from 'antd'; // Sử dụng message của Ant Design
 
-export const fectchBoardDeatailsAPI = async (boardId) => {
-    const respone = await authorizedAxiosInstance.get(`${API_ROOT}/v1/boards/${boardId}`);
-    return respone.data;
-};
-
 /** Users */
 export const registerUserAPI = async (data) => {
     try {

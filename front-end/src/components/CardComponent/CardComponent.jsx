@@ -1,8 +1,23 @@
 import React from "react";
 import { StyleNameProduct, WrapperCard, WrapperCardStyle, WrapperDiscoutHeader, WrapperPriceDiscountText, WrapperPriceText, WrapperReportText } from "./style";
 import { StarFilled } from "@ant-design/icons";
+import { useState } from "react";
+import { fetchProductsAPI } from "../../apis";
 
 const CardComponent = () => {
+
+  const [products, setProducts] = useState([])
+
+  // Lấy danh sách sản phẩm từ API
+    const fetchProducts = async () => {
+      try {
+        const data = await fetchProductsAPI()
+        setProducts(data)
+      } catch (error) {
+        console.error('Không thể lấy danh sách sản phẩm!')
+      }
+    }
+
   return (
     <WrapperCardStyle
       hoverable

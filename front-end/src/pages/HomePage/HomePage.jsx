@@ -9,7 +9,9 @@ import { SpaceFooter, WrapperBottonMore, WrapperProductList, WrapperProductListC
 import SliderComponentListProduct from "../../components/SliderComponentListProduct/SliderComponentListProduct";
 import { Link } from "react-router-dom";
 
-const homePage = () => {
+
+const HomePage = () => {
+
   const arr = [
     "Điện thoại",
     "Máy tính bảng",
@@ -18,6 +20,7 @@ const homePage = () => {
     "Âm thanh",
     "Phụ kiện",
   ];
+
 
   return (
     <>
@@ -69,9 +72,9 @@ const homePage = () => {
           <SpaceFooter/>
 
         </div>
-        
+
     </>
   );
 };
 
-export default homePage;
+export default HomePage;

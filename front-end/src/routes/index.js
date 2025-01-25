@@ -41,13 +41,13 @@ const routes = [
     {
         path: '/login',
         page: SignInPage,
-        isShowHeader: true,
+        isShowHeader: false,
 
     },
     {
         path: '/register',
         page: SignUpPage,
-        isShowHeader: true,
+        isShowHeader: false,
 
     },
     {
