@@ -17,10 +17,10 @@ const REVIEW_SCHEMA = Joi.object({
             admin_id: Joi.string().required(), // ID của admin phản hồi
             admin_name: Joi.string().required(), // Tên admin
             reply: Joi.string().required(), // Nội dung phản hồi
-            createdAt: Joi.date().timestamp().default(Date.now)
+            createdAt: Joi.date().timestamp('javascript').default(Date.now)
         })
     ).default([]), // Mặc định là mảng rỗng
-    createdAt: Joi.date().timestamp().default(Date.now)
+    createdAt: Joi.date().timestamp('javascript').default(Date.now)
 });
 
 // **Validate dữ liệu trước khi lưu**

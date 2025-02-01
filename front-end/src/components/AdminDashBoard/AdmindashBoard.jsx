@@ -1,6 +1,18 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { Layout, Menu, Card, Table, Typography, Input, Badge, Avatar, Space, Statistic } from 'antd';
+import {
+  Layout,
+  Menu,
+  Card,
+  Typography,
+  Input,
+  Badge,
+  Avatar,
+  Space,
+  Statistic,
+  Dropdown,
+  message,
+} from 'antd';
 import {
   DashboardOutlined,
   ShoppingCartOutlined,
@@ -12,6 +24,11 @@ import {
 } from '@ant-design/icons';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import OrderManagement from '../OrderMangagerComponent/OrderManagerComponent';
+import Cookies from 'js-cookie';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout, selectCurrentUser } from '../../features/user/userSlice';
+import { useNavigate } from 'react-router-dom';
+import ProductManagement from '../ProductManagerComponent/ProductManagerComponent';
 
 const { Header, Sider, Content } = Layout;
 
@@ -26,7 +43,7 @@ const StyledSider = styled(Sider)`
     width: 200px;
     height: 100vh;
   }
-  
+
   .logo {
     height: 32px;
     margin: 16px;
@@ -77,8 +94,33 @@ const salesData = [
 ];
 
 const AdminDashboard = () => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState('1');
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const currentUser = useSelector(selectCurrentUser); // Lấy user từ Redux
+
+  const handleLogout = () => {
+    // Xóa cookies chứa token
+    Cookies.remove('accessToken');
+    Cookies.remove('refreshToken');
+
+    // Xóa user trong Redux
+    dispatch(logout());
+
+    // Hiển thị thông báo và chuyển hướng về trang login
+    message.success('Đăng xuất thành công!');
+    navigate('/login');
+  };
+
+  const userMenu = (
+    <Menu>
+      <Menu.Item key="logout" onClick={handleLogout}>
+        Đăng xuất
+      </Menu.Item>
+    </Menu>
+  );
 
   const renderContent = () => {
     switch (selectedMenu) {
@@ -134,6 +176,8 @@ const AdminDashboard = () => {
             </ChartCard>
           </>
         );
+      case '2':
+        return <ProductManagement />;
       case '3':
         return <OrderManagement />;
       default:
@@ -159,7 +203,7 @@ const AdminDashboard = () => {
           ]}
         />
       </StyledSider>
-      
+
       <Layout>
         <StyledHeader>
           <Input prefix={<SearchOutlined />} placeholder="Search..." style={{ width: 200 }} />
@@ -168,13 +212,17 @@ const AdminDashboard = () => {
               <BellOutlined style={{ fontSize: 20 }} />
             </Badge>
             <SettingOutlined style={{ fontSize: 20 }} />
-            <Avatar icon={<UserOutlined />} />
+
+            <Dropdown overlay={userMenu} trigger={['click']}>
+              <div style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                <Avatar icon={<UserOutlined />} style={{ marginRight: '8px' }} />
+                <Typography.Text>{currentUser?.displayName || 'User'}</Typography.Text>
+              </div>
+            </Dropdown>
           </Space>
         </StyledHeader>
-        
-        <StyledContent>
-          {renderContent()}
-        </StyledContent>
+
+        <StyledContent>{renderContent()}</StyledContent>
       </Layout>
     </StyledLayout>
   );

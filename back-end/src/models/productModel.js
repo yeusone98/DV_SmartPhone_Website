@@ -6,17 +6,21 @@ const PRODUCT_COLLECTION_NAME = 'products'
 
 const PRODUCT_SCHEMA = Joi.object({
     name: Joi.string().required(),
-    image_url: Joi.string().default(null),
-    category_id: Joi.string().required(), // Category ID phải là ObjectId dạng string
+    image_urls: Joi.array().items(Joi.string()).default([]), // Mảng chứa nhiều URL ảnh
+    category_id: Joi.string().required(),
     price: Joi.string().required(),
+    price_discount: Joi.string().allow(null).default(null), 
     stock: Joi.string().required(),
     status: Joi.string().valid('available', 'unavailable').required(),
-    seller_id: Joi.string().required(), // Seller ID là user ID
-    description_detail: Joi.string().required(),
-    createdAt: Joi.date().timestamp().default(Date.now),
-    updatedAt: Joi.date().timestamp().default(null),
+    seller_id: Joi.string().required(),
+    description_detail: Joi.string().required(), // Rich text lưu dưới dạng HTML hoặc JSON
+    youtube_link: Joi.string().uri().allow(null).default(null), // Thêm link YouTube (nếu có)
+    createdAt: Joi.date().timestamp('javascript').default(Date.now),
+    updatedAt: Joi.date().timestamp('javascript').default(null),
     _destroy: Joi.boolean().default(false)
-})
+});
+
+
 
 const validateBeforeCreate = async (data) => {
     return await PRODUCT_SCHEMA.validateAsync(data, { abortEarly: false })

@@ -25,8 +25,8 @@ const ORDER_SCHEMA = Joi.object({
     address_detail: Joi.string().required(),
     full_name: Joi.string().required(),
     phone_number: Joi.string().required(),
-    createdAt: Joi.date().timestamp().default(Date.now),
-    updatedAt: Joi.date().timestamp().default(null)
+    createdAt: Joi.date().timestamp('javascript').default(Date.now),
+    updatedAt: Joi.date().timestamp('javascript').default(null)
 });
 
 

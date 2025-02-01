@@ -1,24 +1,24 @@
 import { productModel } from '~/models/productModel'
 import { StatusCodes } from 'http-status-codes'
 import { ObjectId } from 'mongodb'
+
 const createProduct = async (req, res, next) => {
     try {
-        const { file } = req
-        console.log('File uploaded:', file) // Log file để kiểm tra
-        const data = { ...req.body, seller_id: req.jwtDecoded._id }
+        const { files } = req;
+        const data = { ...req.body, seller_id: req.jwtDecoded._id };
 
-        if (file) {
-            data.image_url = file.path // URL của ảnh từ Cloudinary
+        if (files && files.length > 0) {
+            data.image_urls = files.map((file) => file.path); // Lưu danh sách URL ảnh
         }
 
-        console.log('Product data:', data) // Log dữ liệu sản phẩm
-        const result = await productModel.createProduct(data)
-        res.status(StatusCodes.CREATED).json(result)
+        console.log('Product data:', data); // Log dữ liệu sản phẩm
+        const result = await productModel.createProduct(data);
+        res.status(StatusCodes.CREATED).json(result);
     } catch (error) {
-        console.error('Error in createProduct:', error.message) // Log lỗi
-        next(error)
+        console.error('Error in createProduct:', error.message);
+        next(error);
     }
-}
+};
 
 
 const getProducts = async (req, res, next) => {
@@ -52,31 +52,26 @@ const getProductById = async (req, res, next) => {
 
 const updateProduct = async (req, res, next) => {
     try {
-        const { id } = req.params
-        console.log('Product ID received from params:', id) // Log ID từ params
+        const { id } = req.params;
+        const data = req.body;
 
-        const data = req.body
+        // Lấy danh sách ảnh cũ từ `existingImages`
+        const existingImages = JSON.parse(data.existingImages || '[]');
 
-        if (!id) {
-            return res.status(400).json({ message: 'Product ID is missing in the request URL' })
-        }
+        // Xử lý danh sách ảnh mới (nếu có)
+        const newImages = req.files.map((file) => file.path);
 
-        // Nếu có file, thêm URL hình ảnh vào dữ liệu
-        if (req.file) {
-            data.image_url = req.file.path
-        }
+        // Kết hợp ảnh cũ và ảnh mới
+        data.image_urls = [...existingImages, ...newImages];
 
-        const objectId = new ObjectId(id) // Chuyển `id` sang ObjectId
-        console.log('Converted ObjectId:', objectId)
-
-        const updatedProduct = await productModel.updateProduct(objectId, data)
-
-        res.status(200).json(updatedProduct)
+        const updatedProduct = await productModel.updateProduct(new ObjectId(id), data);
+        res.status(200).json(updatedProduct);
     } catch (error) {
-        console.error('Error updating product:', error)
-        next(error)
+        console.error('Error updating product:', error.message);
+        next(error);
     }
-}
+};
+
 
 
 const deleteProduct = async (req, res, next) => {
