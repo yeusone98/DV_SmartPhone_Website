@@ -1,6 +1,7 @@
 import { env } from '~/config/environment'
 export const WHITELIST_DOMAINS = [
-    'https://dv-smart-phone-website-ex018ytzt-yeusone98s-projects.vercel.app'
+    'http://localhost:3000',
+    'https://dv-smart-phone-website.vercel.app'
 ]
 
 export const BOARD_TYPES = {

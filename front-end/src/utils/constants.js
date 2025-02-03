@@ -1,13 +1,14 @@
 let apiRoot = '';
 
-console.log('process.env:', process.env);
+console.log('🚀 NODE_ENV:', process.env.NODE_ENV);
+console.log('🚀 REACT_APP_BUILD_MODE:', process.env.REACT_APP_BUILD_MODE);
 
-if (process.env.REACT_APP_BUILD_MODE === 'dev') {
-    apiRoot = process.env.REACT_APP_API_DEV;
-} else if (process.env.REACT_APP_BUILD_MODE === 'production') {
-    apiRoot = process.env.REACT_APP_API_PRODUCTION;
+if (process.env.NODE_ENV === 'development') {
+    apiRoot = process.env.REACT_APP_API_DEV || 'http://localhost:8017';
+} else if (process.env.NODE_ENV === 'production') {
+    apiRoot = process.env.REACT_APP_API_URL || 'https://dv-smartphone-website.onrender.com';
 }
 
-console.log('🚀 ~ file: constants.js ~ apiRoot:', apiRoot);
+console.log('🚀 API Root:', apiRoot);
 
 export const API_ROOT = apiRoot;
