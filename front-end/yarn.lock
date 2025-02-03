@@ -4017,7 +4017,14 @@ cra-template@1.2.0:
   resolved "https://registry.yarnpkg.com/cra-template/-/cra-template-1.2.0.tgz#7bb339b1f762cc0901665dba8260333e13547e4e"
   integrity sha512-06WBUmTq79NvqU91Y9OPCXv/ENy/UkUmQS0lBrOYCl/4f4l67idnGbBARDGLopCHfff6pf6UftcFRWHg+CVfRw==
 
-cross-spawn@^7.0.0, cross-spawn@^7.0.2, cross-spawn@^7.0.3, cross-spawn@^7.0.5:
+cross-env@7.0.3:
+  version "7.0.3"
+  resolved "https://registry.yarnpkg.com/cross-env/-/cross-env-7.0.3.tgz#865264b29677dc015ba8418918965dd232fc54cf"
+  integrity sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==
+  dependencies:
+    cross-spawn "^7.0.1"
+
+cross-spawn@^7.0.0, cross-spawn@^7.0.1, cross-spawn@^7.0.2, cross-spawn@^7.0.3, cross-spawn@^7.0.5:
   version "7.0.6"
   resolved "https://registry.yarnpkg.com/cross-spawn/-/cross-spawn-7.0.6.tgz#8a58fe78f00dcd70c370451759dfbfaf03e8ee9f"
   integrity sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==
@@ -10963,6 +10970,7 @@ vary@~1.1.2:
     react "^19.0.0"
     react-dom "^19.0.0"
     react-quill "^2.0.0"
+    react-quill-new "^3.3.3"
     react-redux "^9.2.0"
     react-router-dom "^7.1.3"
     react-scripts "^5.0.1"
@@ -10975,7 +10983,7 @@ vary@~1.1.2:
     source-map-loader "^5.0.0"
     styled-components "^6.1.14"
     toast "^0.5.4"
-    vd-store "file:C:/Users/tanvu/AppData/Local/Yarn/Cache/v6/npm-vd-store-0.1.0-87d9250d-fabf-4895-ab13-221d34757c17-1738509806013/node_modules/vd-store"
+    vd-store "file:C:/Users/tanvu/AppData/Local/Yarn/Cache/v6/npm-vd-store-0.1.0-9cc64cd3-82f3-4b3e-a1b8-782e1dfac8fb-1738551177565/node_modules/vd-store"
 
 victory-vendor@^36.6.8:
   version "36.9.2"
