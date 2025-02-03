@@ -7,8 +7,12 @@ const createProduct = async (req, res, next) => {
         const { files } = req;
         const data = { ...req.body, seller_id: req.jwtDecoded._id };
 
+        if (data.existingImages) {
+            delete data.existingImages; // Xóa trước khi validate
+        }
+
         if (files && files.length > 0) {
-            data.image_urls = files.map((file) => file.path); // Lưu danh sách URL ảnh
+            data.image_urls = files.map((file) => file.path);
         }
 
         console.log('Product data:', data); // Log dữ liệu sản phẩm
@@ -19,6 +23,7 @@ const createProduct = async (req, res, next) => {
         next(error);
     }
 };
+
 
 
 const getProducts = async (req, res, next) => {

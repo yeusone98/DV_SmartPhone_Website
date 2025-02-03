@@ -18,10 +18,11 @@
     "react-scripts": "^5.0.1",
     "react-slick": "^0.30.3",
     "react-toastify": "^11.0.3",
-    "recharts": "^2.15.0",
+    "recharts": "^2.15.1",
     "redux-persist": "^6.0.0",
     "sass": "^1.83.1",
     "slick-carousel": "^1.8.1",
+    "source-map-loader": "^5.0.0",
     "styled-components": "^6.1.14",
     "toast": "^0.5.4",
     "vd-store": "file:"

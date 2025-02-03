@@ -327,7 +327,7 @@ const ProductManagement = () => {
             {/* View Product Drawer */}
             <Drawer
                 title="Product Details"
-                width={600}
+                width={2000}
                 visible={isDrawerVisible}
                 onClose={() => {
                     setIsDrawerVisible(false);

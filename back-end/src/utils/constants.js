@@ -1,7 +1,6 @@
 import { env } from '~/config/environment'
 export const WHITELIST_DOMAINS = [
-    'http://localhost:3000'
-    //.. Ví dụ sau này deploy lên domain chính thức ...vv
+    'https://dv-smart-phone-website.vercel.app'
 ]
 
 export const BOARD_TYPES = {
