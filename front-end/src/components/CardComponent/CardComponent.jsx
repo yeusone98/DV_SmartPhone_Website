@@ -1,46 +1,30 @@
 import React from "react";
 import { StyleNameProduct, WrapperCard, WrapperCardStyle, WrapperDiscoutHeader, WrapperPriceDiscountText, WrapperPriceText, WrapperReportText } from "./style";
 import { StarFilled } from "@ant-design/icons";
-import { useState } from "react";
-import { fetchProductsAPI } from "../../apis";
 
-const CardComponent = () => {
-
-  const [products, setProducts] = useState([])
-
-  // Lấy danh sách sản phẩm từ API
-    const fetchProducts = async () => {
-      try {
-        const data = await fetchProductsAPI()
-        setProducts(data)
-      } catch (error) {
-        console.error('Không thể lấy danh sách sản phẩm!')
-      }
-    }
-
+// Nhận các giá trị từ props
+const CardComponent = ({ name, price, price_discount, image }) => {
   return (
     <WrapperCardStyle
       hoverable
-      style={{ width: 240, padding: "5px" }}
-      cover={
-        <img
-          alt="example"
-          src="https://cdn2.cellphones.com.vn/insecure/rs:fill:0:358/q:90/plain/https://cellphones.com.vn/media/catalog/product/i/p/iphone-16-pro-max.png"
-        />
-      }
-    >   <WrapperDiscoutHeader>Trả góp 0%</WrapperDiscoutHeader>
-      <StyleNameProduct>Iphone 16 Pro Max 256GB</StyleNameProduct>
+      style={{ width: 250, height: 400, padding: "5px" }}
+      cover={<img alt={name} src={image || "default_image_url_here"} />}
+    >
+      <WrapperDiscoutHeader>Trả góp 0%</WrapperDiscoutHeader>
+      <StyleNameProduct>{name}</StyleNameProduct>
       <WrapperReportText>
-        <span >
-          <span>4.9</span>
+        <span>
+          <span>4.9</span> {/* Giữ giá trị đánh giá cố định */}
           <StarFilled style={{ fontSize: "12px", color: "yellow" }} />
         </span>
-        <span>&nbsp;| Đã bán 1000+</span>
+        <span>&nbsp;| Đã bán 1000+</span> {/* Giữ số lượng đã bán cố định */}
       </WrapperReportText>
       <WrapperPriceText>
-            31.000.000đ
-            <WrapperPriceDiscountText>40.000.000đ</WrapperPriceDiscountText>
-        </WrapperPriceText>
+        {price}đ
+        {price_discount && (
+          <WrapperPriceDiscountText>{price_discount}đ</WrapperPriceDiscountText>
+        )}
+      </WrapperPriceText>
     </WrapperCardStyle>
   );
 };

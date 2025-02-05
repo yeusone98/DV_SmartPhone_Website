@@ -272,7 +272,7 @@ const ProductManagement = () => {
 
             </Card>
 
-            <Table columns={columns} dataSource={products} rowKey="_id" pagination={{ pageSize: 5 }} />
+            <Table columns={columns} dataSource={products} rowKey="_id" pagination={{ pageSize: 10 }} />
 
             {/* Add/Edit Product Modal */}
             <Modal
@@ -312,111 +312,111 @@ const ProductManagement = () => {
 
                     {/* Variant Form - Adding Multiple Variants */}
                     <Form.Item label="Variants">
-    <div style={tableStyle}>
-        <Table
-            columns={[
-                {
-                    title: 'Storage',
-                    dataIndex: 'storage',
-                    key: 'storage',
-                    render: (text, record, index) => (
-                        <Input
-                            value={text}
-                            onChange={(e) => handleVariantChange(index, 'storage', e.target.value)}
-                        />
-                    ),
-                },
-                {
-                    title: 'Color',
-                    dataIndex: 'color',
-                    key: 'color',
-                    render: (text, record, index) => (
-                        <Input
-                            value={text}
-                            onChange={(e) => handleVariantChange(index, 'color', e.target.value)}
-                        />
-                    ),
-                },
-                {
-                    title: 'Price',
-                    dataIndex: 'price',
-                    key: 'price',
-                    render: (text, record, index) => (
-                        <InputNumber
-                            min={0}
-                            value={text || 0}
-                            onChange={(value) => handleVariantChange(index, 'price', value || 0)}
-                            style={{ width: '100%' }}
-                        />
-                    ),
-                },
-                {
-                    title: 'Price Discount',
-                    dataIndex: 'price_discount',
-                    key: 'price_discount',
-                    render: (text, record, index) => (
-                        <InputNumber
-                            min={0}
-                            value={text || 0}
-                            onChange={(value) => handleVariantChange(index, 'price_discount', value || 0)}
-                            style={{ width: '100%' }}
-                        />
-                    ),
-                },
-                {
-                    title: 'Stock',
-                    dataIndex: 'stock',
-                    key: 'stock',
-                    render: (text, record, index) => (
-                        <InputNumber
-                            min={0}
-                            value={text}
-                            onChange={(value) => handleVariantChange(index, 'stock', value)}
-                            style={{ width: '100%' }}
-                        />
-                    ),
-                },
-                {
-                    title: 'Images',
-                    dataIndex: 'images',
-                    key: 'images',
-                    render: (text, record, index) => (
-                        // Trong phần render của variant
-                    <Upload
-                        listType="picture-card"
-                        fileList={record.images || []}
-                        onChange={({ fileList }) => handleVariantChange(index, 'images', fileList)}
-                        beforeUpload={() => false} // Ngăn tự động upload
-                    >
-                        <div>
-                            <UploadOutlined />
-                            <div style={{ marginTop: 8 }}>Upload</div>
-                        </div>
-                    </Upload>
+                        <div style={tableStyle}>
+                            <Table
+                                columns={[
+                                    {
+                                        title: 'Storage',
+                                        dataIndex: 'storage',
+                                        key: 'storage',
+                                        render: (text, record, index) => (
+                                            <Input
+                                                value={text}
+                                                onChange={(e) => handleVariantChange(index, 'storage', e.target.value)}
+                                            />
+                                        ),
+                                    },
+                                    {
+                                        title: 'Color',
+                                        dataIndex: 'color',
+                                        key: 'color',
+                                        render: (text, record, index) => (
+                                            <Input
+                                                value={text}
+                                                onChange={(e) => handleVariantChange(index, 'color', e.target.value)}
+                                            />
+                                        ),
+                                    },
+                                    {
+                                        title: 'Price',
+                                        dataIndex: 'price',
+                                        key: 'price',
+                                        render: (text, record, index) => (
+                                            <InputNumber
+                                                min={0}
+                                                value={text || 0}
+                                                onChange={(value) => handleVariantChange(index, 'price', value || 0)}
+                                                style={{ width: '100%' }}
+                                            />
+                                        ),
+                                    },
+                                    {
+                                        title: 'Price Discount',
+                                        dataIndex: 'price_discount',
+                                        key: 'price_discount',
+                                        render: (text, record, index) => (
+                                            <InputNumber
+                                                min={0}
+                                                value={text || 0}
+                                                onChange={(value) => handleVariantChange(index, 'price_discount', value || 0)}
+                                                style={{ width: '100%' }}
+                                            />
+                                        ),
+                                    },
+                                    {
+                                        title: 'Stock',
+                                        dataIndex: 'stock',
+                                        key: 'stock',
+                                        render: (text, record, index) => (
+                                            <InputNumber
+                                                min={0}
+                                                value={text}
+                                                onChange={(value) => handleVariantChange(index, 'stock', value)}
+                                                style={{ width: '100%' }}
+                                            />
+                                        ),
+                                    },
+                                    {
+                                        title: 'Images',
+                                        dataIndex: 'images',
+                                        key: 'images',
+                                        render: (text, record, index) => (
+                                            // Trong phần render của variant
+                                        <Upload
+                                            listType="picture-card"
+                                            fileList={record.images || []}
+                                            onChange={({ fileList }) => handleVariantChange(index, 'images', fileList)}
+                                            beforeUpload={() => false} // Ngăn tự động upload
+                                        >
+                                            <div>
+                                                <UploadOutlined />
+                                                <div style={{ marginTop: 8 }}>Upload</div>
+                                            </div>
+                                        </Upload>
 
-                    ),
-                },
-                {
-                    title: 'Actions',
-                    key: 'actions',
-                    render: (_, record, index) => (
-                        <div style={{ display: 'flex', justifyContent: 'center' }}>
-                            <Button danger size="small" onClick={() => removeVariant(index)}>Remove</Button>
+                                        ),
+                                    },
+                                    {
+                                        title: 'Actions',
+                                        key: 'actions',
+                                        render: (_, record, index) => (
+                                            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                                <Button danger size="small" onClick={() => removeVariant(index)}>Remove</Button>
+                                            </div>
+                                        ),
+                                    }
+                                ]}
+                                dataSource={variants}
+                                rowKey={(record, index) => `variant-${index}`}
+                                pagination={false}
+                                footer={() => (
+                                    <Button type="dashed" icon={<PlusOutlined />} onClick={addVariant}>
+                                        Add Variant
+                                    </Button>
+                                )}
+                            />
                         </div>
-                    ),
-                }
-            ]}
-            dataSource={variants}
-            rowKey={(record, index) => `variant-${index}`}
-            pagination={false}
-            footer={() => (
-                <Button type="dashed" icon={<PlusOutlined />} onClick={addVariant}>
-                    Add Variant
-                </Button>
-            )}
-        />
-    </div>
-</Form.Item>
+                    </Form.Item>
 
 
 
@@ -595,7 +595,7 @@ const ProductManagement = () => {
 
 
                         {/* Hình ảnh chung của sản phẩm */}
-                        <Descriptions.Item label="Product Images">
+                        <Descriptions.Item label="Product Images Slide">
                             {viewProduct.image_urls?.length > 0 ? (
                                 viewProduct.image_urls.map((url, index) => (
                                     <img

@@ -28,10 +28,6 @@ const PRODUCT_SCHEMA = Joi.object({
     _destroy: Joi.boolean().default(false)
 });
 
-
-
-
-
 const validateBeforeCreate = async (data) => {
     return await PRODUCT_SCHEMA.validateAsync(data, { abortEarly: false })
 }

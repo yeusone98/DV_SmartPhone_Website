@@ -22,7 +22,7 @@ import {
   Rate,
   Row,
 } from "antd";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import imgProductSmall from "../../assets/images/iphone-16-pro-max-small.png";
 import imgProduct from "../../assets/images/iphone-16-pro-max.png";
 import {
@@ -74,27 +74,16 @@ import {
 
 import iphoneImg from '../../assets/images/iphone-16-pro-max.png'
 import SelectOptionProduct from "../SelectOptionProduct/SelectOptionProduct";
-
+import { useParams } from "react-router-dom";
+import { fetchProductByIdAPI } from "../../apis";
 
 const ProductDetailComponent = () => {
+  const { id } = useParams();
+  const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("review");
   const [showReviewForm, setShowReviewForm] = useState(false);
-  const productSpecifications = {
-    "Kích thước màn hình": "6.8 inches",
-    "CPU": "Snapdragon 8 Gen 3 (4 nm)",
-    "Hệ điều hành": "Android 14, One UI 6.1",
-    "Bộ nhớ trong": "256GB",
-    "RAM": "12GB",
-    "Camera chính": "200MP - 50MP - 10MP - 12MP",
-    "Camera phụ": "12MP",
-    "Dung lượng pin": "5000mAh",
-    "Màu sắc": "Black, Purple, Gray, Yellow",
-    "Độ phân giải màn hình": "1440 x 3088 pixels",
-    "Sạc nhanh": "45W",
-    "Hãng sản xuất": "Samsung",
-    "Tình trạng SP": "New"
-  };
+  
   const reviews = [
     {
       id: 1,
@@ -115,6 +104,19 @@ const ProductDetailComponent = () => {
       verified: true,
     },
   ];
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      const data = await fetchProductByIdAPI(id);
+      setProduct(data);
+    };
+    fetchProduct();
+  }, [id]);
+
+  if (!product) return <div>Loading...</div>;
+
+  const firstVariant = product.variants[0];
+  const mainImage = firstVariant?.images?.[0] || imgProduct;
 
   const ReviewForm = ({ onCancel }) => (
     <ReviewCard>
@@ -151,86 +153,33 @@ const ProductDetailComponent = () => {
 
   return (
     <WrapperProductDetailPage>
-      <Row
-        style={{
-          padding: "16px",
-          backgroundColor: "#fff",
-          borderRadius: "8px",
-        }}
-      >
-        <Col
-          span={10}
-          style={{
-            border: "1px solid #919eab52",
-            borderRadius: "8px",
-            paddingRight: "30px",
-          }}
-        >
+      <Row style={{ padding: "16px", backgroundColor: "#fff", borderRadius: "8px" }}>
+        {/* Phần hình ảnh */}
+        <Col span={10} style={{ border: "1px solid #919eab52", borderRadius: "8px", paddingRight: "30px" }}>
           <div style={{ display: "flex", justifyContent: "center" }}>
-            <Image src={imgProduct} alt="image product" preview={false} />
+            <Image src={mainImage} alt="image product" preview={false} />
           </div>
           <Row style={{ paddingTop: "10px", justifyContent: "space-between" }}>
-            <WrapeerStyleImage span={4}>
-              <WrapeerStyleImageSmall
-                src={imgProductSmall}
-                alt="img small"
-                preview={false}
-              />
-            </WrapeerStyleImage>
-            <WrapeerStyleImage span={4}>
-              <WrapeerStyleImageSmall
-                src={imgProductSmall}
-                alt="img small"
-                preview={false}
-              />
-            </WrapeerStyleImage>
-            <WrapeerStyleImage span={4}>
-              <WrapeerStyleImageSmall
-                src={imgProductSmall}
-                alt="img small"
-                preview={false}
-              />
-            </WrapeerStyleImage>
-            <WrapeerStyleImage span={4}>
-              <WrapeerStyleImageSmall
-                src={imgProductSmall}
-                alt="img small"
-                preview={false}
-              />
-            </WrapeerStyleImage>
-            <WrapeerStyleImage span={4}>
-              <WrapeerStyleImageSmall
-                src={imgProductSmall}
-                alt="img small"
-                preview={false}
-              />
-            </WrapeerStyleImage>
-            <WrapeerStyleImage span={4}>
-              <WrapeerStyleImageSmall
-                src={imgProductSmall}
-                alt="img small"
-                preview={false}
-              />
-            </WrapeerStyleImage>
+            {firstVariant?.images?.map((img, index) => (
+              <WrapeerStyleImage span={4} key={index}>
+                <WrapeerStyleImageSmall src={img} alt={`img small ${index}`} preview={false} />
+              </WrapeerStyleImage>
+            ))}
           </Row>
         </Col>
+
+        {/* Phần thông tin chính */}
         <Col span={14} style={{ paddingLeft: "30px" }}>
-          <WrapperNameStyleNameProduct>
-            iPhone 16 Pro Max 256GB | Chính hãng VN/A
-          </WrapperNameStyleNameProduct>
+          <WrapperNameStyleNameProduct>{product.name}</WrapperNameStyleNameProduct>
           <div>
-            <StarFilled style={{ fontSize: "12px", color: "rgb(253,216,54" }} />
-            <StarFilled style={{ fontSize: "12px", color: "rgb(253,216,54" }} />
-            <StarFilled style={{ fontSize: "12px", color: "rgb(253,216,54" }} />
-            <StarFilled style={{ fontSize: "12px", color: "rgb(253,216,54" }} />
             <StarFilled style={{ fontSize: "12px", color: "rgb(253,216,54" }} />
             <WrapperTextSell> Đã bán | 1000+</WrapperTextSell>
           </div>
           <WrapperPriceTextProduct>
             <h1>
-              31.000.000đ
+              {firstVariant?.price?.toLocaleString()}đ
               <WrapperPriceDiscountTextProduct>
-                40.000.000đ
+                {firstVariant?.price_discount?.toLocaleString()}đ
               </WrapperPriceDiscountTextProduct>
             </h1>
           </WrapperPriceTextProduct>
@@ -424,51 +373,26 @@ const ProductDetailComponent = () => {
                 </>
               )}
               {activeTab === "specs" && (
-                <WrapperSpecs >
-                  <table style={{ width: "100%", margin: "auto", paddingLeft:'130px' }}>
-                    <tbody>
-                      {Object.entries(productSpecifications).map(([key, value]) => (
-                        <tr
-                          key={key}
-                          style={{ borderBottom: "1px solid #ccc" }}
-                        >
-                          <td
-                            style={{
-                              padding: "8px",
-                              fontWeight: "600",
-                              width: "30%",
-                              fontSize: "16px"
-                            }}
-                          >
-                            {key}
-                          </td>
-                          <td style={{fontSize:'14px', padding: "8px" }}>{value}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </WrapperSpecs>
-                
-              )}
-              {activeTab === "desc" && (
-                <div><h1>Đây là mô tả sản phẩm</h1>
-                    <Image src={iphoneImg} alt="find not found image"></Image>                       
-                 </div>)}
-              {activeTab === "video" && (
-                <div>
-                  <iframe
-                    width="100%"
-                    height="619"
-                    src="https://www.youtube.com/embed/RfakDAwVdRw"
-                    title="Đánh giá chi tiết iPhone 16 Pro Max: Nên bớt kỳ vọng vào những thế hệ iPhone mới 👌🏻"
-                    frameborder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    referrerpolicy="strict-origin-when-cross-origin"
-                    allowfullscreen
-                  ></iframe>
-                </div>
-              )}
-            </TabContainer>
+                <div dangerouslySetInnerHTML={{ __html: product.technical_specifications }} />
+            )}
+
+            {activeTab === "desc" && (
+              <div dangerouslySetInnerHTML={{ __html: product.description_detail }} />
+            )}
+
+            {activeTab === "video" && product.youtube_link && (
+              <div>
+                <iframe
+                  width="100%"
+                  height="600"
+                  src={product.youtube_link.replace("watch?v=", "embed/")}
+                  title="Product Video"
+                  frameBorder="0"
+                  allowFullScreen
+                />
+              </div>
+            )}
+          </TabContainer>
           </ReviewBody>
         </WrapperReviews>
       </WrapperDetailInfoProduct>
