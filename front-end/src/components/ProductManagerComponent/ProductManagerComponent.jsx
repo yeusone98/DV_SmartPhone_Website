@@ -175,10 +175,9 @@ const ProductManagement = () => {
         setEditingProduct(product);
         setDescription(product.description_detail || '');
         setImageFiles(product.image_urls?.map((url) => ({ url })) || []);
+        setVariants(product.variants || []); //
         form.setFieldsValue({
             ...product,
-            price: Number(product.price),
-            stock: Number(product.stock),
         });
         setIsModalVisible(true);
     };

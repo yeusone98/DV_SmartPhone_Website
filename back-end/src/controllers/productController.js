@@ -142,7 +142,6 @@ const deleteProduct = async (req, res, next) => {
     }
 }
 
-
 export const productController = {
     createProduct,
     getProducts,
