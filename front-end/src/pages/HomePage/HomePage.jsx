@@ -5,6 +5,10 @@ import CardComponent from "../../components/CardComponent/CardComponent";
 import SliderComponentListProduct from "../../components/SliderComponentListProduct/SliderComponentListProduct";
 import { WrapperTextTitleProduct, WrapperProductList, WrapperProductListCetegory, WrapperSlideProduct, WrapperProducts, SpaceFooter, WrapperTypeProduct, WrapperBottonMore } from "./style";
 import TypeProduct from "../../components/TypeProduct/TypeProduct";
+import slider1 from "../../assets/images/slide1.png";
+import slider2 from "../../assets/images/slide2.png";
+import slider3 from "../../assets/images/slide3.png";
+import SliderComponent from "../../components/SliderComponent/SliderComponent";
 
 const HomePage = () => {
   const [products, setProducts] = useState([]);
@@ -48,6 +52,7 @@ const HomePage = () => {
         </WrapperTypeProduct>
       </div>
       <div id="container" style={{ backgroundColor: "#efefef", padding: "0 120px", height: "auto" }}>
+        <SliderComponent arrImages={[slider1, slider2, slider3]} />
       <WrapperTextTitleProduct>
           <WrapperProductList>
             SẢN PHẨM DÀNH CHO BẠN <WrapperProductListCetegory>Phù hợp nhất</WrapperProductListCetegory>
