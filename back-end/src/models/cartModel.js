@@ -37,38 +37,37 @@ const createCart = async (data) => {
 
 // Hàm tìm giỏ hàng của người dùng theo customer_id
 const findCartByUserId = async (userId) => {
-    const db = GET_DB();
-    const cart = await db.collection(CART_COLLECTION_NAME).findOne({ customer_id: userId });
+    const db = GET_DB()
+    const cart = await db.collection(CART_COLLECTION_NAME).findOne({ customer_id: userId })
 
-    if (!cart) return null;
+    if (!cart) return null
 
     // Lấy thông tin chi tiết sản phẩm từ collection `products`
-    const productIds = cart.products.map((item) => new ObjectId(item.product_id)); // Chuyển các `product_id` thành ObjectId
+    const productIds = cart.products.map((item) => new ObjectId(item.product_id)) // Chuyển các `product_id` thành ObjectId
     const productsDetails = await db
         .collection('products')
         .find({ _id: { $in: productIds } })
-        .toArray();
+        .toArray()
 
     // Kết hợp `name` từ `products` vào `cart.products`
     const productsWithName = cart.products.map((cartItem) => {
         const productDetail = productsDetails.find(
             (product) => product._id.toString() === cartItem.product_id
-        );
+        )
         return {
             ...cartItem,
             name: productDetail?.name || 'Unknown Product', // Nếu không tìm thấy, đặt tên mặc định
-        };
-    });
+        }
+    })
 
     return {
         ...cart,
         products: productsWithName, // Cập nhật danh sách sản phẩm với tên
-    };
-};
+    }
+}
 
 
-
-// Hàm thêm sản phẩm vào giỏ hàng
+// Hàm thêm sản phẩm vào giỏ hàng và cập nhật số lượng
 const addProductToCart = async (userId, productId, quantity, price) => {
     const db = GET_DB()
 
@@ -78,7 +77,7 @@ const addProductToCart = async (userId, productId, quantity, price) => {
         // Tạo giỏ hàng mới nếu chưa tồn tại
         const newCart = {
             customer_id: userId, // Lưu customer_id dưới dạng string
-            products: [{ product_id: productId, quantity, price }],
+            products: [{ product_id: productId, quantity, price }], // Thêm sản phẩm với số lượng ban đầu
             total_price: (parseFloat(price) * quantity).toString(),
             createdAt: new Date(),
             updatedAt: new Date()
@@ -91,10 +90,10 @@ const addProductToCart = async (userId, productId, quantity, price) => {
     const existingProduct = cart.products.find((item) => item.product_id === productId)
 
     if (existingProduct) {
-        // Nếu sản phẩm đã tồn tại, tăng số lượng
-        existingProduct.quantity += quantity
+        // Nếu sản phẩm đã có trong giỏ, cập nhật số lượng
+        existingProduct.quantity = quantity // Cập nhật số lượng mới
     } else {
-        // Nếu sản phẩm chưa tồn tại, thêm sản phẩm mới
+        // Nếu sản phẩm chưa có trong giỏ, thêm sản phẩm mới với số lượng ban đầu
         cart.products.push({ product_id: productId, quantity, price })
     }
 
@@ -102,6 +101,7 @@ const addProductToCart = async (userId, productId, quantity, price) => {
     cart.total_price = cart.products
         .reduce((total, item) => total + parseFloat(item.price) * item.quantity, 0)
         .toString()
+
     cart.updatedAt = new Date()
 
     // Cập nhật giỏ hàng trong database

@@ -4,25 +4,58 @@ import { ObjectId } from 'mongodb'
 
 const createProduct = async (req, res, next) => {
     try {
-        const { files } = req;
-        const data = { ...req.body, seller_id: req.jwtDecoded._id };
+        const { files, body } = req;
+        let data = { ...body, seller_id: req.jwtDecoded._id };
 
-        if (data.existingImages) {
-            delete data.existingImages; // Xóa trước khi validate
+        // Xử lý ảnh chính - SỬA ĐOẠN NÀY
+        const mainImages = files
+            .filter(file => file.fieldname === 'images')
+            .map(file => file.path);
+        data.image_urls = mainImages;   
+
+        // Parse JSON cho variants nếu cần
+        if (typeof data.variants === 'string') {
+            try {
+                data.variants = JSON.parse(data.variants);
+            } catch (error) {
+                console.error('Error parsing variants:', error);
+                data.variants = [];
+            }
+        }
+        if (!Array.isArray(data.variants)) data.variants = [];
+
+        // Xử lý ảnh chính
+        if (files?.images) {
+            data.image_urls = files.images.map(file => file.path);
         }
 
-        if (files && files.length > 0) {
-            data.image_urls = files.map((file) => file.path);
-        }
+        // Xử lý ảnh variants
+        const variantImagesMap = {}; // Lưu ảnh theo index của variant
+        files?.forEach((file) => {
+            const match = file.fieldname.match(/variants\[(\d+)\]\[images\]/);
+            if (match) {
+                const variantIndex = parseInt(match[1], 10);
+                if (!variantImagesMap[variantIndex]) {
+                    variantImagesMap[variantIndex] = [];
+                }
+                variantImagesMap[variantIndex].push(file.path);
+            }
+        });
 
-        console.log('Product data:', data); // Log dữ liệu sản phẩm
+        // Gán ảnh vào từng variant
+        data.variants.forEach((variant, index) => {
+            variant.images = variantImagesMap[index] || [];
+        });
+
+        // Tạo sản phẩm
         const result = await productModel.createProduct(data);
         res.status(StatusCodes.CREATED).json(result);
     } catch (error) {
-        console.error('Error in createProduct:', error.message);
         next(error);
     }
 };
+
+
 
 
 
@@ -57,26 +90,25 @@ const getProductById = async (req, res, next) => {
 
 const updateProduct = async (req, res, next) => {
     try {
-        const { id } = req.params;
-        const data = req.body;
+        const { id } = req.params
+        const data = req.body
 
         // Lấy danh sách ảnh cũ từ `existingImages`
-        const existingImages = JSON.parse(data.existingImages || '[]');
+        const existingImages = JSON.parse(data.existingImages || '[]')
 
         // Xử lý danh sách ảnh mới (nếu có)
-        const newImages = req.files.map((file) => file.path);
+        const newImages = req.files.map((file) => file.path)
 
         // Kết hợp ảnh cũ và ảnh mới
-        data.image_urls = [...existingImages, ...newImages];
+        data.image_urls = [...existingImages, ...newImages]
 
-        const updatedProduct = await productModel.updateProduct(new ObjectId(id), data);
-        res.status(200).json(updatedProduct);
+        const updatedProduct = await productModel.updateProduct(new ObjectId(id), data)
+        res.status(200).json(updatedProduct)
     } catch (error) {
-        console.error('Error updating product:', error.message);
-        next(error);
+        console.error('Error updating product:', error.message)
+        next(error)
     }
-};
-
+}
 
 
 const deleteProduct = async (req, res, next) => {
