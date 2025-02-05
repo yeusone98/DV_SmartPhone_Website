@@ -157,7 +157,7 @@ export const WrapperBtnInfoProduct = styled(ButtonComponent)`
 //   background-color: #fff;
 //   border-radius: 8px;
 // `;
-export const WrapperReviews = styled.div`
+export const WrapperReviews = styled.div` 
   position: relative;
   margin-top: 20px;
   padding: 20px;
