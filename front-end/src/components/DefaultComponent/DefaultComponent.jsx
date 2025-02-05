@@ -1,16 +1,16 @@
 import React from 'react'
-import HeaderComponent from '../HeaderComponent/HeaderComponent'
 import FooterComponent from '../FooterComponent/FooterComponent'
-import { WrapperDefault, WrapperDefaultMain } from './style'
+import HeaderComponent from '../HeaderComponent/HeaderComponent'
+import { MainContent, WrapperDefault } from './style'
 
 const DefaultComponent = ({children}) => {
   return (
     <WrapperDefault>
-      <WrapperDefaultMain>
       <HeaderComponent/>
+        <MainContent>
         {children}
+        </MainContent>
       <FooterComponent/>
-      </WrapperDefaultMain>
     </WrapperDefault>
   )
 }
