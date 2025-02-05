@@ -68,55 +68,63 @@ const ProductManagement = () => {
     // Handle adding or updating a product
     const handleSaveProduct = async (values) => {
         const formData = new FormData();
-        // Thêm các trường dữ liệu cơ bản
-        formData.append("name", values.name);
-        formData.append("category_id", values.category_id);
-        formData.append("youtube_link", values.youtube_link || '');
-        formData.append("description_detail", description);
-        formData.append("technical_specifications", technicalSpecifications);
-        formData.append("status", values.status);
     
-        // Xử lý ảnh chính
-        const newMainImages = imageFiles
-            .filter((file) => !file.url)
-            .map((file) => file.originFileObj);
+    // Thêm các trường dữ liệu cơ bản
+    formData.append("name", values.name);
+    formData.append("category_id", values.category_id);
+    formData.append("youtube_link", values.youtube_link || '');
+    formData.append("description_detail", description);
+    formData.append("technical_specifications", technicalSpecifications); // Thêm trường này
+    formData.append("status", values.status);
 
+    // Xử lý ảnh chính (thêm ảnh mới, giữ ảnh cũ)
+    const newMainImages = imageFiles
+        .filter((file) => file.originFileObj) // Chỉ lấy ảnh mới
+        .map((file) => file.originFileObj);
+        
         newMainImages.forEach((file) => {
-            formData.append('images', file); // Đảm bảo fieldname là 'images'
+            formData.append('images', file);
         });
-    
-        // Xử lý variants: Gửi metadata dưới dạng JSON và ảnh riêng
-        const formattedVariants = variants.map(variant => {
-            const variantData = {
+
+    // Giữ lại các ảnh cũ (nếu có)
+    const existingMainImages = imageFiles
+        .filter((file) => file.url && !file.originFileObj)
+        .map((file) => file.url);
+        formData.append('existing_images', JSON.stringify(existingMainImages));
+
+        // Xử lý variants
+        const processedVariants = variants.map((variant, index) => {
+            // Giữ lại ảnh cũ
+            const existingImages = variant.images
+                .filter(img => img.url && !img.originFileObj)
+                .map(img => img.url);
+            
+            // Thêm ảnh mới
+            const newImages = variant.images
+                .filter(img => img.originFileObj)
+                .map(img => img.originFileObj);
+
+            return {
                 storage: variant.storage,
                 color: variant.color,
-                price: variant.price,
-                stock: variant.stock,
+                price: Number(variant.price),
+                price_discount: variant.price_discount ? Number(variant.price_discount) : null,
+                stock: Number(variant.stock),
+                existingImages, // Gửi ảnh cũ
+                newImages // Gửi ảnh mới
             };
-    
-            // Chỉ thêm price_discount nếu nó không phải là null
-            if (variant.price_discount !== null) {
-                variantData.price_discount = variant.price_discount;
-            }
-    
-            return variantData;
         });
-        
-        if (formattedVariants.length > 0) {
-            formData.append('variants', JSON.stringify(formattedVariants));
-        }
-    
-        // Thêm ảnh của từng variant vào FormData với key riêng
-        variants.forEach((variant, variantIndex) => {
-            variant.images.forEach((image) => {
-                if (image.originFileObj) { // Chỉ xử lý file mới
-                    formData.append(`variants[${variantIndex}][images]`, image.originFileObj);
-                }
+
+        formData.append('variants', JSON.stringify(processedVariants));
+
+        // Thêm ảnh mới của variants vào formData
+        processedVariants.forEach((variant, index) => {
+            variant.newImages.forEach((file, fileIndex) => {
+                formData.append(`variants[${index}][images]`, file);
             });
         });
-    
+
         try {
-            // Gọi API
             if (editingProduct) {
                 await updateProductAPI(editingProduct._id, formData);
             } else {
@@ -174,8 +182,25 @@ const ProductManagement = () => {
     const handleEditProduct = (product) => {
         setEditingProduct(product);
         setDescription(product.description_detail || '');
-        setImageFiles(product.image_urls?.map((url) => ({ url })) || []);
-        setVariants(product.variants || []); //
+        setTechnicalSpecifications(product.technical_specifications || ''); // Thêm dòng này
+        
+        // Xử lý ảnh slide
+        setImageFiles(product.image_urls?.map((url, index) => ({ 
+            uid: `old-${index}`, 
+            url,
+            status: 'done' 
+        })) || []);
+        
+        // Xử lý variants và ảnh của variant
+        setVariants(product.variants?.map(variant => ({
+            ...variant,
+            images: variant.images?.map((img, imgIndex) => ({
+                uid: `variant-img-${imgIndex}`,
+                url: img,
+                status: 'done'
+            })) || []
+        })) || []);
+        
         form.setFieldsValue({
             ...product,
         });
@@ -380,20 +405,21 @@ const ProductManagement = () => {
                                         dataIndex: 'images',
                                         key: 'images',
                                         render: (text, record, index) => (
-                                            // Trong phần render của variant
-                                        <Upload
-                                            listType="picture-card"
-                                            fileList={record.images || []}
-                                            onChange={({ fileList }) => handleVariantChange(index, 'images', fileList)}
-                                            beforeUpload={() => false} // Ngăn tự động upload
-                                        >
-                                            <div>
-                                                <UploadOutlined />
-                                                <div style={{ marginTop: 8 }}>Upload</div>
-                                            </div>
-                                        </Upload>
-
-                                        ),
+                                            <Upload
+                                                listType="picture-card"
+                                                fileList={record.images}
+                                                onChange={({ fileList }) => handleVariantChange(index, 'images', fileList)}
+                                                beforeUpload={() => false}
+                                                multiple
+                                            >
+                                                {record.images?.length < 5 && (
+                                                    <div>
+                                                        <UploadOutlined />
+                                                        <div style={{ marginTop: 8 }}>Upload</div>
+                                                    </div>
+                                                )}
+                                            </Upload>
+                                        )
                                     },
                                     {
                                         title: 'Actions',

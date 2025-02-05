@@ -80,6 +80,7 @@ import { fetchProductByIdAPI } from "../../apis";
 const ProductDetailComponent = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
+  const [selectedVariant, setSelectedVariant] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("review");
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -109,11 +110,19 @@ const ProductDetailComponent = () => {
     const fetchProduct = async () => {
       const data = await fetchProductByIdAPI(id);
       setProduct(data);
+      // Set variant mặc định khi load data
+      if (data?.variants?.length > 0) {
+        setSelectedVariant(data.variants[0]);
+      }
     };
     fetchProduct();
   }, [id]);
 
-  if (!product) return <div>Loading...</div>;
+  const handleSelectVariant = (variant) => {
+    setSelectedVariant(variant);
+  };
+
+  if (!product || !selectedVariant) return <div>Loading...</div>;
 
   const firstVariant = product.variants[0];
   const mainImage = firstVariant?.images?.[0] || imgProduct;
@@ -157,12 +166,12 @@ const ProductDetailComponent = () => {
         {/* Phần hình ảnh */}
         <Col span={10} style={{ border: "1px solid #919eab52", borderRadius: "8px", paddingRight: "30px" }}>
           <div style={{ display: "flex", justifyContent: "center" }}>
-            <Image src={mainImage} alt="image product" preview={false} />
+            <Image src={selectedVariant.images[0]} alt="image product" preview={false} />
           </div>
           <Row style={{ paddingTop: "10px", justifyContent: "space-between" }}>
-            {firstVariant?.images?.map((img, index) => (
+            {selectedVariant.images?.map((img, index) => (
               <WrapeerStyleImage span={4} key={index}>
-                <WrapeerStyleImageSmall src={img} alt={`img small ${index}`} preview={false} />
+                <WrapeerStyleImageSmall src={img} alt={`small ${index}`} preview={false} />
               </WrapeerStyleImage>
             ))}
           </Row>
@@ -177,16 +186,21 @@ const ProductDetailComponent = () => {
           </div>
           <WrapperPriceTextProduct>
             <h1>
-              {firstVariant?.price?.toLocaleString()}đ
-              <WrapperPriceDiscountTextProduct>
-                {firstVariant?.price_discount?.toLocaleString()}đ
-              </WrapperPriceDiscountTextProduct>
+              {selectedVariant.price.toLocaleString()}đ
+              {selectedVariant.price_discount && (
+                <WrapperPriceDiscountTextProduct>
+                  {selectedVariant.price_discount.toLocaleString()}đ
+                </WrapperPriceDiscountTextProduct>
+              )}
             </h1>
           </WrapperPriceTextProduct>
           <div>
             <WrapperTextOptionProduct>Phiên bản</WrapperTextOptionProduct>
-            {/* <Input size="large" placeholder="iPhone 16 Pro Max 512Gb" /> */}
-            <SelectOptionProduct/>
+            <SelectOptionProduct
+              variants={product.variants}
+              selectedVariant={selectedVariant}
+              onSelectVariant={handleSelectVariant}
+            />
           </div>
           <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
             <WrapperTextOptionProduct>Số lượng</WrapperTextOptionProduct>

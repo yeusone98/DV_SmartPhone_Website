@@ -90,25 +90,73 @@ const getProductById = async (req, res, next) => {
 
 const updateProduct = async (req, res, next) => {
     try {
-        const { id } = req.params
-        const data = req.body
+        const { id } = req.params;
+        const data = req.body;
+        const files = req.files || [];
 
-        // Lấy danh sách ảnh cũ từ `existingImages`
-        const existingImages = JSON.parse(data.existingImages || '[]')
+        // Check existing product
+        const existingProduct = await productModel.findProductById(id);
+        if (!existingProduct) {
+            return res.status(StatusCodes.NOT_FOUND).json({ message: 'Product not found!' });
+        }
 
-        // Xử lý danh sách ảnh mới (nếu có)
-        const newImages = req.files.map((file) => file.path)
+        // Parse variants from JSON string if needed
+        if (typeof data.variants === 'string') {
+            try {
+                data.variants = JSON.parse(data.variants);
+            } catch (error) {
+                console.error('Error parsing variants:', error);
+                data.variants = [];
+            }
+        }
 
-        // Kết hợp ảnh cũ và ảnh mới
-        data.image_urls = [...existingImages, ...newImages]
+        // Validate variants structure
+        if (!Array.isArray(data.variants)) {
+            data.variants = [];
+        }
 
-        const updatedProduct = await productModel.updateProduct(new ObjectId(id), data)
-        res.status(200).json(updatedProduct)
+        // Process variant images
+        const variantImagesMap = {};
+        files.forEach((file) => {
+            const match = file.fieldname.match(/variants\[(\d+)\]\[images\]/);
+            if (match) {
+                const variantIndex = parseInt(match[1], 10);
+                variantImagesMap[variantIndex] = variantImagesMap[variantIndex] || [];
+                variantImagesMap[variantIndex].push(file.path);
+            }
+        });
+
+        // Merge images
+        const updatedVariants = data.variants.map((variant, index) => {
+            const existing = existingProduct.variants[index]?.images || [];
+            const newImages = variantImagesMap[index] || [];
+            return {
+                ...variant,
+                images: [...existing, ...newImages]
+            };
+        });
+        const updateData = {
+            ...data,
+            variants: updatedVariants,
+            updatedAt: Date.now()
+        };
+        // Handle main images
+        if (files?.images) {
+            // Preserve existing images and add new ones
+            updateData.image_urls = [
+                ...existingProduct.image_urls,
+                ...files.images.map(file => file.path)
+            ];
+        } else {
+            // Keep existing images if no new uploads
+            updateData.image_urls = existingProduct.image_urls;
+        }
     } catch (error) {
-        console.error('Error updating product:', error.message)
-        next(error)
+        console.error('Error updating product:', error.message);
+        next(error);
     }
-}
+};
+
 
 
 const deleteProduct = async (req, res, next) => {
