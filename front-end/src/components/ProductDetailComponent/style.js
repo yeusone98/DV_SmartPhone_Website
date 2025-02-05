@@ -2,8 +2,20 @@ import { Button, Col, Image, InputNumber, Rate } from "antd";
 import styled from "styled-components";
 import ButtonComponent from "../ButtonComponent/ButtonComponent";
 
+
+
+
+
+// export const WrapperProductDetailPage = styled.div`
+//     height: 150vh;
+// `
+
+//!1
 export const WrapperProductDetailPage = styled.div`
-    height: 150vh;
+  min-height: 100vh;
+  height: auto;
+  padding-bottom: 40px;
+  overflow: visible;
 `
 export const WrapeerStyleImageSmall = styled(Image)`
   height: 64px;
@@ -122,8 +134,15 @@ export const WrapperBtnBuyNow = styled(ButtonComponent)`
     color: #fff !important;
   }
 `;
+// export const WrapperDetailInfoProduct = styled.div`
+//   margin-top: 20px;
+// `;
+
 export const WrapperDetailInfoProduct = styled.div`
+  position: relative;
   margin-top: 20px;
+  margin-bottom: 40px;
+  z-index: 1;
 `;
 export const WrapperBtnInfoProduct = styled(ButtonComponent)`
   font-size: 14px;
@@ -132,7 +151,14 @@ export const WrapperBtnInfoProduct = styled(ButtonComponent)`
 
 //!aaaaaaaaaaaaaa
 
-export const WrapperReviews = styled.div`
+// export const WrapperReviews = styled.div`
+//   margin-top: 20px;
+//   padding: 20px;
+//   background-color: #fff;
+//   border-radius: 8px;
+// `;
+export const WrapperReviews = styled.div` 
+  position: relative;
   margin-top: 20px;
   padding: 20px;
   background-color: #fff;
@@ -140,6 +166,7 @@ export const WrapperReviews = styled.div`
 `;
 export const ReviewHeader = styled.div`
   border: 1px rgb(231, 231, 231) solid;
+
   
 `;
 export const WrapperBtnWriteReview = styled(Button)`
@@ -172,9 +199,10 @@ export const SpaceReview = styled.div`
   border-right: 1px solid rgb(231, 231, 231);
 `
 export const ReviewBody = styled.div`
+  position: relative;
   border: 1px solid rgb(231, 231, 231);
+`;
 
-`
 
 export const ReviewItem = styled.div`
   margin-bottom: 20px;
@@ -289,7 +317,16 @@ export const BuyNowButton = styled(Button)`
 `;
 
 export const TabContainer = styled.div`
+  position: relative;
   margin-top: 24px;
+
+  > div:first-child {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 2;
+    padding: 10px 0;
+  }
 `;
 
 export const TabButton = styled(Button)`
@@ -355,10 +392,34 @@ export const WrapperRateStar = styled(Rate)`
     }
   }
 `
+// export const WrapperSpecs = styled.div`
+//     display: flex;
+//     justify-content: center;
+//     align-items: center;
+//     max-width: 960px;
+// `
+
 export const WrapperSpecs = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    max-width: 960px;
-`
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px;
+  box-sizing: border-box;
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    
+    td {
+      padding: 12px;
+      vertical-align: top;
+      word-break: break-word;
+      
+      &:first-child {
+        width: 30%;
+      }
+    }
+  }
+`;
 

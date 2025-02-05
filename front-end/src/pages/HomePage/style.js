@@ -10,6 +10,7 @@ export const WrapperTypeProduct = styled.div`
   font-size: 15px;
   border-bottom: 1px solid rgb(182, 182, 182);
   height: 44px;
+   margin-bottom: -6px; 
 `;
 
 export const WrapperProductList = styled.div`
@@ -26,7 +27,6 @@ export const WrapperProductListCetegory = styled.div`
   white-space: nowrap;
   display: inline-flex;
   justify-content: center;
-  padding: 0px 8px;
   color: rgb(12, 83, 183);
   background-color: rgba(24, 144, 255, 0.16);
   font-weight: 700;
