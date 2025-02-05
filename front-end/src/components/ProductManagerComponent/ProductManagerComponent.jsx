@@ -29,8 +29,10 @@ const ProductManagement = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isDrawerVisible, setIsDrawerVisible] = useState(false);
     const [description, setDescription] = useState('');
-    const [imageFiles, setImageFiles] = useState([]); // Lưu file ảnh upload
+    const [imageFiles, setImageFiles] = useState([]);
     const [form] = Form.useForm();
+    const [variants, setVariants] = useState([]);
+    const [technicalSpecifications, setTechnicalSpecifications] = useState('');
 
     const productStatuses = [
         { label: 'Available', value: 'available', color: 'green' },
@@ -46,61 +48,95 @@ const ProductManagement = () => {
     const fetchProducts = async () => {
         try {
             const data = await fetchProductsAPI();
-            const formattedData = data.map((product) => ({
-                ...product,
-                price: String(product.price), // Ensure price is a string
-                stock: String(product.stock), // Ensure stock is a string
-            }));
+            
+            // Sắp xếp theo thời gian (created_at) ở frontend, từ mới nhất đến cũ nhất
+            const formattedData = data
+                .map((product) => ({
+                    ...product,
+                    price: String(product.price),
+                    stock: String(product.stock),
+                }))
+                .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));  // Sắp xếp theo thời gian, sản phẩm mới nhất lên đầu
+            
             setProducts(formattedData);
         } catch (error) {
             message.error('Failed to fetch products!');
         }
     };
+    
 
     // Handle adding or updating a product
     const handleSaveProduct = async (values) => {
         const formData = new FormData();
-        formData.append('name', values.name);
-        formData.append('category_id', values.category_id);
-        formData.append('price', String(values.price));
-        formData.append('price_discount', values.price_discount || null);
-        formData.append('stock', String(values.stock));
-        formData.append('status', values.status);
-        formData.append('description_detail', description);
-        formData.append('youtube_link', values.youtube_link || null);
-
-        // Thêm ảnh cũ (URL) vào formData
-        const existingImages = imageFiles
-            .filter((file) => file.url)
-            .map((file) => file.url);
-        formData.append('existingImages', JSON.stringify(existingImages));
-
-        // Thêm ảnh mới vào formData
-        imageFiles
+        // Thêm các trường dữ liệu cơ bản
+        formData.append("name", values.name);
+        formData.append("category_id", values.category_id);
+        formData.append("youtube_link", values.youtube_link || '');
+        formData.append("description_detail", description);
+        formData.append("technical_specifications", technicalSpecifications);
+        formData.append("status", values.status);
+    
+        // Xử lý ảnh chính
+        const newMainImages = imageFiles
             .filter((file) => !file.url)
-            .forEach((file) => {
-                formData.append('images', file.originFileObj);
-            });
+            .map((file) => file.originFileObj);
 
+        newMainImages.forEach((file) => {
+            formData.append('images', file); // Đảm bảo fieldname là 'images'
+        });
+    
+        // Xử lý variants: Gửi metadata dưới dạng JSON và ảnh riêng
+        const formattedVariants = variants.map(variant => {
+            const variantData = {
+                storage: variant.storage,
+                color: variant.color,
+                price: variant.price,
+                stock: variant.stock,
+            };
+    
+            // Chỉ thêm price_discount nếu nó không phải là null
+            if (variant.price_discount !== null) {
+                variantData.price_discount = variant.price_discount;
+            }
+    
+            return variantData;
+        });
+        
+        if (formattedVariants.length > 0) {
+            formData.append('variants', JSON.stringify(formattedVariants));
+        }
+    
+        // Thêm ảnh của từng variant vào FormData với key riêng
+        variants.forEach((variant, variantIndex) => {
+            variant.images.forEach((image) => {
+                if (image.originFileObj) { // Chỉ xử lý file mới
+                    formData.append(`variants[${variantIndex}][images]`, image.originFileObj);
+                }
+            });
+        });
+    
         try {
+            // Gọi API
             if (editingProduct) {
                 await updateProductAPI(editingProduct._id, formData);
-                message.success('Product updated successfully!');
             } else {
                 await createProductAPI(formData);
-                message.success('Product added successfully!');
             }
+            // Reset form và fetch lại dữ liệu
             setIsModalVisible(false);
+            fetchProducts();
             form.resetFields();
             setEditingProduct(null);
             setImageFiles([]);
-            fetchProducts();
+            message.success("Product saved successfully!");
         } catch (error) {
-            message.error('Failed to save product!');
+            message.error("Failed to save product!");
         }
     };
+    
+    
 
-
+    
     // Handle deleting a product
     const handleDeleteProduct = async (product) => {
         try {
@@ -113,65 +149,96 @@ const ProductManagement = () => {
     };
 
     const handleViewProduct = (product) => {
-        setViewProduct(product);
+        if (!product) {
+            console.error("Error: Product is null or undefined");
+            return;
+        }
+    
+        console.log("Product Data:", product);
+        console.log("Variants Data:", product.variants);
+    
+        setViewProduct({
+            ...product,
+            variants: product.variants || [], // ✅ Đảm bảo variants không bị `null`
+        });
+    
         setIsDrawerVisible(true);
+    };
+    
+    const tableStyle = {
+        width: '100%',
+        overflowX: 'auto',
+        marginBottom: '10px'
     };
 
     const handleEditProduct = (product) => {
         setEditingProduct(product);
-        setDescription(product.description_detail || ''); // Load description into editor
-        setImageFiles(product.image_urls?.map((url) => ({ url })) || []); // Load existing images
+        setDescription(product.description_detail || '');
+        setImageFiles(product.image_urls?.map((url) => ({ url })) || []);
         form.setFieldsValue({
             ...product,
-            price: Number(product.price), // Convert to number for the InputNumber component
+            price: Number(product.price),
             stock: Number(product.stock),
         });
         setIsModalVisible(true);
     };
+
+    const handleVariantChange = (index, key, value) => {
+        console.log(`Variant ${index} updated:`, value);  // Kiểm tra giá trị variant đã thay đổi
+        setVariants((prevVariants) => {
+            const updatedVariants = [...prevVariants];
+            updatedVariants[index][key] = value;
+            return updatedVariants;
+        });
+    };
+    
+    
+    
+    
+    const addVariant = () => {
+        setVariants((prevVariants) => [
+            ...prevVariants,
+            { storage: '', color: '', price: '', price_discount: '', stock: 0, images: [] }
+        ]);
+    };
+    
+    const removeVariant = (index) => {
+        setVariants((prevVariants) => {
+            const newVariants = [...prevVariants];
+            newVariants.splice(index, 1);
+            return newVariants.length > 0 ? newVariants : [{ storage: '', color: '', price: '', stock: 0, images: [] }];
+        });
+    };
+    
+    const handleOpenModal = () => {
+        setEditingProduct(null);
+        form.resetFields();
+        setDescription('');
+        setImageFiles([]);
+        setVariants([{ storage: '', color: '', price: 0, price_discount: 0, stock: 0, images: [] }]); // ✅ Không để mảng rỗng
+        setIsModalVisible(true);
+    };
+    
+      
 
     const columns = [
         {
             title: 'Product Name',
             dataIndex: 'name',
             key: 'name',
+            width: 200,
         },
         {
             title: 'Category ID',
             dataIndex: 'category_id',
             key: 'category_id',
-        },
-        {
-            title: 'Stock',
-            dataIndex: 'stock',
-            key: 'stock',
-        },
-        {
-            title: 'Price',
-            dataIndex: 'price',
-            key: 'price',
-            render: (_, record) => {
-                const price = Number(record.price).toLocaleString('vi-VN'); // Định dạng số
-                const discountPrice = record.price_discount
-                    ? Number(record.price_discount).toLocaleString('vi-VN')
-                    : null;
-                return discountPrice ? (
-                    <div>
-                        <span style={{ color: 'green', fontWeight: 'bold', marginRight: 8 }}>
-                            {discountPrice} VND
-                        </span>
-                        <span style={{ textDecoration: 'line-through', color: '#888' }}>
-                            {price} VND
-                        </span>
-                    </div>
-                ) : (
-                    `${price} VND`
-                );
-            },
+            width: 150,
         },
         {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
+            width: 120,
             render: (status) => {
                 const statusObj = productStatuses.find((s) => s.value === status);
                 return <Tag color={statusObj?.color}>{statusObj?.label}</Tag>;
@@ -180,19 +247,17 @@ const ProductManagement = () => {
         {
             title: 'Actions',
             key: 'actions',
+            width: 150,
             render: (_, record) => (
                 <Space>
                     <Button icon={<EyeOutlined />} onClick={() => handleViewProduct(record)} />
                     <Button icon={<EditOutlined />} onClick={() => handleEditProduct(record)} />
-                    <Button
-                        icon={<DeleteOutlined />}
-                        danger
-                        onClick={() => handleDeleteProduct(record)}
-                    />
+                    <Button icon={<DeleteOutlined />} danger onClick={() => handleDeleteProduct(record)} />
                 </Space>
             ),
         },
     ];
+    
 
     return (
         <>
@@ -200,16 +265,11 @@ const ProductManagement = () => {
                 <Button
                     type="primary"
                     icon={<PlusOutlined />}
-                    onClick={() => {
-                        setEditingProduct(null);
-                        form.resetFields();
-                        setDescription(''); // Reset description
-                        setImageFiles([]); // Clear images
-                        setIsModalVisible(true);
-                    }}
+                    onClick={handleOpenModal} // Thay vì setIsModalVisible(true), gọi hàm handleOpenModal
                 >
                     Add Product
-                </Button>
+             </Button>
+
             </Card>
 
             <Table columns={columns} dataSource={products} rowKey="_id" pagination={{ pageSize: 5 }} />
@@ -225,6 +285,7 @@ const ProductManagement = () => {
                     setImageFiles([]);
                 }}
                 footer={null}
+                width={1000}
             >
                 <Form form={form} layout="vertical" onFinish={handleSaveProduct}>
                     <Form.Item
@@ -248,29 +309,117 @@ const ProductManagement = () => {
                     >
                         <Input placeholder="https://example.com" />
                     </Form.Item>
-                    <Form.Item
-                        name="stock"
-                        label="Stock"
-                        rules={[{ required: true, message: 'Please input stock!' }]}
+
+                    {/* Variant Form - Adding Multiple Variants */}
+                    <Form.Item label="Variants">
+    <div style={tableStyle}>
+        <Table
+            columns={[
+                {
+                    title: 'Storage',
+                    dataIndex: 'storage',
+                    key: 'storage',
+                    render: (text, record, index) => (
+                        <Input
+                            value={text}
+                            onChange={(e) => handleVariantChange(index, 'storage', e.target.value)}
+                        />
+                    ),
+                },
+                {
+                    title: 'Color',
+                    dataIndex: 'color',
+                    key: 'color',
+                    render: (text, record, index) => (
+                        <Input
+                            value={text}
+                            onChange={(e) => handleVariantChange(index, 'color', e.target.value)}
+                        />
+                    ),
+                },
+                {
+                    title: 'Price',
+                    dataIndex: 'price',
+                    key: 'price',
+                    render: (text, record, index) => (
+                        <InputNumber
+                            min={0}
+                            value={text || 0}
+                            onChange={(value) => handleVariantChange(index, 'price', value || 0)}
+                            style={{ width: '100%' }}
+                        />
+                    ),
+                },
+                {
+                    title: 'Price Discount',
+                    dataIndex: 'price_discount',
+                    key: 'price_discount',
+                    render: (text, record, index) => (
+                        <InputNumber
+                            min={0}
+                            value={text || 0}
+                            onChange={(value) => handleVariantChange(index, 'price_discount', value || 0)}
+                            style={{ width: '100%' }}
+                        />
+                    ),
+                },
+                {
+                    title: 'Stock',
+                    dataIndex: 'stock',
+                    key: 'stock',
+                    render: (text, record, index) => (
+                        <InputNumber
+                            min={0}
+                            value={text}
+                            onChange={(value) => handleVariantChange(index, 'stock', value)}
+                            style={{ width: '100%' }}
+                        />
+                    ),
+                },
+                {
+                    title: 'Images',
+                    dataIndex: 'images',
+                    key: 'images',
+                    render: (text, record, index) => (
+                        // Trong phần render của variant
+                    <Upload
+                        listType="picture-card"
+                        fileList={record.images || []}
+                        onChange={({ fileList }) => handleVariantChange(index, 'images', fileList)}
+                        beforeUpload={() => false} // Ngăn tự động upload
                     >
-                        <InputNumber min={0} style={{ width: '100%' }} />
-                    </Form.Item>
-                    <Form.Item
-                        name="price"
-                        label="Price"
-                        rules={[{ required: true, message: 'Please input price!' }]}
-                    >
-                        <InputNumber min={0} style={{ width: '100%' }} />
-                    </Form.Item>
-                    <Form.Item
-                        name="price_discount"
-                        label="Discount Price"
-                        rules={[
-                            { required: false, message: 'Please input discount price!' },
-                        ]}
-                    >
-                        <Input placeholder="Enter discount price" />
-                    </Form.Item>
+                        <div>
+                            <UploadOutlined />
+                            <div style={{ marginTop: 8 }}>Upload</div>
+                        </div>
+                    </Upload>
+
+                    ),
+                },
+                {
+                    title: 'Actions',
+                    key: 'actions',
+                    render: (_, record, index) => (
+                        <div style={{ display: 'flex', justifyContent: 'center' }}>
+                            <Button danger size="small" onClick={() => removeVariant(index)}>Remove</Button>
+                        </div>
+                    ),
+                }
+            ]}
+            dataSource={variants}
+            rowKey={(record, index) => `variant-${index}`}
+            pagination={false}
+            footer={() => (
+                <Button type="dashed" icon={<PlusOutlined />} onClick={addVariant}>
+                    Add Variant
+                </Button>
+            )}
+        />
+    </div>
+</Form.Item>
+
+
+
                     <Form.Item
                         name="status"
                         label="Status"
@@ -284,26 +433,31 @@ const ProductManagement = () => {
                             ))}
                         </Select>
                     </Form.Item>
+
                     <Form.Item label="Description">
                         <ReactQuill value={description} onChange={setDescription} />
                     </Form.Item>
-                    <Form.Item label="Upload Images">
+                    <Form.Item label="Technical Specifications">
+                        <ReactQuill value={technicalSpecifications} onChange={setTechnicalSpecifications} />
+                    </Form.Item>
+
+                    <Form.Item label="Upload Images For Slide">
                         <Upload
                             listType="picture-card"
                             fileList={imageFiles}
-                            beforeUpload={() => false} // Prevent automatic upload
+                            beforeUpload={() => false}
                             onChange={({ fileList }) => setImageFiles(fileList)}
                             onRemove={(file) => {
                                 const updatedFiles = imageFiles.filter((item) => item.uid !== file.uid);
-                                setImageFiles(updatedFiles); // Cập nhật danh sách ảnh sau khi xóa
+                                setImageFiles(updatedFiles);
                             }}
                         >
                             <div>
                                 <UploadOutlined /> Upload
                             </div>
                         </Upload>
-
                     </Form.Item>
+
                     <Form.Item>
                         <Space>
                             <Button type="primary" htmlType="submit">
@@ -335,9 +489,15 @@ const ProductManagement = () => {
                 }}
             >
                 {viewProduct && (
-                    <Descriptions column={1}>
+                    <Descriptions column={1} bordered>
+                        {/* Thông tin chung */}
                         <Descriptions.Item label="Name">{viewProduct.name}</Descriptions.Item>
                         <Descriptions.Item label="Category ID">{viewProduct.category_id}</Descriptions.Item>
+                        <Descriptions.Item label="Status">
+                            <Tag color={productStatuses.find((s) => s.value === viewProduct.status)?.color}>
+                                {productStatuses.find((s) => s.value === viewProduct.status)?.label}
+                            </Tag>
+                        </Descriptions.Item>
                         <Descriptions.Item label="YouTube Link">
                             {viewProduct.youtube_link ? (
                                 <a href={viewProduct.youtube_link} target="_blank" rel="noopener noreferrer">
@@ -347,39 +507,107 @@ const ProductManagement = () => {
                                 'No Link'
                             )}
                         </Descriptions.Item>
-                        <Descriptions.Item label="Stock">{viewProduct.stock}</Descriptions.Item>
-                        <Descriptions.Item label="Price">
-                            {viewProduct.price_discount ? (
-                                <>
-                                    <span style={{ color: 'green', fontWeight: 'bold', marginRight: 8 }}>
-                                        {Number(viewProduct.price_discount).toLocaleString('vi-VN')} VND
-                                    </span>
-                                    <span style={{ textDecoration: 'line-through', color: '#888' }}>
-                                        {Number(viewProduct.price).toLocaleString('vi-VN')} VND
-                                    </span>
-                                </>
-                            ) : (
-                                `${Number(viewProduct.price).toLocaleString('vi-VN')} VND`
-                            )}
-                        </Descriptions.Item>
 
-                        <Descriptions.Item label="Status">
-                            <Tag color={productStatuses.find((s) => s.value === viewProduct.status)?.color}>
-                                {productStatuses.find((s) => s.value === viewProduct.status)?.label}
-                            </Tag>
-                        </Descriptions.Item>
+                        {/* Mô tả sản phẩm */}
                         <Descriptions.Item label="Description">
                             <div dangerouslySetInnerHTML={{ __html: viewProduct.description_detail }} />
                         </Descriptions.Item>
-                        <Descriptions.Item label="Images">
-                            {viewProduct.image_urls?.map((url, index) => (
-                                <img
-                                    key={index}
-                                    src={url}
-                                    alt={`product-img-${index}`}
-                                    style={{ width: '50px', marginRight: '8px' }}
-                                />
-                            ))}
+
+                        {/* Thông số kỹ thuật */}
+                        <Descriptions.Item label="Technical Specifications">
+                            <div dangerouslySetInnerHTML={{ __html: viewProduct.technical_specifications }} />
+                        </Descriptions.Item>
+
+                        {/* Danh sách phiên bản */}
+                        <Descriptions.Item label="Variants">
+                            <Table
+                                columns={[
+                                    {
+                                        title: 'Storage',
+                                        dataIndex: 'storage',
+                                        key: 'storage',
+                                        width: 100,
+                                    },
+                                    {
+                                        title: 'Color',
+                                        dataIndex: 'color',
+                                        key: 'color',
+                                        width: 120,
+                                        render: (text, record) => (
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                {text}
+                                            </div>
+                                        ),
+                                    },
+                                    {
+                                        title: 'Price',
+                                        dataIndex: 'price',
+                                        key: 'price',
+                                        width: 180,
+                                        render: (text, record) => (
+                                            record.price_discount ? (
+                                                <>
+                                                    <span style={{ color: 'green', fontWeight: 'bold' }}>
+                                                        {Number(record.price_discount).toLocaleString('vi-VN')} VND
+                                                    </span>
+                                                    <br />
+                                                    <span style={{ textDecoration: 'line-through', color: '#888' }}>
+                                                        {Number(record.price).toLocaleString('vi-VN')} VND
+                                                    </span>
+                                                </>
+                                            ) : (
+                                                `${Number(record.price).toLocaleString('vi-VN')} VND`
+                                            )
+                                        ),
+                                    },
+                                    {
+                                        title: 'Stock',
+                                        dataIndex: 'stock',
+                                        key: 'stock',
+                                        width: 100,
+                                    },
+                                    {
+                                        title: 'Images',
+                                        dataIndex: 'images',
+                                        key: 'images',
+                                        width: 200,
+                                        render: (images) => (
+                                            images?.length > 0 ? (
+                                                images.map((url, index) => (
+                                                    <img
+                                                        key={index}
+                                                        src={url}
+                                                        alt={`variant-img-${index}`}
+                                                        style={{ width: '40px', height: '40px', marginRight: '5px' }}
+                                                    />
+                                                ))
+                                            ) : (
+                                                <span>No Images</span>
+                                            )
+                                        ),
+                                    },
+                                ]}
+                                dataSource={viewProduct.variants || []}
+                                rowKey={(record, index) => `variant-${index}`}
+                                pagination={false}
+                            />
+                        </Descriptions.Item>
+
+
+                        {/* Hình ảnh chung của sản phẩm */}
+                        <Descriptions.Item label="Product Images">
+                            {viewProduct.image_urls?.length > 0 ? (
+                                viewProduct.image_urls.map((url, index) => (
+                                    <img
+                                        key={index}
+                                        src={url}
+                                        alt={`product-img-${index}`}
+                                        style={{ width: '50px', marginRight: '8px' }}
+                                    />
+                                ))
+                            ) : (
+                                <span>No Images</span>
+                            )}
                         </Descriptions.Item>
                     </Descriptions>
                 )}

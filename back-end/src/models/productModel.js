@@ -6,19 +6,29 @@ const PRODUCT_COLLECTION_NAME = 'products'
 
 const PRODUCT_SCHEMA = Joi.object({
     name: Joi.string().required(),
-    image_urls: Joi.array().items(Joi.string()).default([]), // Mảng chứa nhiều URL ảnh
+    image_urls: Joi.array().items(Joi.string()).default([]),
     category_id: Joi.string().required(),
-    price: Joi.string().required(),
-    price_discount: Joi.string().allow(null).default(null), 
-    stock: Joi.string().required(),
     status: Joi.string().valid('available', 'unavailable').required(),
     seller_id: Joi.string().required(),
-    description_detail: Joi.string().required(), // Rich text lưu dưới dạng HTML hoặc JSON
-    youtube_link: Joi.string().uri().allow(null).default(null), // Thêm link YouTube (nếu có)
+    description_detail: Joi.string().required(),
+    technical_specifications: Joi.string().required(),
+    youtube_link: Joi.string().uri().allow(null).default(null),
+    variants: Joi.array().items(
+        Joi.object({
+            storage: Joi.string().required(),  // Dung lượng (String is okay for storage)
+            color: Joi.string().required(),    // Màu sắc (String is okay for color)
+            price: Joi.number().required(),    // Giá của phiên bản (Price should be a number)
+            price_discount: Joi.number().allow(null).default(null),  // Giá khuyến mãi (Price discount should be a number)
+            stock: Joi.number().integer().min(0).required(),  // Số lượng hàng
+            images: Joi.array().items(Joi.string()).default([]),  // Hình ảnh của phiên bản
+        })
+    ).default([]),
     createdAt: Joi.date().timestamp('javascript').default(Date.now),
     updatedAt: Joi.date().timestamp('javascript').default(null),
     _destroy: Joi.boolean().default(false)
 });
+
+
 
 
 
