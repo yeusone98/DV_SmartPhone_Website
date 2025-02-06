@@ -7,11 +7,10 @@ const createProduct = async (req, res, next) => {
         const { files, body } = req;
         let data = { ...body, seller_id: req.jwtDecoded._id };
 
-        // Xử lý ảnh chính - SỬA ĐOẠN NÀY
         const mainImages = files
             .filter(file => file.fieldname === 'images')
             .map(file => file.path);
-        data.image_urls = mainImages;   
+        data.image_urls = mainImages
 
         // Parse JSON cho variants nếu cần
         if (typeof data.variants === 'string') {
@@ -56,9 +55,6 @@ const createProduct = async (req, res, next) => {
 };
 
 
-
-
-
 const getProducts = async (req, res, next) => {
     try {
         const { category_id, search, status } = req.query
@@ -91,72 +87,67 @@ const getProductById = async (req, res, next) => {
 const updateProduct = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const data = req.body;
-        const files = req.files || [];
+        const { body, files } = req; // files lấy từ req.files do upload.any()
+        const objectId = new ObjectId(id);
 
-        // Check existing product
-        const existingProduct = await productModel.findProductById(id);
+        const existingProduct = await productModel.findProductById(objectId);
         if (!existingProduct) {
-            return res.status(StatusCodes.NOT_FOUND).json({ message: 'Product not found!' });
+            return res.status(404).json({ message: 'Product not found!' });
         }
 
-        // Parse variants from JSON string if needed
-        if (typeof data.variants === 'string') {
-            try {
-                data.variants = JSON.parse(data.variants);
-            } catch (error) {
-                console.error('Error parsing variants:', error);
-                data.variants = [];
-            }
+        // Xử lý ảnh chính từ files
+        const keptImages = JSON.parse(body.image_urls || '[]');
+        const newMainImages = files
+            .filter(file => file.fieldname === 'images')
+            .map(file => file.path);
+        const updatedMainImages = [...keptImages, ...newMainImages];
+
+        // Xử lý variants từ body và files
+        let variantsData = [];
+        try {
+            variantsData = JSON.parse(body.variants || '[]');
+        } catch (error) {
+            return res.status(400).json({ message: 'Invalid variants data!' });
         }
 
-        // Validate variants structure
-        if (!Array.isArray(data.variants)) {
-            data.variants = [];
-        }
-
-        // Process variant images
+        // Tạo map cho ảnh variants mới
         const variantImagesMap = {};
         files.forEach((file) => {
             const match = file.fieldname.match(/variants\[(\d+)\]\[images\]/);
             if (match) {
                 const variantIndex = parseInt(match[1], 10);
-                variantImagesMap[variantIndex] = variantImagesMap[variantIndex] || [];
+                if (!variantImagesMap[variantIndex]) {
+                    variantImagesMap[variantIndex] = [];
+                }
                 variantImagesMap[variantIndex].push(file.path);
             }
         });
 
-        // Merge images
-        const updatedVariants = data.variants.map((variant, index) => {
-            const existing = existingProduct.variants[index]?.images || [];
+        // Cập nhật ảnh cho từng variant
+        const updatedVariants = variantsData.map((variant, index) => {
+            const existingVariant = existingProduct.variants[index] || {};
+            const existingImages = variant.images?.filter(img => typeof img === 'string') || [];
             const newImages = variantImagesMap[index] || [];
             return {
                 ...variant,
-                images: [...existing, ...newImages]
+                images: [...existingImages, ...newImages]
             };
         });
+
+        // Chuẩn bị dữ liệu cập nhật
         const updateData = {
-            ...data,
+            ...body,
+            image_urls: updatedMainImages,
             variants: updatedVariants,
-            updatedAt: Date.now()
+            updatedAt: new Date()
         };
-        // Handle main images
-        if (files?.images) {
-            // Preserve existing images and add new ones
-            updateData.image_urls = [
-                ...existingProduct.image_urls,
-                ...files.images.map(file => file.path)
-            ];
-        } else {
-            // Keep existing images if no new uploads
-            updateData.image_urls = existingProduct.image_urls;
-        }
+
+        const result = await productModel.updateProduct(objectId, updateData);
+        res.status(200).json(result);
     } catch (error) {
-        console.error('Error updating product:', error.message);
         next(error);
     }
 };
-
 
 
 const deleteProduct = async (req, res, next) => {

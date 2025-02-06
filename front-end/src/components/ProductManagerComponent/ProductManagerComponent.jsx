@@ -68,59 +68,50 @@ const ProductManagement = () => {
     // Handle adding or updating a product
     const handleSaveProduct = async (values) => {
         const formData = new FormData();
-    
-    // Thêm các trường dữ liệu cơ bản
-    formData.append("name", values.name);
-    formData.append("category_id", values.category_id);
-    formData.append("youtube_link", values.youtube_link || '');
-    formData.append("description_detail", description);
-    formData.append("technical_specifications", technicalSpecifications); // Thêm trường này
-    formData.append("status", values.status);
 
-    // Xử lý ảnh chính (thêm ảnh mới, giữ ảnh cũ)
-    const newMainImages = imageFiles
-        .filter((file) => file.originFileObj) // Chỉ lấy ảnh mới
-        .map((file) => file.originFileObj);
+        // Thêm các trường dữ liệu cơ bản
+        formData.append("name", values.name);
+        formData.append("category_id", values.category_id);
+        formData.append("youtube_link", values.youtube_link || '');
+        formData.append("description_detail", description);
+        formData.append("technical_specifications", technicalSpecifications);
+        formData.append("status", values.status);
+
+        // Xử lý ảnh chính
+        formData.append("image_urls", JSON.stringify(
+            imageFiles
+              .filter(file => file.url) // Chỉ lấy các ảnh đã tồn tại
+              .map(file => file.url)
+          ));
+
         
-        newMainImages.forEach((file) => {
-            formData.append('images', file);
-        });
-
-    // Giữ lại các ảnh cũ (nếu có)
-    const existingMainImages = imageFiles
-        .filter((file) => file.url && !file.originFileObj)
-        .map((file) => file.url);
-        formData.append('existing_images', JSON.stringify(existingMainImages));
-
+        // Thêm ảnh mới vào FormData
+        imageFiles
+            .filter(file => !file.url)
+            .forEach(file => {
+                formData.append('images', file.originFileObj);
+            });
+    
+        // Xử lý variants: Gửi metadata dưới dạng JSON và ảnh riêng
         // Xử lý variants
-        const processedVariants = variants.map((variant, index) => {
-            // Giữ lại ảnh cũ
-            const existingImages = variant.images
-                .filter(img => img.url && !img.originFileObj)
-                .map(img => img.url);
-            
-            // Thêm ảnh mới
-            const newImages = variant.images
-                .filter(img => img.originFileObj)
-                .map(img => img.originFileObj);
-
-            return {
-                storage: variant.storage,
-                color: variant.color,
-                price: Number(variant.price),
-                price_discount: variant.price_discount ? Number(variant.price_discount) : null,
-                stock: Number(variant.stock),
-                existingImages, // Gửi ảnh cũ
-                newImages // Gửi ảnh mới
-            };
-        });
+        const processedVariants = variants.map(variant => ({
+            storage: variant.storage,
+            color: variant.color,
+            price: Number(variant.price),
+            price_discount: variant.price_discount ? Number(variant.price_discount) : null,
+            stock: Number(variant.stock),
+            // Giữ nguyên ảnh cũ nếu có
+            images: variant.images.filter(img => img.url).map(img => img.url) 
+        }));
 
         formData.append('variants', JSON.stringify(processedVariants));
 
-        // Thêm ảnh mới của variants vào formData
-        processedVariants.forEach((variant, index) => {
-            variant.newImages.forEach((file, fileIndex) => {
-                formData.append(`variants[${index}][images]`, file);
+        // Xử lý upload ảnh mới cho từng variant
+        variants.forEach((variant, index) => {
+            variant.images.forEach((image) => {
+                if (image.originFileObj) {
+                    formData.append(`variants[${index}][images]`, image.originFileObj);
+                }
             });
         });
 
@@ -217,8 +208,6 @@ const ProductManagement = () => {
     };
     
     
-    
-    
     const addVariant = () => {
         setVariants((prevVariants) => [
             ...prevVariants,
@@ -238,8 +227,9 @@ const ProductManagement = () => {
         setEditingProduct(null);
         form.resetFields();
         setDescription('');
+        setTechnicalSpecifications(''); 
         setImageFiles([]);
-        setVariants([{ storage: '', color: '', price: 0, price_discount: 0, stock: 0, images: [] }]); // ✅ Không để mảng rỗng
+        setVariants([{ storage: '', color: '', price: 0, price_discount: 0, stock: 0, images: [] }]); 
         setIsModalVisible(true);
     };
     
@@ -468,6 +458,7 @@ const ProductManagement = () => {
 
                     <Form.Item label="Upload Images For Slide">
                         <Upload
+                            name="images"
                             listType="picture-card"
                             fileList={imageFiles}
                             beforeUpload={() => false}
@@ -621,19 +612,15 @@ const ProductManagement = () => {
 
                         {/* Hình ảnh chung của sản phẩm */}
                         <Descriptions.Item label="Product Images Slide">
-                            {viewProduct.image_urls?.length > 0 ? (
-                                viewProduct.image_urls.map((url, index) => (
-                                    <img
-                                        key={index}
-                                        src={url}
-                                        alt={`product-img-${index}`}
-                                        style={{ width: '50px', marginRight: '8px' }}
-                                    />
-                                ))
-                            ) : (
-                                <span>No Images</span>
-                            )}
-                        </Descriptions.Item>
+                            {viewProduct.image_urls?.map((url, index) => (
+                                <img
+                                key={index}
+                                src={url}
+                                alt={`product-img-${index}`}
+                                style={{ width: '50px', marginRight: '8px' }}
+                                />
+                            ))}
+                            </Descriptions.Item>
                     </Descriptions>
                 )}
             </Drawer>

@@ -56,25 +56,18 @@ const findProductById = async (id) => {
 }
 
 const updateProduct = async (id, updateData) => {
-    try {
-        console.log('Updating Product with ObjectId:', id) // Log ID đã chuyển đổi
-        delete updateData._id // Loại bỏ _id trong dữ liệu cập nhật
-
-        const result = await GET_DB()
-            .collection(PRODUCT_COLLECTION_NAME)
-            .findOneAndUpdate(
-                { _id: id }, // Sử dụng ObjectId đã chuyển đổi
-                { $set: { ...updateData, updatedAt: Date.now() } },
-                { returnDocument: 'after' } // Trả về tài liệu sau khi cập nhật
-            )
-
-        console.log('Update result:', result) // Log kết quả cập nhật
-        return result.value // Trả về giá trị sản phẩm đã cập nhật
-    } catch (error) {
-        console.error('Error in updateProduct:', error.message)
-        throw error
+    if (typeof id === 'string') {
+        id = new ObjectId(id)
     }
-}
+    const result = await GET_DB()
+        .collection(PRODUCT_COLLECTION_NAME)
+        .findOneAndUpdate(
+            { _id: id },
+            { $set: updateData },
+            { returnDocument: 'after' }
+        )
+    return result.value
+};
 
 const deleteProduct = async (id) => {
     const result = await GET_DB()
