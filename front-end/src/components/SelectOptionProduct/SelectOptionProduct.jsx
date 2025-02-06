@@ -56,11 +56,18 @@ const SelectOptionProduct = ({ variants, selectedVariant, onSelectVariant }) => 
                 alt="selected variant" 
                 style={{ width: '20px', height: '20px', marginRight: '8px' }}
               />
-              {selectedVariant.storage} GB | {selectedVariant.color} - {selectedVariant.price.toLocaleString()}đ
-              {selectedVariant.price_discount && (
-                <span style={{ textDecoration: 'line-through', color: 'gray', marginLeft: '8px' }}>
-                  {selectedVariant.price_discount.toLocaleString()}đ
-                </span>
+              {selectedVariant.storage} GB | {selectedVariant.color} 
+              {selectedVariant.price_discount ? (
+                <>
+                  <span style={{ color: "red", fontWeight: "bold" }}>
+                    {selectedVariant.price_discount.toLocaleString()}đ
+                  </span>
+                  <span style={{ textDecoration: "line-through", color: "gray", marginLeft: "8px" }}>
+                    {selectedVariant.price.toLocaleString()}đ
+                  </span>
+                </>
+              ) : (
+                <span>{selectedVariant.price.toLocaleString()}đ</span>
               )}
             </>
           ) : 'Chọn phiên bản'}

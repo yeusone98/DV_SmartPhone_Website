@@ -7,7 +7,6 @@ const PRODUCT_COLLECTION_NAME = 'products'
 const PRODUCT_SCHEMA = Joi.object({
     name: Joi.string().required(),
     image_urls: Joi.array().items(Joi.string()).default([]),
-    category_id: Joi.string().required(),
     status: Joi.string().valid('available', 'unavailable').required(),
     seller_id: Joi.string().required(),
     description_detail: Joi.string().required(),

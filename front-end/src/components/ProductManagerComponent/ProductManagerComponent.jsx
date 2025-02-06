@@ -243,12 +243,6 @@ const ProductManagement = () => {
             width: 200,
         },
         {
-            title: 'Category ID',
-            dataIndex: 'category_id',
-            key: 'category_id',
-            width: 150,
-        },
-        {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
@@ -310,13 +304,6 @@ const ProductManagement = () => {
                         <Input />
                     </Form.Item>
                     <Form.Item
-                        name="category_id"
-                        label="Category ID"
-                        rules={[{ required: true, message: 'Please input category ID!' }]}
-                    >
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
                         name="youtube_link"
                         label="YouTube Link"
                         rules={[{ type: 'url', message: 'Please input a valid URL!' }]}
@@ -365,7 +352,7 @@ const ProductManagement = () => {
                                         ),
                                     },
                                     {
-                                        title: 'Price Discount',
+                                        title: 'Price Discounted',
                                         dataIndex: 'price_discount',
                                         key: 'price_discount',
                                         render: (text, record, index) => (
@@ -508,7 +495,6 @@ const ProductManagement = () => {
                     <Descriptions column={1} bordered>
                         {/* Thông tin chung */}
                         <Descriptions.Item label="Name">{viewProduct.name}</Descriptions.Item>
-                        <Descriptions.Item label="Category ID">{viewProduct.category_id}</Descriptions.Item>
                         <Descriptions.Item label="Status">
                             <Tag color={productStatuses.find((s) => s.value === viewProduct.status)?.color}>
                                 {productStatuses.find((s) => s.value === viewProduct.status)?.label}

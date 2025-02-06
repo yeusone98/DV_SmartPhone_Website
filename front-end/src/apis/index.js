@@ -102,17 +102,24 @@ export const deleteProductAPI = async (id) => {
 // Cart
 export const addToCartAPI = async (data) => {
     const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/cart`, {
-        id: data.id,
-        price: data.price,
-        quantity: data.quantity,
+      id: data.id,
+      color: data.color, 
+      storage: String(data.storage), 
+      unit_price: Number(data.unit_price), 
+      quantity: Number(data.quantity), 
+      total_price_per_product: Number(data.unit_price) * Number(data.quantity) 
     });
+
     return response.data;
 };
 
-export const updateCartItemAPI = async ({ product_id, quantity }) => {
+
+export const updateCartItemAPI = async ({ product_id, color, storage, quantity }) => {
     const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/cart`, {
         product_id,
-        quantity,
+        color,
+        storage,
+        quantity
     });
     return response.data;
 };
@@ -122,9 +129,9 @@ export const fetchCartAPI = async () => {
     return response.data;
 };
 
-export const removeCartItemAPI = async (productId) => {
+export const removeCartItemAPI = async ({ product_id, color, storage }) => {
     const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/cart`, {
-        data: { product_id: productId },
+        data: { product_id, color, storage }
     });
     return response.data;
 };

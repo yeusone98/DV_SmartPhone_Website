@@ -4,6 +4,8 @@ import routes from "./routes";
 import DefaultComponent from "./components/DefaultComponent/DefaultComponent";
 import ProtectedRoute from "./utils/ProtectedRoute"; // Import đúng nơi cần thiết
 
+
+
 function App() {
   return (
     <div className="App">

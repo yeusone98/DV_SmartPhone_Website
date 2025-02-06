@@ -18,62 +18,66 @@ const getCart = async (req, res, next) => {
 
 const addToCart = async (req, res, next) => {
     try {
-        const userId = req.jwtDecoded._id // Lấy ID người dùng từ token
-        const { id, price, quantity } = req.body // Lấy dữ liệu từ request body
+        const userId = req.jwtDecoded._id;
+        const { id, color, storage, unit_price, quantity } = req.body; // Thêm color và storage
 
-        // Kiểm tra các trường bắt buộc
-        if (!id || !price || !quantity) {
-            return res.status(400).json({ message: 'Missing required fields!' })
+        if (!id || !color || !storage || !unit_price || !quantity) {
+            return res.status(400).json({ message: 'Missing required fields!' });
         }
 
-        // Gọi model để thêm sản phẩm vào giỏ hàng
-        const updatedCart = await cartModel.addProductToCart(userId, id, quantity, price)
+        console.log('📌 API nhận dữ liệu:', req.body); // Debug
 
-        res.status(200).json(updatedCart)
+        const updatedCart = await cartModel.addProductToCart(userId, id, color, storage, quantity, unit_price);
+        res.status(200).json(updatedCart);
     } catch (error) {
-        console.error('Error in addToCart:', error.message)
-        next(error)
+        console.error('❌ Error in addToCart:', error.message);
+        next(error);
     }
-}
+};
 
 
 const updateCartItem = async (req, res, next) => {
     try {
-        const userId = req.jwtDecoded._id
-        const { product_id, quantity } = req.body
+        const userId = req.jwtDecoded._id;
+        const { product_id, color, storage, quantity } = req.body;
 
-        if (!product_id || quantity < 1) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Missing or invalid product_id or quantity!' })
+        if (!product_id || !color || !storage || quantity < 1) {
+            return res.status(400).json({ message: ' Thiếu thông tin sản phẩm hoặc số lượng không hợp lệ!' });
         }
 
-        const updatedCart = await cartModel.updateProductQuantity(userId, product_id, quantity)
+        console.log(' updateCartItem received:', { userId, product_id, color, storage, quantity });
 
-        res.status(StatusCodes.OK).json(updatedCart)
+        const updatedCart = await cartModel.updateProductQuantity(userId, product_id, color, storage, quantity);
+
+        res.status(200).json(updatedCart);
     } catch (error) {
-        console.error('Error in updateCartItem:', error.message)
-        next(error)
+        console.error(' Error in updateCartItem:', error.message);
+        res.status(500).json({ message: ' Không thể cập nhật số lượng sản phẩm!' });
     }
-}
+};
+
 
 
 const removeCartItem = async (req, res, next) => {
     try {
-        const userId = req.jwtDecoded._id // Lấy customer_id từ token
-        const { product_id } = req.body
+        const userId = req.jwtDecoded._id;
+        const { product_id, color, storage } = req.body;
 
-        if (!product_id) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Missing product_id!' })
+        if (!product_id || !color || !storage) {
+            return res.status(400).json({ message: ' Thiếu thông tin sản phẩm cần xoá!' });
         }
 
-        // Gọi hàm model để xóa sản phẩm
-        const updatedCart = await cartModel.removeProductFromCart(userId, product_id)
+        console.log(' removeCartItem received:', { userId, product_id, color, storage });
 
-        res.status(StatusCodes.OK).json(updatedCart)
+        // Gọi model để xóa sản phẩm
+        const updatedCart = await cartModel.removeProductFromCart(userId, product_id, color, storage);
+
+        res.status(200).json(updatedCart);
     } catch (error) {
-        console.error('Error in removeCartItem:', error.message)
-        next(error)
+        console.error(' Error in removeCartItem:', error.message);
+        res.status(500).json({ message: ' Xoá sản phẩm thất bại!' });
     }
-}
+};
 
 
 export const cartController = {

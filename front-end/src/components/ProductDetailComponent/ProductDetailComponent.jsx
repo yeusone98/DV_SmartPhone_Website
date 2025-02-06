@@ -21,9 +21,9 @@ import {
   InputNumber,
   Rate,
   Row,
+  message,
 } from "antd";
 import React, { useState, useEffect } from "react";
-import imgProductSmall from "../../assets/images/iphone-16-pro-max-small.png";
 import imgProduct from "../../assets/images/iphone-16-pro-max.png";
 import {
   AverageRating,
@@ -72,10 +72,14 @@ import {
   WrapperTextSell,
 } from "./style";
 
-import iphoneImg from '../../assets/images/iphone-16-pro-max.png'
+
 import SelectOptionProduct from "../SelectOptionProduct/SelectOptionProduct";
 import { useParams } from "react-router-dom";
-import { fetchProductByIdAPI } from "../../apis";
+import { fetchProductByIdAPI, addToCartAPI, fetchCartAPI, updateCartItemAPI  } from "../../apis";
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from '../../features/user/userSlice';
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 
 const ProductDetailComponent = () => {
   const { id } = useParams();
@@ -84,7 +88,12 @@ const ProductDetailComponent = () => {
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("review");
   const [showReviewForm, setShowReviewForm] = useState(false);
-  
+  const [cartCount, setCartCount] = useState(0);
+  const currentUser = useSelector(selectCurrentUser) // Lấy thông tin người dùng từ Redux
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+
+
   const reviews = [
     {
       id: 1,
@@ -121,6 +130,73 @@ const ProductDetailComponent = () => {
   const handleSelectVariant = (variant) => {
     setSelectedVariant(variant);
   };
+
+  // Lấy giỏ hàng nếu đã đăng nhập
+  const fetchCart = async () => {
+    if (!currentUser) return // Nếu chưa đăng nhập, không cần lấy giỏ hàng
+    try {
+      const cart = await fetchCartAPI()
+      const totalItems =
+        cart?.products?.reduce((sum, product) => sum + product.quantity, 0) || 0
+      setCartCount(totalItems)
+    } catch (error) {
+      console.error('Không thể tải giỏ hàng:', error)
+    }
+  }
+
+    // Thêm sản phẩm vào giỏ hàng
+    const handleAddToCart = async () => {
+      if (!currentUser) {
+          message.error("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!");
+          navigate("/login");
+          return;
+      }
+  
+      // Lấy giỏ hàng hiện tại để kiểm tra sản phẩm đã tồn tại hay chưa
+      try {
+          const cart = await fetchCartAPI();
+          const existingProduct = cart.products.find(
+              (item) =>
+                  item.product_id === product._id &&
+                  item.color === selectedVariant.color &&
+                  item.storage === String(selectedVariant.storage)
+          );
+  
+          if (existingProduct) {
+              // Nếu sản phẩm đã tồn tại, cập nhật số lượng
+              const newQuantity = existingProduct.quantity + Number(quantity);
+  
+              await updateCartItemAPI({
+                  product_id: product._id,
+                  color: selectedVariant.color,
+                  storage: String(selectedVariant.storage),
+                  quantity: newQuantity,
+              });
+  
+              message.success("Cập nhật số lượng sản phẩm thành công!");
+          } else {
+              // Nếu sản phẩm chưa có, thêm mới vào giỏ hàng
+              const payload = {
+                  id: product._id,
+                  color: selectedVariant.color,
+                  storage: String(selectedVariant.storage),
+                  unit_price: Number(selectedVariant.price_discount || selectedVariant.price),
+                  quantity: Number(quantity) || 1,
+              };
+  
+              await addToCartAPI(payload);
+              message.success("Thêm vào giỏ hàng thành công!");
+          }
+  
+          fetchCart(); // Load lại giỏ hàng sau khi cập nhật
+      } catch (error) {
+          message.error("Thao tác thất bại, vui lòng thử lại!");
+          console.error("❌ Error in handleAddToCart:", error);
+      }
+  };
+  
+    
+    
 
   if (!product || !selectedVariant) return <div>Loading...</div>;
 
@@ -186,10 +262,10 @@ const ProductDetailComponent = () => {
           </div>
           <WrapperPriceTextProduct>
             <h1>
-              {selectedVariant.price.toLocaleString()}đ
+              {selectedVariant.price_discount?.toLocaleString()}đ
               {selectedVariant.price_discount && (
                 <WrapperPriceDiscountTextProduct>
-                  {selectedVariant.price_discount.toLocaleString()}đ
+                  {selectedVariant.price.toLocaleString()}đ
                 </WrapperPriceDiscountTextProduct>
               )}
             </h1>
@@ -223,7 +299,7 @@ const ProductDetailComponent = () => {
             </QuantityContainer>
           </div>
           <WrapperAddCartBuyNow>
-            <WrapperButtonAddCart size="large" textButton="Thêm vào giỏ hàng" />
+          <WrapperButtonAddCart size="large" textButton="Thêm vào giỏ hàng" onClick={handleAddToCart}/>
             <WrapperBtnBuyNow size="large" textButton="Mua ngay" />
           </WrapperAddCartBuyNow>
         </Col>

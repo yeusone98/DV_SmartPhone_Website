@@ -91,11 +91,9 @@ const HeaderComponent = () => {
           {/* Giỏ hàng */}
           <div>
             <Link to="/cart">
-              <Badge count={1} size="small">
                 <ShoppingCartOutlined
                   style={{ fontSize: "25px", color: "#fff" }}
                 />
-              </Badge>
               <WrapperTextHeaderSmall>Giỏ hàng</WrapperTextHeaderSmall>
             </Link>
           </div>
