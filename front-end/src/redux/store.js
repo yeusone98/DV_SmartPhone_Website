@@ -4,17 +4,19 @@ import storage from 'redux-persist/lib/storage';
 import { userReducer, logoutUserAPI } from '../features/user/userSlice';
 import counterReducer from '../features/counter/counterSlice';
 import { setLogoutHandler } from '../utils/authorizeAxios';
+import cartReducer from "../features/cart/cartSlice";
 
 const rootPersistConfig = {
     key: 'root',
     storage,
-    whitelist: ['user'],
+    whitelist: ['user','cart'],
 };
 
 // Kết hợp reducers
 const appReducer = combineReducers({
     user: userReducer,
     counter: counterReducer,
+    cart: cartReducer,
 });
 
 const rootReducer = (state, action) => {
