@@ -1,258 +1,118 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Avatar, Button } from 'antd';
+import { LikeOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
-import { Layout, Menu, Card, Table, Typography, Input, Badge, Avatar, Space, Statistic } from 'antd';
-import {
-  DashboardOutlined,
-  ShoppingCartOutlined,
-  UserOutlined,
-  InboxOutlined,
-  BellOutlined,
-  SettingOutlined,
-  SearchOutlined,
-  ArrowUpOutlined
-} from '@ant-design/icons';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import OrderManagement from '../OrderMangagerComponent/OrderManagerComponent';
 
-const { Header, Sider, Content } = Layout;
-const { Title } = Typography;
-
-// Styled Components
-const StyledLayout = styled(Layout)`
-  min-height: 100vh;
+const CommentContainer = styled.div`
+  padding: 16px;
+  background: #f0f2f5;
+  border-radius: 8px;
+  margin: 16px 0;
 `;
 
-const StyledSider = styled(Sider)`
-  .ant-layout-sider-children {
-    position: fixed;
-    width: 200px;
-    height: 100vh;
-  }
-  
-  .logo {
-    height: 32px;
-    margin: 16px;
-    color: white;
-    font-size: 18px;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-`;
-
-const StyledHeader = styled(Header)`
-  background: white;
-  padding: 0 24px;
+const UserInfo = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  position: fixed;
-  width: calc(100% - 200px);
-  z-index: 1;
+  gap: 8px;
+  margin-bottom: 4px;
 `;
 
-const StyledContent = styled(Content)`
-  margin: 88px 24px 24px;
-  overflow: initial;
+const Username = styled.span`
+  font-weight: 600;
+  font-size: 14px;
 `;
 
-const StatsContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
-  margin-bottom: 24px;
+const TimeAgo = styled.span`
+  color: #65676b;
+  font-size: 13px;
+  &:before {
+    content: '•';
+    margin: 0 6px;
+  }
 `;
 
-const ChartCard = styled(Card)`
-  margin-bottom: 24px;
+const AdminBadge = styled.span`
+  background: #e4e6eb;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin: 0 8px;
 `;
 
-// Sample Data
-const salesData = [
-  { name: 'Jan', sales: 4000 },
-  { name: 'Feb', sales: 3000 },
-  { name: 'Mar', sales: 5000 },
-  { name: 'Apr', sales: 2780 },
-  { name: 'May', sales: 1890 },
-  { name: 'Jun', sales: 2390 },
-];
+const CommentText = styled.div`
+  font-size: 15px;
+  margin: 8px 0;
+`;
 
-const orderColumns = [
-  {
-    title: 'Order ID',
-    dataIndex: 'id',
-    key: 'id',
-  },
-  {
-    title: 'Customer',
-    dataIndex: 'customer',
-    key: 'customer',
-  },
-  {
-    title: 'Product',
-    dataIndex: 'product',
-    key: 'product',
-  },
-  {
-    title: 'Amount',
-    dataIndex: 'amount',
-    key: 'amount',
-  },
-  {
-    title: 'Status',
-    dataIndex: 'status',
-    key: 'status',
-    render: (status) => (
-      <Badge 
-        status={status === 'Completed' ? 'success' : 'processing'} 
-        text={status} 
-      />
-    ),
-  },
-];
+const ActionBar = styled.div`
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+`;
 
-const orderData = [
-  {
-    key: '1',
-    id: '#12345',
-    customer: 'John Doe',
-    product: 'iPhone 13 Pro',
-    amount: '$999',
-    status: 'Completed',
-  },
-  {
-    key: '2',
-    id: '#12346',
-    customer: 'Jane Smith',
-    product: 'Samsung S21',
-    amount: '$899',
-    status: 'Pending',
-  },
-];
+const ActionButton = styled.button`
+  background: none;
+  border: none;
+  color: #65676b;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 
-const TestComponent = () => {
-  const [collapsed, setCollapsed] = useState(false);
+  &:hover {
+    text-decoration: underline;
+  }
+`;
 
+const Comment = () => {
   return (
+    <>
+      {/* Original post */}
+      <CommentContainer>
+        <UserInfo>
+          <Avatar>D</Avatar>
+          <Username>Do Van Phon</Username>
+          <TimeAgo>3 ngày trước</TimeAgo>
+        </UserInfo>
+        <CommentText>Tôi muốn mua iPhone 15 128gb</CommentText>
+        <ActionBar>
+          <ActionButton>
+            <LikeOutlined />
+            <span>0</span>
+          </ActionButton>
+          <ActionButton>Trả lời</ActionButton>
+        </ActionBar>
+      </CommentContainer>
 
-    <StyledLayout>
-      <StyledSider 
-        trigger={null} 
-        collapsible 
-        collapsed={collapsed}
-      >
-        <div className="logo">Phone Store</div>
-        <Menu
-          theme="dark"
-          mode="inline"
-          defaultSelectedKeys={['1']}
-          items={[
-            {
-              key: '1',
-              icon: <DashboardOutlined />,
-              label: 'Dashboard',
-            },
-            {
-              key: '2',
-              icon: <InboxOutlined />,
-              label: 'Products',
-            },
-            {
-              key: '3',
-              icon: <ShoppingCartOutlined />,
-              label: 'Orders',
-            },
-            {
-              key: '4',
-              icon: <UserOutlined />,
-              label: 'Customers',
-            },
-          ]}
-        />
-      </StyledSider>
-      
-      <Layout>
-        <StyledHeader>
-          <Input
-            prefix={<SearchOutlined />}
-            placeholder="Search..."
-            style={{ width: 200 }}
-          />
-          <Space size="large">
-            <Badge count={5}>
-              <BellOutlined style={{ fontSize: 20 }} />
-            </Badge>
-            <SettingOutlined style={{ fontSize: 20 }} />
-            <Avatar icon={<UserOutlined />} />
-          </Space>
-        </StyledHeader>
-        
-        <StyledContent>
-          <StatsContainer>
-            <Card>
-              <Statistic
-                title="Total Revenue"
-                value={45231}
-                precision={2}
-                prefix="$"
-                suffix={<small style={{ color: '#3f8600' }}>+20.1%</small>}
-              />
-            </Card>
-            <Card>
-              <Statistic
-                title="Total Orders"
-                value={1205}
-                prefix={<ShoppingCartOutlined />}
-                suffix={<small style={{ color: '#3f8600' }}>+12.5%</small>}
-              />
-            </Card>
-            <Card>
-              <Statistic
-                title="Total Customers"
-                value={3456}
-                prefix={<UserOutlined />}
-                suffix={<small style={{ color: '#3f8600' }}>+8.2%</small>}
-              />
-            </Card>
-            <Card>
-              <Statistic
-                title="Total Products"
-                value={85}
-                prefix={<InboxOutlined />}
-                suffix={<small style={{ color: '#3f8600' }}>+5.4%</small>}
-              />
-            </Card>
-          </StatsContainer>
-
-          <ChartCard title="Sales Overview">
-            <ResponsiveContainer width="100%" height={400}>
-              <LineChart data={salesData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Line 
-                  type="monotone" 
-                  dataKey="sales" 
-                  stroke="#1890ff" 
-                  strokeWidth={2}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </ChartCard>
-
-          <Card title="Recent Orders">
-            <Table 
-              columns={orderColumns} 
-              dataSource={orderData} 
-              pagination={{ pageSize: 5 }}
-            />
-          </Card>
-        </StyledContent>
-      </Layout>
-    </StyledLayout>
+      {/* Reply */}
+      <CommentContainer style={{ marginLeft: 48 }}>
+        <UserInfo>
+          <Avatar src="path-to-shopee-logo.png" />
+          <Username>Ngô Hải Long</Username>
+          <AdminBadge>Quản trị viên</AdminBadge>
+          <TimeAgo>3 ngày trước</TimeAgo>
+        </UserInfo>
+        <CommentText>
+          Chào anh Phon,
+          <br /><br />
+          Dạ, iPhone 15 128GB giá chỉ từ 18.890.000 đ giá này đã Giảm ngay 4,100,000đ áp dụng đến 06/02 và hỗ trợ Trả góp 0%, anh đang ở khu vực nào em hỗ trợ anh mua hàng luôn nha
+          <br /><br />
+          Bên em xin phép liên hệ để tư vấn chi tiết hơn. Nếu cần thêm thông tin khác anh (chị) gọi tổng đài miễn phí 18006601 hoặc có thể chat qua Zalo tại đây
+          <br /><br />
+          Thân mến!
+        </CommentText>
+        <ActionBar>
+          <ActionButton>
+            <LikeOutlined />
+            <span>0</span>
+          </ActionButton>
+        </ActionBar>
+      </CommentContainer>
+    </>
   );
 };
 
-export default TestComponent;
+export default Comment;

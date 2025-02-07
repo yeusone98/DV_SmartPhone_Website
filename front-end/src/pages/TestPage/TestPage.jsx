@@ -6,7 +6,7 @@ import CheckoutPage from '../../components/PaymentComponent/PaymentComponent'
 function TestPage() {
   return (
     <div>
-      test
+      <TestComponent/>
     </div>
   )
 }

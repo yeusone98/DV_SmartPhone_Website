@@ -4,7 +4,7 @@ import FooterComponent from '../../components/FooterComponent/FooterComponent'
 
 const ProductDetailPage = () => {
   return (
-    <div style={{padding: '0 120px',backgroundColor: '#efefef', height: '150vh'}}>
+    <div style={{padding: '0 120px',backgroundColor: '#efefef', height: 'auto'}}>
       <h1>Trang sản phẩm</h1>
       <ProductDetailComponent/>
     </div>

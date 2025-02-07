@@ -77,6 +77,7 @@ export const WrapperIconContainer = styled.div`
   text-align: center;
   margin-top: 10px;
 `;
+
 export const WrapperQualityProduct = styled.div`
   display: flex;
   gap: 4px;
@@ -165,7 +166,6 @@ export const WrapperReviews = styled.div`
   border-radius: 8px;
 `;
 export const ReviewHeader = styled.div`
-  border: 1px rgb(231, 231, 231) solid;
 
   
 `;
@@ -205,9 +205,9 @@ export const ReviewBody = styled.div`
 
 
 export const ReviewItem = styled.div`
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid rgb(241, 241, 241);
 `;
 
 export const ReviewAuthor = styled.span`
@@ -222,6 +222,7 @@ export const ReviewContent = styled.div`
   margin-top: 5px;
   font-size: 14px;
   color: #555;
+  font-weight: 400;
 `;
 export const HelpfulButton = styled(Button)`
   font-size: 12px;
@@ -344,9 +345,10 @@ export const TabButton = styled(Button)`
 
 export const ReviewCard = styled.div`
   background: white;
-  border-radius: 8px;
   padding: 24px;
   margin-top: 16px;
+  border-top: 1px solid rgb(221, 221, 221);
+
 `;
 
 
@@ -432,3 +434,15 @@ export const TotalReviews = styled.span`
   color: gray;
   margin-left: 8px;
 `;
+export const WrapperAdReply = styled.div`
+  margin-top: 10px;
+  margin-left: 50px;
+  background: #f0f2f5;
+  border-radius: 8px;
+  padding: 10px;
+`;
+export const WrapperCustomerReview = styled.div`
+  padding: 10px;
+  background: #f0f2f5;
+  border-radius: 8px;
+`

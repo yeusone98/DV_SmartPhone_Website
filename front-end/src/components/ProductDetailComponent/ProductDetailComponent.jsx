@@ -50,11 +50,13 @@ import {
   WrapeerStyleImage,
   WrapeerStyleImageSmall,
   WrapperAddCartBuyNow,
+  WrapperAdReply,
   WrapperBtnBuyNow,
   WrapperBtnInfoProduct,
   WrapperBtnQualityProduct,
   WrapperBtnWriteReview,
   WrapperButtonAddCart,
+  WrapperCustomerReview,
   WrapperDetailInfoProduct,
   WrapperIconContainer,
   WrapperInputNumber,
@@ -97,6 +99,8 @@ const ProductDetailComponent = () => {
   const [reviewText, setReviewText] = useState(""); // Nội dung đánh giá mới
   const [reviewRating, setReviewRating] = useState(5); // Số sao mặc định
   const [replyText, setReplyText] = useState({}); // Nội dung phản hồi
+  const [showReplyForm, setShowReplyForm] = useState({}); // Hiển thị form phản hồi
+
   
  
   // 🎯 **Gọi API để lấy danh sách đánh giá**
@@ -240,6 +244,13 @@ const ProductDetailComponent = () => {
       console.error('Không thể tải giỏ hàng:', error)
     }
   }
+  //Hiển thị form phản hồi
+  const toggleReplyForm = (reviewId) => {
+    setShowReplyForm((prev) => ({
+      ...prev,
+      [reviewId]: !prev[reviewId], // Đảo trạng thái hiển thị form
+    }));
+  };
 
     // Thêm sản phẩm vào giỏ hàng
     const handleAddToCart = async () => {
@@ -339,6 +350,7 @@ const ProductDetailComponent = () => {
   };
 
 
+
   return (
     <WrapperProductDetailPage>
       <Row style={{ padding: "16px", backgroundColor: "#fff", borderRadius: "8px" }}>
@@ -407,7 +419,7 @@ const ProductDetailComponent = () => {
           </WrapperAddCartBuyNow>
         </Col>
       </Row>
-      <Row gutter={[16, 16]}>
+      <Row gutter={[16, 16]} style={{marginTop:"7px"}}  >
         <Col span={8}>
           <WrapperIconContainer>
             <CheckCircleFilled style={{ color: "#1877F2", fontSize: "36px" }} />
@@ -417,12 +429,12 @@ const ProductDetailComponent = () => {
             </WrapperTextPolicySmall>
           </WrapperIconContainer>
         </Col>
-        <Col span={8}>
-          <WrapperIconContainer>
+        <Col span={8} >
+          <WrapperIconContainer >
             <ClockCircleFilled style={{ color: "#1877F2", fontSize: "36px" }} />
             <WrapperTextPolicy>30 ngày đổi trả</WrapperTextPolicy>
             <WrapperTextPolicySmall>
-              Cam kết đổi trả trong vòng 30 ngày nếu xảy ra lỗi
+              Cam kết đổi trả trong vòng 30 ngày nếu xảy ra lỗi do nhà sản xuất
             </WrapperTextPolicySmall>
           </WrapperIconContainer>
         </Col>
@@ -433,7 +445,7 @@ const ProductDetailComponent = () => {
             />
             <WrapperTextPolicy>Bảo hành chính hãng</WrapperTextPolicy>
             <WrapperTextPolicySmall>
-              Sản phẩm được bảo hành chính hãng theo nhà sản xuất
+              Sản phẩm được bảo hành chính hãng theo nhà sản xuất tại Việt Nam
             </WrapperTextPolicySmall>
           </WrapperIconContainer>
         </Col>
@@ -489,7 +501,8 @@ const ProductDetailComponent = () => {
                 />
                 <TotalReviews>({reviews.length} đánh giá)</TotalReviews>
               </Col>
-              <Col span={16} style={{ textAlign: "center" }}>
+              <Col span={8} style={{ borderLeft:'rgb(221, 221, 221) 1px solid', borderRight: 'rgb(221, 221, 221) 1px solid'}}></Col>
+              <Col span={8} style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
                 <WrapperBtnWriteReview
                   size="large"
                   icon={<EditFilled />}
@@ -506,10 +519,12 @@ const ProductDetailComponent = () => {
           <ReviewCard>
             {reviews.map((review) => (
               <ReviewItem key={review._id}>
-                <ReviewHeader>
+                <WrapperCustomerReview>
+                <ReviewHeader >
                   <ReviewContent>
                   <ReviewAuthor>
-                    {review.username} 
+                    <Avatar >{review.username.charAt(0).toUpperCase()}</Avatar>
+                    <span style={{marginLeft: '5px'}}>{review.username} </span>
                     {review.customer_id === currentUser?._id && " (Bạn)"}
                   </ReviewAuthor>
 
@@ -532,15 +547,17 @@ const ProductDetailComponent = () => {
                   )}
                 </ReviewHeader>
 
-                <ReviewBody>{review.comment}</ReviewBody>
+                <ReviewContent>{review.comment}</ReviewContent>
+                </WrapperCustomerReview>
 
                 {/* Phần phản hồi */}
                 {review.replies?.map((reply, index) => (
-                  <div key={index} className="admin-reply">
+                  <WrapperAdReply  key={index} className="admin-reply">
                     <ReviewHeader>
                       <ReviewContent>
                       <ReviewAuthor>
-                        {reply.admin_name}
+                        <Avatar>{reply.admin_name.charAt(0).toUpperCase()}</Avatar>
+                        <span style={{marginLeft: '5px'}}>{reply.admin_name}</span>
                         <VerifiedBadge>
                           <SafetyCertificateFilled />
                           Quản trị viên
@@ -550,39 +567,53 @@ const ProductDetailComponent = () => {
                         {new Date(reply.createdAt).toLocaleDateString()}
                       </ReviewDate>
                       </ReviewContent>
-                      {currentUser?.role === "admin" && (
+                      
+                    </ReviewHeader>
+                    <div style={{display: 'flex', alignItems: 'center'}}>
+                    <ReviewContent>{reply.reply}</ReviewContent>
+                    {currentUser?.role === "admin" && (
                         <Button
                           type="text"
                           danger
                           icon={<DeleteOutlined />}
                           onClick={() => handleDeleteReply(review._id, index)}
-                        />
+                        >Xóa phản hồi</Button>
                       )}
-                    </ReviewHeader>
-                    <ReviewBody>{reply.reply}</ReviewBody>
-                  </div>
+                    </div>
+                  </WrapperAdReply>
                 ))}
 
                 {/* Form phản hồi cho admin */}
                 {currentUser?.role === "admin" && (
-                  <div className="reply-form">
-                    <Input.TextArea
-                      rows={2}
-                      placeholder="Nhập phản hồi của quản trị viên"
-                      value={replyText[review._id] || ""}
-                      onChange={(e) => setReplyText({
-                        ...replyText,
-                        [review._id]: e.target.value
-                      })}
-                    />
-                    <Button
-                      type="primary"
-                      style={{ marginTop: 8 }}
-                      onClick={() => handleReply(review._id)}
-                    >
-                      Gửi phản hồi
-                    </Button>
-                  </div>
+                  <>
+                  <Button style={{fontSize:'14px', fontWeight:'600', marginTop: '5px'}}
+                    type="link"
+                    onClick={() => toggleReplyForm(review._id)}
+                  >
+                    {showReplyForm[review._id] ? "Ẩn phản hồi" : "Trả lời"}
+                  </Button>
+              
+                  {showReplyForm[review._id] && (
+                    <div className="reply-form" style={{ marginTop: '14px', marginLeft: '50px' }}>
+                      <Input.TextArea
+                        rows={2}
+                        placeholder="Nhập phản hồi của quản trị viên"
+                        value={replyText[review._id] || ""}
+                        onChange={(e) => setReplyText({
+                          ...replyText,
+                          [review._id]: e.target.value
+                        })}
+                      />
+                      <Button
+                        type="primary"
+                        style={{ marginTop: 8 }}
+                        onClick={() => handleReply(review._id)}
+                      >
+                        Gửi phản hồi
+                      </Button>
+                    </div>
+                  )}
+                </>
                 )}
               </ReviewItem>
             ))}
