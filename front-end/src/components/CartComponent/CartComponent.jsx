@@ -121,13 +121,13 @@ const CartComponent = () => {
       render: (text, record) => (
         <div style={{ display: "flex", alignItems: "center" }}>
           <img
-            src={record.image}
+            src={record.image_url}
             alt={record.product}
             style={{ width: 50, marginRight: 10 }}
           />
           <div>
             <div style={{ fontWeight: "normal" }}>
-              {text} {`${record.storage} GB ${record.color}`}
+              {`${record.product_name}  ${record.storage} GB ${record.color}`}
             </div>
           </div>
         </div>
