@@ -34,8 +34,8 @@ const HomePage = () => {
       <Link to={`/product-detail/${product._id}`} key={product._id} style={{ textDecoration: "none" }}>
         <CardComponent
           name={product.name}
-          price={firstVariant?.price}
-          price_discount={firstVariant?.price_discount}
+          price={firstVariant?.price?.toLocaleString("vi-VN")}
+          price_discount={firstVariant?.price?.toLocaleString("vi-VN")}
           image={image}
         />
       </Link>
@@ -69,8 +69,8 @@ const HomePage = () => {
               <CardComponent
                 key={product._id}
                 name={product.name}
-                price={firstVariant?.price}
-                price_discount={firstVariant?.price_discount}
+                price={firstVariant?.price?.toLocaleString("vi-VN")}
+                price_discount={firstVariant?.price?.toLocaleString("vi-VN")}
                 image={image}
               />
             </Link>

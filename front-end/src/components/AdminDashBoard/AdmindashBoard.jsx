@@ -21,6 +21,7 @@ import {
   BellOutlined,
   SettingOutlined,
   SearchOutlined,
+  LogoutOutlined,
 } from '@ant-design/icons';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import OrderManagement from '../OrderMangagerComponent/OrderManagerComponent';
@@ -116,8 +117,9 @@ const AdminDashboard = () => {
 
   const userMenu = (
     <Menu>
-      <Menu.Item key="logout" onClick={handleLogout}>
-        Đăng xuất
+      <Menu.Item key="logout" onClick={handleLogout} style={{color: 'red', alignItems: 'center',justifyContent: 'center'}}>
+      Đăng xuất
+      <LogoutOutlined style={{marginLeft:'5px'}}/>
       </Menu.Item>
     </Menu>
   );

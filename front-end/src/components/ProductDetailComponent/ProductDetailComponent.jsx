@@ -43,9 +43,11 @@ import {
   SpaceReview,
   TabButton,
   TabContainer,
+  TextSameProducts,
   TextTitleReview,
   TotalReviews,
   VerifiedBadge,
+  ViewMoreButton,
   ViewTextRate,
   WrapeerStyleImage,
   WrapeerStyleImageSmall,
@@ -57,6 +59,7 @@ import {
   WrapperBtnWriteReview,
   WrapperButtonAddCart,
   WrapperCustomerReview,
+  WrapperDescription,
   WrapperDetailInfoProduct,
   WrapperIconContainer,
   WrapperInputNumber,
@@ -67,6 +70,7 @@ import {
   WrapperQualityProduct,
   WrapperRateStar,
   WrapperReviews,
+  WrapperSpecifications,
   WrapperSpecs,
   WrapperTabBtn,
   WrapperTextOptionProduct,
@@ -623,11 +627,11 @@ const ProductDetailComponent = () => {
 
 
               {activeTab === "specs" && (
-                <div dangerouslySetInnerHTML={{ __html: product.technical_specifications }} />
+                <WrapperSpecifications dangerouslySetInnerHTML={{ __html: product.technical_specifications }} />
             )}
 
             {activeTab === "desc" && (
-              <div dangerouslySetInnerHTML={{ __html: product.description_detail }} />
+              <WrapperDescription dangerouslySetInnerHTML={{ __html: product.description_detail }} />
             )}
 
             {activeTab === "video" && product.youtube_link && (
@@ -646,6 +650,10 @@ const ProductDetailComponent = () => {
           </ReviewBody>
         </WrapperReviews>
       </WrapperDetailInfoProduct>
+      <Row >
+      <Col span={12}><TextSameProducts>SẢN PHẨM TƯƠNG TỰ</TextSameProducts></Col>
+      <Col span={12} style={{display:'flex',justifyContent:'flex-end',alignItems:'center'}}><ViewMoreButton type="text" onClick={() => navigate("/")}> Xem thêm →</ViewMoreButton></Col>
+      </Row>
     </WrapperProductDetailPage>
   );
 };

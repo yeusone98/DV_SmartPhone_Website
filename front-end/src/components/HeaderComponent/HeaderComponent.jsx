@@ -45,7 +45,7 @@ const HeaderComponent = () => {
   );
 
   return (
-    <div>
+    <div >
       <WrapperHeader>
         {/* Logo */}
         <Col span={6}>

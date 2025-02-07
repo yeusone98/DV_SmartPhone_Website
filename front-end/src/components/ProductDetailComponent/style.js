@@ -326,7 +326,6 @@ export const TabContainer = styled.div`
   margin-top: 24px;
 
   > div:first-child {
-    position: sticky;
     top: 0;
     background: white;
     z-index: 2;
@@ -446,3 +445,26 @@ export const WrapperCustomerReview = styled.div`
   background: #f0f2f5;
   border-radius: 8px;
 `
+export const WrapperSpecifications = styled.div`
+ font-size: 16px;
+ padding: 20px;
+ margin-left: 50px;
+`
+export const WrapperDescription = styled.div`
+ padding: 20px;
+`
+export const TextSameProducts = styled.div`
+  font-size: 20px;
+  font-weight: 600;
+  padding: 16px;
+`
+export const ViewMoreButton = styled(Button)`
+  background: none;
+  border: none;
+  color: rgb(33, 43, 53);
+  font-size: 16px;
+  font-weight: 600;
+  &:hover {
+    color: rgb(12, 110, 209) !important;
+  }
+`;
