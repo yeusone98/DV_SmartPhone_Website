@@ -87,6 +87,7 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from '../../features/user/userSlice';
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { addToCart } from "../../features/cart/cartSlice"; 
 
 const ProductDetailComponent = () => {
   const { id } = useParams();
@@ -266,6 +267,7 @@ const ProductDetailComponent = () => {
   
       // Lấy giỏ hàng hiện tại để kiểm tra sản phẩm đã tồn tại hay chưa
       try {
+        
           const cart = await fetchCartAPI();
           const existingProduct = cart.products.find(
               (item) =>
@@ -277,11 +279,11 @@ const ProductDetailComponent = () => {
           if (existingProduct) {
               // Nếu sản phẩm đã tồn tại, cập nhật số lượng
               const newQuantity = existingProduct.quantity + Number(quantity);
-  
+              
               await updateCartItemAPI({
                   product_id: product._id,
                   color: selectedVariant.color,
-                  storage: String(selectedVariant.storage),
+                  storage: String(selectedVariant.storage), 
                   quantity: newQuantity,
               });
   
@@ -295,7 +297,6 @@ const ProductDetailComponent = () => {
                   unit_price: Number(selectedVariant.price_discount || selectedVariant.price),
                   quantity: Number(quantity) || 1,
               };
-  
               await addToCartAPI(payload);
               message.success("Thêm vào giỏ hàng thành công!");
           }

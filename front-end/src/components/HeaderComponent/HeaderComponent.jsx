@@ -20,6 +20,7 @@ const HeaderComponent = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const currentUser = useSelector(selectCurrentUser); // Lấy user từ Redux
+  const totalQuantity = useSelector((state) => state.cart.totalQuantity);
 
   const handleLogout = () => {
     // Xóa cookies chứa token
@@ -93,10 +94,12 @@ const HeaderComponent = () => {
           {/* Giỏ hàng */}
           <div>
             <Link to="/cart">
-                <ShoppingCartOutlined
-                  style={{ fontSize: "25px", color: "#fff" }}
+                <Badge count={totalQuantity} showZero size="small">
+                <ShoppingCartOutlined style={{ fontSize: "25px", color: "#fff" }}
                 />
+                </Badge>
               <WrapperTextHeaderSmall>Giỏ hàng</WrapperTextHeaderSmall>
+              
             </Link>
           </div>
         </Col>
