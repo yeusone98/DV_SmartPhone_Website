@@ -2,6 +2,8 @@ import { placeOrderModel } from '~/models/placeOrderModel'
 import { cartModel } from '~/models/cartModel'
 import { StatusCodes } from 'http-status-codes'
 
+import { productModel } from '~/models/productModel'
+
 const placeOrder = async (req, res, next) => {
     try {
         const userId = req.jwtDecoded._id // Lấy ID người dùng từ token
@@ -65,6 +67,25 @@ const placeOrder = async (req, res, next) => {
         // Tạo đơn hàng
         const newOrder = await placeOrderModel.createOrder(orderData)
 
+        // Cập nhật stock cho các variant sản phẩm
+        for (const product of cart.products) {
+            const variant = product.variant_id; // Sử dụng variant_id để truy vấn vào collection product
+            const variantData = await productModel.findProductById(product.product_id);
+
+            if (variantData) {
+                const variantToUpdate = variantData.variants.find(v => v.storage === product.storage && v.color === product.color);
+                if (variantToUpdate) {
+                    // Trừ số lượng stock
+                    variantToUpdate.stock -= product.quantity;
+
+                    // Cập nhật vào database
+                    await productModel.updateProduct(variantData._id, {
+                        variants: variantData.variants
+                    });
+                }
+            }
+        }
+
         // Xóa giỏ hàng sau khi đặt hàng thành công
         await cartModel.removeCart(userId)
 
@@ -74,6 +95,7 @@ const placeOrder = async (req, res, next) => {
         next(error)
     }
 }
+
 
 export const placeOrderController = {
     placeOrder
