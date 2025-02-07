@@ -84,3 +84,9 @@ export const WrapperTextSignInSmall = styled.div`
         color: #e74c3c; 
     }
 `
+export const WrapperForgotPassword = styled.div`
+  display: block;
+  text-align: left;
+  margin-top: -12px;
+  margin-bottom: 12px;
+`

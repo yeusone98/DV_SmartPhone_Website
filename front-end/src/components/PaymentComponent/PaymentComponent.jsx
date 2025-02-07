@@ -43,6 +43,8 @@ const PaymentComponent = () => {
   };
 
   const renderShippingForm = () => (
+    <>
+    <div style={{fontSize:'16px', fontWeight:'600', marginBottom:'20px', marginTop:'-10px'}}>Thông tin nhận hàng</div>
     <Form form={form} layout="vertical" onFinish={onFinish}>
       <Row gutter={16}>
         <Col span={12}>
@@ -115,6 +117,7 @@ const PaymentComponent = () => {
         <Input.TextArea placeholder="Nhập ghi chú nếu cần..." />
       </Form.Item>
     </Form>
+    </>
   );
 
   const renderPaymentForm = () => (

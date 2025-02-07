@@ -13,10 +13,10 @@ function ForgotPassword() {
     setLoading(true);
     try {
       await sendResetPasswordEmailAPI({ email: values.email });
-      message.success('Reset password email sent. Please check your inbox.');
+      message.success('Đã gửi email đặt lại mật khẩu. Vui lòng kiểm tra hộp thư đến của bạn.');
       navigate('/login');
     } catch (err) {
-      message.error(err.response?.data?.message || 'Failed to send reset password email.');
+      message.error(err.response?.data?.message || 'Không gửi được email đặt lại mật khẩu.');
     } finally {
       setLoading(false);
     }
@@ -33,7 +33,7 @@ function ForgotPassword() {
         }}
       >
         <Title level={4} style={{ textAlign: 'center', marginBottom: 20 }}>
-          Reset Password
+          Đặt lại mật khẩu
         </Title>
         <Form
           layout="vertical"
@@ -44,11 +44,11 @@ function ForgotPassword() {
             label="Email"
             name="email"
             rules={[
-              { required: true, message: 'Please enter your email!' },
-              { type: 'email', message: 'Please enter a valid email!' },
+              { required: true, message: 'Vui lòng nhập email!' },
+              { type: 'email', message: 'Vui lòng nhập email hợp lệ!' },
             ]}
           >
-            <Input placeholder="Enter your email" />
+            <Input placeholder="Vui lòng nhập email" />
           </Form.Item>
           <Form.Item>
             <Button
@@ -57,12 +57,12 @@ function ForgotPassword() {
               block
               loading={loading}
             >
-              Send Reset Email
+              Gửi email đặt lại
             </Button>
           </Form.Item>
         </Form>
         <Text type="secondary" style={{ display: 'block', textAlign: 'center', marginTop: 10 }}>
-          Remember your password? <a onClick={() => navigate('/login')}>Login</a>
+          Remember your password? <a onClick={() => navigate('/login')}>Đăng nhập</a>
         </Text>
       </Card>
     </div>

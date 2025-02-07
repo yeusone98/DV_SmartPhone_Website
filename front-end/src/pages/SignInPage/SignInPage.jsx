@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Divider, Form, Input, Alert, Typography } from 'antd';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import { loginUserAPI } from '../../features/user/userSlice';
@@ -9,6 +9,7 @@ import {
   FormContainer,
   Logo,
   StyledButton,
+  WrapperForgotPassword,
   WrapperPageLogin,
   WrapperSocialButtons,
   WrapperTextSignIn,
@@ -136,7 +137,7 @@ const SignInPage = () => {
           </Form.Item>
 
           {error && <Alert message={error} type="error" showIcon style={{ marginBottom: 16 }} />}
-
+            <Link to="/forgot-password" ><WrapperForgotPassword > Quên mật khẩu?</WrapperForgotPassword></Link>
           <StyledButton type="primary" htmlType="submit">
             Đăng nhập
           </StyledButton>
