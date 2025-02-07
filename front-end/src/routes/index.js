@@ -80,7 +80,7 @@ const routes = [
     {
         path: '/forgot-password',
         page: ForgotPassword,
-        isShowHeader: false,
+        isShowHeader: true,
     },
     {
         path: '/reset-password',
@@ -90,7 +90,7 @@ const routes = [
     {
         path: '/checkout',
         page: CheckOutPage,
-        isShowHeader: false,
+        isShowHeader: true,
     },
     {
         path: '*',

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import {
+import Icon, {
   CaretDownOutlined,
+  LogoutOutlined,
   ShoppingCartOutlined,
   UserOutlined,
 } from "@ant-design/icons";
@@ -36,8 +37,9 @@ const HeaderComponent = () => {
   // Tạo menu khi nhấn vào displayName
   const menu = (
     <Menu>
-      <Menu.Item key="logout" onClick={handleLogout}>
+      <Menu.Item key="logout" onClick={handleLogout} style={{color: 'red', alignItems: 'center',justifyContent: 'center'}}>
         Đăng xuất
+        <LogoutOutlined style={{marginLeft:'5px'}}/>
       </Menu.Item>
     </Menu>
   );
@@ -73,7 +75,7 @@ const HeaderComponent = () => {
               // Nếu đã đăng nhập, hiển thị displayName
               <Dropdown overlay={menu} trigger={["click"]}>
                 <div style={{ cursor: "pointer", color: "#fff" }}>
-                  <WrapperTextHeaderSmall style={{ fontSize: "17px" }}>{currentUser.displayName}</WrapperTextHeaderSmall>
+                  <WrapperTextHeaderSmall >{currentUser.displayName}</WrapperTextHeaderSmall>
                   <CaretDownOutlined style={{ marginLeft: "5px" }} />
                 </div>
               </Dropdown>
