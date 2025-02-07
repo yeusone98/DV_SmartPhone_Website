@@ -209,10 +209,14 @@ export const ReviewItem = styled.div`
   padding-bottom: 10px;
   border-bottom: 1px solid #eee;
 `;
-export const ReviewAuthor = styled(Image)`
-  width: 10px;
-  height:10px;
+
+export const ReviewAuthor = styled.span`
+  font-weight: bold;
+  color: #333;
+  display: inline-block;
+  margin-right: 8px;
 `;
+
 
 export const ReviewContent = styled.div`
   margin-top: 5px;
@@ -423,3 +427,8 @@ export const WrapperSpecs = styled.div`
   }
 `;
 
+export const TotalReviews = styled.span`
+  font-size: 14px;
+  color: gray;
+  margin-left: 8px;
+`;

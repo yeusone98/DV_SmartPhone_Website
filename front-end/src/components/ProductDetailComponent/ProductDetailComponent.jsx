@@ -10,6 +10,7 @@ import Icon, {
   PlusOutlined,
   SafetyCertificateFilled,
   StarFilled,
+  DeleteOutlined,
 } from "@ant-design/icons";
 import {
   Avatar,
@@ -75,7 +76,7 @@ import {
 
 import SelectOptionProduct from "../SelectOptionProduct/SelectOptionProduct";
 import { useParams } from "react-router-dom";
-import { fetchProductByIdAPI, addToCartAPI, fetchCartAPI, updateCartItemAPI  } from "../../apis";
+import { fetchProductByIdAPI, addToCartAPI, fetchCartAPI, updateCartItemAPI, fetchReviewsAPI, createReviewAPI, deleteReviewAPI, addReplyAPI, deleteReplyAPI  } from "../../apis";
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from '../../features/user/userSlice';
 import { useNavigate } from "react-router-dom";
@@ -92,28 +93,123 @@ const ProductDetailComponent = () => {
   const currentUser = useSelector(selectCurrentUser) // Lấy thông tin người dùng từ Redux
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const [reviews, setReviews] = useState([]);
+  const [reviewText, setReviewText] = useState(""); // Nội dung đánh giá mới
+  const [reviewRating, setReviewRating] = useState(5); // Số sao mặc định
+  const [replyText, setReplyText] = useState({}); // Nội dung phản hồi
+  
+ 
+  // 🎯 **Gọi API để lấy danh sách đánh giá**
+  useEffect(() => {
+    const fetchProductAndReviews = async () => {
+      try {
+        const productData = await fetchProductByIdAPI(id);
+        setProduct(productData);
+
+        const reviewData = await fetchReviewsAPI(id);
+        setReviews(reviewData);
+      } catch (error) {
+        message.error("Không thể tải dữ liệu sản phẩm hoặc đánh giá!");
+      }
+    };
+
+    fetchProductAndReviews();
+  }, [id]);
+
+  // 🎯 **Xử lý thêm đánh giá mới**
+  const handleAddReview = async () => {
+    if (!currentUser) {
+        message.error("Bạn cần đăng nhập để thêm đánh giá!");
+        navigate("/login");
+        return;
+    }
+
+    if (!reviewText.trim()) {
+        message.error("Vui lòng nhập nội dung đánh giá!");
+        return;
+    }
+
+    try {
+        await createReviewAPI({
+            product_id: id,
+            rating: reviewRating,
+            comment: reviewText
+        });
+
+        setReviewText(""); // Reset nội dung
+
+        // Gọi lại API để cập nhật danh sách đánh giá
+        const updatedReviews = await fetchReviewsAPI(id);
+        setReviews(updatedReviews);
+
+        message.success("Đánh giá đã được thêm thành công!");
+    } catch (error) {
+        message.error("Lỗi khi thêm đánh giá!");
+    }
+};
 
 
-  const reviews = [
-    {
-      id: 1,
-      author: "a",
-      rating: 5,
-      content: "a",
-      date: "15 tháng 01 2025",
-      likes: 9,
-      verified: true,
-    },
-    {
-      id: 2,
-      author: "aa",
-      rating: 5,
-      content: "Ngon",
-      date: "10 tháng 01 2025",
-      likes: 8,
-      verified: true,
-    },
-  ];
+  // 🎯 **Xử lý xóa đánh giá**
+  const handleDeleteReview = async (reviewId) => {
+    if (!currentUser) return;
+
+    try {
+      await deleteReviewAPI(reviewId);
+      setReviews(reviews.filter((r) => r._id !== reviewId)); // Cập nhật danh sách review
+      message.success("Xóa đánh giá thành công!");
+    } catch (error) {
+      message.error("Lỗi khi xóa đánh giá!");
+    }
+  };
+
+  // 🎯 **Xử lý thêm phản hồi**
+  const handleReply = async (reviewId) => {
+    if (!currentUser || currentUser.role !== "admin") return;
+
+    if (!replyText[reviewId]?.trim()) {
+      message.error("Vui lòng nhập nội dung phản hồi!");
+      return;
+    }
+
+    try {
+      const replyData = { reply: replyText[reviewId] };
+      await addReplyAPI(reviewId, replyData);
+
+      setReviews(reviews.map((r) =>
+        r._id === reviewId
+          ? { ...r, replies: [...r.replies, { admin_name: currentUser.displayName, reply: replyText[reviewId] }] }
+          : r
+      ));
+
+      setReplyText({ ...replyText, [reviewId]: "" }); // Reset nội dung
+      message.success("Phản hồi đã được gửi thành công!");
+      // Gọi lại API để cập nhật danh sách đánh giá
+      const updatedReviews = await fetchReviewsAPI(id);
+      setReviews(updatedReviews);
+    } catch (error) {
+      message.error("Lỗi khi gửi phản hồi!");
+    }
+  };
+
+  const handleDeleteReply = async (reviewId, replyIndex) => {
+    if (!currentUser || currentUser.role !== "admin") return;
+
+    try {
+        await deleteReplyAPI(reviewId, replyIndex);
+
+        setReviews(reviews.map(review =>
+            review._id === reviewId
+                ? { ...review, replies: review.replies.filter((_, index) => index !== replyIndex) }
+                : review
+        ));
+
+        message.success("Xóa phản hồi thành công!");
+    } catch (error) {
+        message.error("Lỗi khi xóa phản hồi!");
+    }
+  };
+
+
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -131,6 +227,7 @@ const ProductDetailComponent = () => {
     setSelectedVariant(variant);
   };
 
+  
   // Lấy giỏ hàng nếu đã đăng nhập
   const fetchCart = async () => {
     if (!currentUser) return // Nếu chưa đăng nhập, không cần lấy giỏ hàng
@@ -191,7 +288,7 @@ const ProductDetailComponent = () => {
           fetchCart(); // Load lại giỏ hàng sau khi cập nhật
       } catch (error) {
           message.error("Thao tác thất bại, vui lòng thử lại!");
-          console.error("❌ Error in handleAddToCart:", error);
+          console.error("Error in handleAddToCart:", error);
       }
   };
   
@@ -206,35 +303,41 @@ const ProductDetailComponent = () => {
   const ReviewForm = ({ onCancel }) => (
     <ReviewCard>
       <h3 style={{ fontSize: "16px", marginBottom: "16px", fontWeight: "700" }}>
-        Thêm bình luận
+        Thêm đánh giá
       </h3>
       <div style={{ marginBottom: "16px" }}>
-        <p
-          style={{ fontSize: "14px", fontWeight: "400", lineHeight: "1.57143" }}
-        >
-          Nhận xét của bạn về sản phẩm này :
-        </p>
-        <WrapperRateStar />
+        <Rate 
+          value={reviewRating} 
+          onChange={setReviewRating} 
+          style={{ color: "rgb(241, 165, 0)" }}
+        />
       </div>
       <Input.TextArea
-        placeholder="Hãy để lại bình luận tại đây *"
+        placeholder="Nhập nội dung đánh giá *"
         style={{ marginBottom: "16px" }}
         rows={4}
-      />
-      <Input placeholder="Tên *" style={{ marginBottom: "16px" }} />
-      <Input
-        placeholder="Email *"
-        type="email"
-        style={{ marginBottom: "16px" }}
+        value={reviewText}
+        onChange={(e) => {
+          console.log("Review Text:", e.target.value);
+          setReviewText(e.target.value);
+        }}
       />
       <div style={{ textAlign: "right" }}>
         <Button onClick={onCancel} style={{ marginRight: "8px" }}>
           Huỷ
         </Button>
-        <Button type="primary">Thêm bình luận</Button>
+        <Button type="primary" onClick={handleAddReview}>Gửi đánh giá</Button>
       </div>
     </ReviewCard>
   );
+
+  // Hàm tính rating trung bình
+  const calculateAverageRating = () => {
+    if (reviews.length === 0) return 0;
+    const total = reviews.reduce((sum, review) => sum + review.rating, 0);
+    return (total / reviews.length).toFixed(1);
+  };
+
 
   return (
     <WrapperProductDetailPage>
@@ -281,21 +384,21 @@ const ProductDetailComponent = () => {
           <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
             <WrapperTextOptionProduct>Số lượng</WrapperTextOptionProduct>
             <QuantityContainer>
-                          <QuantityControl>
-                            <QuantityButton
-                              icon={<MinusOutlined />}
-                              onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                            />
-                            <Input
-                              style={{ width: '50px', border: 'none', textAlign: 'center' }}
-                              value={quantity}
-                              onChange={(e) => setQuantity(Number(e.target.value))}
-                            />
-                            <QuantityButton
-                              icon={<PlusOutlined />}
-                              onClick={() => setQuantity(quantity + 1)}
-                            />
-                          </QuantityControl>
+              <QuantityControl>
+                <QuantityButton
+                  icon={<MinusOutlined />}
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                />
+                <Input
+                  style={{ width: '50px', border: 'none', textAlign: 'center' }}
+                  value={quantity}
+                  onChange={(e) => setQuantity(Number(e.target.value))}
+                />
+                <QuantityButton
+                  icon={<PlusOutlined />}
+                  onClick={() => setQuantity(quantity + 1)}
+                />
+              </QuantityControl>
             </QuantityContainer>
           </div>
           <WrapperAddCartBuyNow>
@@ -372,96 +475,122 @@ const ProductDetailComponent = () => {
               <Divider />
 
               {activeTab === "review" && (
-                <>
-                  {!showReviewForm && (
-                    <ReviewCard>
-                      <Row>
-                        <Col span={8} style={{ textAlign: "center" }}>
-                          <TextTitleReview>Đánh giá trung bình</TextTitleReview>
-                          <AverageRating>4.4/5</AverageRating>
-                          <Rate
-                            allowHalf
-                            disabled
-                            defaultValue={4.5}
-                            style={{
-                              color: "rgb(241, 165, 0)",
-                              fontSize: "20px",
-                            }}
-                          />
-                          <ViewTextRate>(196 lượt xem)</ViewTextRate>
-                        </Col>
-                        <Col span={8}>
-                          <SpaceReview />
-                        </Col>
-                        <Col
-                          span={8}
-                          style={{
-                            textAlign: "center",
-                            alignItems: "center",
-                            alignContent: "center",
-                          }}
-                        >
-                          <WrapperBtnWriteReview
-                            size="large"
-                            icon={<EditFilled />}
-                            onClick={() => setShowReviewForm(true)}
-                          >
-                            Viết bình luận của bạn
-                          </WrapperBtnWriteReview>
-                        </Col>
-                      </Row>
-                    </ReviewCard>
-                  )}
+        <>
+          <ReviewCard>
+            <Row>
+              <Col span={8} style={{ textAlign: "center" }}>
+                <TextTitleReview>Đánh giá trung bình</TextTitleReview>
+                <AverageRating>{calculateAverageRating()}/5</AverageRating>
+                <Rate
+                  allowHalf
+                  disabled
+                  value={calculateAverageRating()}
+                  style={{ color: "rgb(241, 165, 0)", fontSize: "20px" }}
+                />
+                <TotalReviews>({reviews.length} đánh giá)</TotalReviews>
+              </Col>
+              <Col span={16} style={{ textAlign: "center" }}>
+                <WrapperBtnWriteReview
+                  size="large"
+                  icon={<EditFilled />}
+                  onClick={() => setShowReviewForm(true)}
+                >
+                  Viết đánh giá của bạn
+                </WrapperBtnWriteReview>
+              </Col>
+            </Row>
+          </ReviewCard>
 
-                  {showReviewForm && (
-                    <ReviewForm onCancel={() => setShowReviewForm(false)} />
-                  )}
+          {showReviewForm && <ReviewForm onCancel={() => setShowReviewForm(false)} />}
 
-                  <ReviewCard>
-                    {reviews.map((review) => (
-                      <div
-                        key={review.id}
-                        style={{
-                          borderBottom: "1px solid #f0f0f0",
-                          padding: "16px 0",
-                          last: { borderBottom: "none" },
-                        }}
-                      >
-                        <div>
-                          <Avatar>{review.author[0].toUpperCase()}</Avatar>
-                          <ReviewerName>{review.author}</ReviewerName>
-                          {review.verified && (
-                            <VerifiedBadge style={{ color: "rgb(0, 69, 255)" }}>
-                              Đã mua hàng
-                            </VerifiedBadge>
-                          )}
-                          <ReviewDate>{review.date}</ReviewDate>
-                        </div>
-                        <Rate
-                          disabled
-                          defaultValue={review.rating}
-                          style={{
-                            color: "rgb(250, 175, 0)",
-                            fontSize: "18px",
-                          }}
+          <ReviewCard>
+            {reviews.map((review) => (
+              <ReviewItem key={review._id}>
+                <ReviewHeader>
+                  <ReviewContent>
+                  <ReviewAuthor>
+                    {review.username} 
+                    {review.customer_id === currentUser?._id && " (Bạn)"}
+                  </ReviewAuthor>
+
+                    <Rate 
+                      disabled 
+                      value={review.rating} 
+                      style={{ color: "rgb(250, 175, 0)", fontSize: "14px" }} 
+                    />
+                    <ReviewDate>
+                      {new Date(review.createdAt).toLocaleDateString()}
+                    </ReviewDate>
+                  </ReviewContent>
+                  {currentUser?._id === review.user?._id && (
+                    <Button
+                      type="text"
+                      danger
+                      icon={<DeleteOutlined />}
+                      onClick={() => handleDeleteReview(review._id)}
+                    />
+                  )}
+                </ReviewHeader>
+
+                <ReviewBody>{review.comment}</ReviewBody>
+
+                {/* Phần phản hồi */}
+                {review.replies?.map((reply, index) => (
+                  <div key={index} className="admin-reply">
+                    <ReviewHeader>
+                      <ReviewContent>
+                      <ReviewAuthor>
+                        {reply.admin_name}
+                        <VerifiedBadge>
+                          <SafetyCertificateFilled />
+                          Quản trị viên
+                        </VerifiedBadge>
+                      </ReviewAuthor>
+                      <ReviewDate>
+                        {new Date(reply.createdAt).toLocaleDateString()}
+                      </ReviewDate>
+                      </ReviewContent>
+                      {currentUser?.role === "admin" && (
+                        <Button
+                          type="text"
+                          danger
+                          icon={<DeleteOutlined />}
+                          onClick={() => handleDeleteReply(review._id, index)}
                         />
-                        <p
-                          style={{
-                            margin: "8px 0",
-                            fontSize: "14px",
-                            fontWeight: "400",
-                          }}
-                        >
-                          {review.content}
-                        </p>
-                        <Button type="text" icon={<LikeOutlined />}>
-                          Thích ({review.likes})
-                        </Button>
-                      </div>
-                    ))}
-                  </ReviewCard>
-                </>
-              )}
+                      )}
+                    </ReviewHeader>
+                    <ReviewBody>{reply.reply}</ReviewBody>
+                  </div>
+                ))}
+
+                {/* Form phản hồi cho admin */}
+                {currentUser?.role === "admin" && (
+                  <div className="reply-form">
+                    <Input.TextArea
+                      rows={2}
+                      placeholder="Nhập phản hồi của quản trị viên"
+                      value={replyText[review._id] || ""}
+                      onChange={(e) => setReplyText({
+                        ...replyText,
+                        [review._id]: e.target.value
+                      })}
+                    />
+                    <Button
+                      type="primary"
+                      style={{ marginTop: 8 }}
+                      onClick={() => handleReply(review._id)}
+                    >
+                      Gửi phản hồi
+                    </Button>
+                  </div>
+                )}
+              </ReviewItem>
+            ))}
+          </ReviewCard>
+        </>
+      )}
+
+
               {activeTab === "specs" && (
                 <div dangerouslySetInnerHTML={{ __html: product.technical_specifications }} />
             )}

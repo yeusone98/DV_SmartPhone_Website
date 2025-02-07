@@ -71,7 +71,6 @@ const ProductManagement = () => {
 
         // Thêm các trường dữ liệu cơ bản
         formData.append("name", values.name);
-        formData.append("category_id", values.category_id);
         formData.append("youtube_link", values.youtube_link || '');
         formData.append("description_detail", description);
         formData.append("technical_specifications", technicalSpecifications);
@@ -134,7 +133,6 @@ const ProductManagement = () => {
     };
     
     
-
     
     // Handle deleting a product
     const handleDeleteProduct = async (product) => {

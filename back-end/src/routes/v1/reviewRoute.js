@@ -4,16 +4,21 @@ import { authMiddleware } from '~/middlewares/authMiddleware'
 
 const router = express.Router()
 
-// Thêm một review
-router.post('/', authMiddleware.isAuthorized, reviewController.createReview)
+// Customer có thể tạo review (Admin không thể đánh giá sản phẩm)
+router.post('/', authMiddleware.isAuthorized, authMiddleware.isCustomer, reviewController.createReview)
 
 // Lấy danh sách review theo product_id
 router.get('/:productId', reviewController.getReviewsByProduct)
 
-// Xóa review (chỉ Admin hoặc chính người tạo review mới được phép xóa)
+// Xóa review (Admin hoặc chính chủ mới có quyền)
 router.delete('/:reviewId', authMiddleware.isAuthorized, reviewController.deleteReview)
 
-// Thêm phản hồi cho review (chỉ Admin mới được phép)
-router.post('/:reviewId/reply', authMiddleware.isAuthorized, authMiddleware.isAdmin, reviewController.addReply);
+// Chỉ Admin có thể phản hồi review
+router.post('/:reviewId/reply', authMiddleware.isAuthorized, authMiddleware.isAdmin, reviewController.addReply)
+
+
+// Xóa phản hồi Xóa phản hồi của mình
+router.delete('/:reviewId/reply/:replyIndex', authMiddleware.isAuthorized, authMiddleware.isAdmin, reviewController.deleteReply);
+
 
 export const reviewRoute = router

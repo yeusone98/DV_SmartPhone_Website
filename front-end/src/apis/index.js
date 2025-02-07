@@ -164,3 +164,10 @@ export const addReplyAPI = async (reviewId, replyData) => {
     const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/reviews/${reviewId}/reply`, replyData);
     return response.data;
 };
+
+// Xóa reply của admin
+export const deleteReplyAPI = async (reviewId, replyIndex) => {
+    const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/reviews/${reviewId}/reply/${replyIndex}`);
+    return response.data;
+};
+

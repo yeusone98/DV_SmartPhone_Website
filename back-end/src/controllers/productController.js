@@ -4,62 +4,62 @@ import { ObjectId } from 'mongodb'
 
 const createProduct = async (req, res, next) => {
     try {
-        const { files, body } = req;
-        let data = { ...body, seller_id: req.jwtDecoded._id };
+        const { files, body } = req
+        let data = { ...body, seller_id: req.jwtDecoded._id }
 
         const mainImages = files
             .filter(file => file.fieldname === 'images')
-            .map(file => file.path);
+            .map(file => file.path)
         data.image_urls = mainImages
 
         // Parse JSON cho variants nếu cần
         if (typeof data.variants === 'string') {
             try {
-                data.variants = JSON.parse(data.variants);
+                data.variants = JSON.parse(data.variants)
             } catch (error) {
-                console.error('Error parsing variants:', error);
-                data.variants = [];
+                console.error('Error parsing variants:', error)
+                data.variants = []
             }
         }
-        if (!Array.isArray(data.variants)) data.variants = [];
+        if (!Array.isArray(data.variants)) data.variants = []
 
         // Xử lý ảnh chính
         if (files?.images) {
-            data.image_urls = files.images.map(file => file.path);
+            data.image_urls = files.images.map(file => file.path)
         }
 
         // Xử lý ảnh variants
-        const variantImagesMap = {}; // Lưu ảnh theo index của variant
+        const variantImagesMap = {} // Lưu ảnh theo index của variant
         files?.forEach((file) => {
-            const match = file.fieldname.match(/variants\[(\d+)\]\[images\]/);
+            const match = file.fieldname.match(/variants\[(\d+)\]\[images\]/)
             if (match) {
-                const variantIndex = parseInt(match[1], 10);
+                const variantIndex = parseInt(match[1], 10)
                 if (!variantImagesMap[variantIndex]) {
-                    variantImagesMap[variantIndex] = [];
+                    variantImagesMap[variantIndex] = []
                 }
-                variantImagesMap[variantIndex].push(file.path);
+                variantImagesMap[variantIndex].push(file.path)
             }
-        });
+        })
 
         // Gán ảnh vào từng variant
         data.variants.forEach((variant, index) => {
-            variant.images = variantImagesMap[index] || [];
-        });
+            variant.images = variantImagesMap[index] || []
+        })
 
         // Tạo sản phẩm
-        const result = await productModel.createProduct(data);
-        res.status(StatusCodes.CREATED).json(result);
+        const result = await productModel.createProduct(data)
+        res.status(StatusCodes.CREATED).json(result)
     } catch (error) {
-        next(error);
+        next(error)
     }
-};
+}
 
 
 const getProducts = async (req, res, next) => {
     try {
-        const { category_id, search, status } = req.query
+        const { search, status } = req.query
         const query = { _destroy: false }
-        if (category_id) query.category_id = category_id
+
         if (status) query.status = status
         if (search) query.name = { $regex: search, $options: 'i' }
 
@@ -69,6 +69,7 @@ const getProducts = async (req, res, next) => {
         next(error)
     }
 }
+
 
 const getProductById = async (req, res, next) => {
     try {
@@ -86,53 +87,53 @@ const getProductById = async (req, res, next) => {
 
 const updateProduct = async (req, res, next) => {
     try {
-        const { id } = req.params;
-        const { body, files } = req; // files lấy từ req.files do upload.any()
-        const objectId = new ObjectId(id);
+        const { id } = req.params
+        const { body, files } = req // files lấy từ req.files do upload.any()
+        const objectId = new ObjectId(id)
 
-        const existingProduct = await productModel.findProductById(objectId);
+        const existingProduct = await productModel.findProductById(objectId)
         if (!existingProduct) {
-            return res.status(404).json({ message: 'Product not found!' });
+            return res.status(404).json({ message: 'Product not found!' })
         }
 
         // Xử lý ảnh chính từ files
-        const keptImages = JSON.parse(body.image_urls || '[]');
+        const keptImages = JSON.parse(body.image_urls || '[]')
         const newMainImages = files
             .filter(file => file.fieldname === 'images')
-            .map(file => file.path);
-        const updatedMainImages = [...keptImages, ...newMainImages];
+            .map(file => file.path)
+        const updatedMainImages = [...keptImages, ...newMainImages]
 
         // Xử lý variants từ body và files
-        let variantsData = [];
+        let variantsData = []
         try {
-            variantsData = JSON.parse(body.variants || '[]');
+            variantsData = JSON.parse(body.variants || '[]')
         } catch (error) {
-            return res.status(400).json({ message: 'Invalid variants data!' });
+            return res.status(400).json({ message: 'Invalid variants data!' })
         }
 
         // Tạo map cho ảnh variants mới
-        const variantImagesMap = {};
+        const variantImagesMap = {}
         files.forEach((file) => {
-            const match = file.fieldname.match(/variants\[(\d+)\]\[images\]/);
+            const match = file.fieldname.match(/variants\[(\d+)\]\[images\]/)
             if (match) {
-                const variantIndex = parseInt(match[1], 10);
+                const variantIndex = parseInt(match[1], 10)
                 if (!variantImagesMap[variantIndex]) {
-                    variantImagesMap[variantIndex] = [];
+                    variantImagesMap[variantIndex] = []
                 }
-                variantImagesMap[variantIndex].push(file.path);
+                variantImagesMap[variantIndex].push(file.path)
             }
-        });
+        })
 
         // Cập nhật ảnh cho từng variant
         const updatedVariants = variantsData.map((variant, index) => {
-            const existingVariant = existingProduct.variants[index] || {};
-            const existingImages = variant.images?.filter(img => typeof img === 'string') || [];
-            const newImages = variantImagesMap[index] || [];
+            const existingVariant = existingProduct.variants[index] || {}
+            const existingImages = variant.images?.filter(img => typeof img === 'string') || []
+            const newImages = variantImagesMap[index] || []
             return {
                 ...variant,
                 images: [...existingImages, ...newImages]
-            };
-        });
+            }
+        })
 
         // Chuẩn bị dữ liệu cập nhật
         const updateData = {
@@ -140,14 +141,14 @@ const updateProduct = async (req, res, next) => {
             image_urls: updatedMainImages,
             variants: updatedVariants,
             updatedAt: new Date()
-        };
+        }
 
-        const result = await productModel.updateProduct(objectId, updateData);
-        res.status(200).json(result);
+        const result = await productModel.updateProduct(objectId, updateData)
+        res.status(200).json(result)
     } catch (error) {
-        next(error);
+        next(error)
     }
-};
+}
 
 
 const deleteProduct = async (req, res, next) => {

@@ -58,6 +58,13 @@ const isAdmin = (req, res, next) => {
     next() // Cho phép đi tiếp nếu user là admin
 }
 
+const isCustomer = (req, res, next) => {
+    const user = req.jwtDecoded
+    if (user.role === 'admin') {
+        return next(new ApiError(StatusCodes.FORBIDDEN, 'Forbidden! Admin cannot access this resource.')) // Trả về lỗi 403 nếu là admin
+    }
+    next() // Nếu là khách hàng, cho request đi tiếp
+}
 
 
-export const authMiddleware = { isAuthorized, isAdmin }
+export const authMiddleware = { isAuthorized, isAdmin, isCustomer }

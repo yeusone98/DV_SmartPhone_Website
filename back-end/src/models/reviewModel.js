@@ -2,10 +2,9 @@ import Joi from 'joi'
 import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 
-// Tên collection trong MongoDB
 const REVIEW_COLLECTION_NAME = 'reviews'
 
-// **Schema Validation** cho Review
+// Schema Validation
 const REVIEW_SCHEMA = Joi.object({
     product_id: Joi.string().required(),
     customer_id: Joi.string().required(),
@@ -14,56 +13,57 @@ const REVIEW_SCHEMA = Joi.object({
     comment: Joi.string().required(),
     replies: Joi.array().items(
         Joi.object({
-            admin_id: Joi.string().required(), // ID của admin phản hồi
-            admin_name: Joi.string().required(), // Tên admin
-            reply: Joi.string().required(), // Nội dung phản hồi
-            createdAt: Joi.date().timestamp('javascript').default(Date.now)
+            admin_id: Joi.string().required(),
+            admin_name: Joi.string().required(),
+            reply: Joi.string().required(),
+            createdAt: Joi.date().default(new Date())
         })
-    ).default([]), // Mặc định là mảng rỗng
-    createdAt: Joi.date().timestamp('javascript').default(Date.now)
-});
+    ).default([]),
+    createdAt: Joi.date().default(new Date())
+})
 
-// **Validate dữ liệu trước khi lưu**
+// Validate trước khi tạo
 const validateBeforeCreate = async (data) => {
     return await REVIEW_SCHEMA.validateAsync(data, { abortEarly: false })
 }
 
-// **Tạo một Review**
+// Thêm Review
 const createReview = async (data) => {
-    const validData = await validateBeforeCreate(data) // Xác thực dữ liệu
+    const validData = await validateBeforeCreate(data)
     const result = await GET_DB()
         .collection(REVIEW_COLLECTION_NAME)
-        .insertOne(validData) // Thêm review vào DB
+        .insertOne(validData)
     return result
 }
 
-// **Tìm tất cả review của một sản phẩm**
+// Lấy Review theo sản phẩm
 const getReviewsByProduct = async (productId) => {
-    const results = await GET_DB()
+    return await GET_DB()
         .collection(REVIEW_COLLECTION_NAME)
-        .find({ product_id: productId }) // Tìm tất cả review theo product_id
+        .find({ product_id: productId })
         .toArray()
-    return results
 }
 
-// **Xóa review theo ID**
+// Xóa Review
 const deleteReviewById = async (reviewId) => {
     const result = await GET_DB()
         .collection(REVIEW_COLLECTION_NAME)
-        .deleteOne({ _id: new ObjectId(reviewId) }) // Xóa review theo ObjectId
-    return result.deletedCount > 0 // Trả về true nếu xóa thành công
+        .deleteOne({ _id: new ObjectId(reviewId) })
+    return result.deletedCount > 0
 }
 
-
-const addReplyToReview = async (reviewId, reply) => {
+// Thêm phản hồi
+const addReplyToReview = async (reviewId, replyData) => {
     const result = await GET_DB()
         .collection(REVIEW_COLLECTION_NAME)
         .updateOne(
             { _id: new ObjectId(reviewId) },
-            { $push: { replies: reply } } // Thêm phản hồi vào mảng `replies`
-        );
-    return result.modifiedCount > 0;
-};
+            { $push: { replies: replyData } }
+        )
+    return result.modifiedCount > 0
+}
+
+
 
 
 
