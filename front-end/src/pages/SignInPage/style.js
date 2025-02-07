@@ -84,3 +84,18 @@ export const WrapperTextSignInSmall = styled.div`
         color: #e74c3c; 
     }
 `
+
+
+export const ForgotPasswordText = styled.div`
+  text-align: right;
+  margin-bottom: 10px;
+  font-size: 14px;
+
+  a {
+    color: #1890ff;
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+`;
