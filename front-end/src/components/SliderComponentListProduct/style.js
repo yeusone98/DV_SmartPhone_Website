@@ -10,14 +10,45 @@ export const WrapperStyleSlider = styled(Slider)`
     z-index: 1;
     width: 30px;
     height: 30px;
-    background-color: rgba(151, 149, 149, 0.5) !important; /* Màu xám với 50% trong suốt */
-    border-radius: 10px;
+    color: rgba(164, 160, 160, 0.5) !important;
+    border-radius: 50%;
     margin-left: 14px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .slick-prev::before,
+  .slick-next::before {
+    display: none;
+  }
+
+  .slick-prev::after,
+  .slick-next::after {
+    content: "〈"; 
+    font-size: 24px;
+    font-weight: bold;
+    color: rgba(90, 84, 84, 0.5) !important;
+    line-height: normal;
+    display: flex;
+  align-items: center;
+  justify-content: center;
+  }
+.slick-prev {
+  left: -30px; /* Điều chỉnh vị trí sang trái */
+}
+
+.slick-next {
+  right: -10px; /* Điều chỉnh vị trí sang phải */
+}
+
+  .slick-next::after {
+    content: "〉";
   }
 
   .slick-prev:hover,
   .slick-next:hover {
-    background-color: rgba(187, 181, 181, 0.8) !important; /* Giảm trong suốt khi hover */
+    background-color: rgba(218, 210, 210, 0.8) !important;
+    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2);
   }
- 
 `;
