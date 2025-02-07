@@ -19,6 +19,7 @@ import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { PlusOutlined, UploadOutlined, EditOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import { createProductAPI, updateProductAPI, deleteProductAPI, fetchProductsAPI } from '../../apis';
+import { WrapperDescription } from '../ProductDetailComponent/style';
 
 const { Option } = Select;
 
@@ -510,12 +511,12 @@ const ProductManagement = () => {
 
                         {/* Mô tả sản phẩm */}
                         <Descriptions.Item label="Description">
-                            <div dangerouslySetInnerHTML={{ __html: viewProduct.description_detail }} />
+                            <WrapperDescription dangerouslySetInnerHTML={{ __html: viewProduct.description_detail }} />
                         </Descriptions.Item>
 
                         {/* Thông số kỹ thuật */}
                         <Descriptions.Item label="Technical Specifications">
-                            <div dangerouslySetInnerHTML={{ __html: viewProduct.technical_specifications }} />
+                            <WrapperDescription dangerouslySetInnerHTML={{ __html: viewProduct.technical_specifications }} />
                         </Descriptions.Item>
 
                         {/* Danh sách phiên bản */}

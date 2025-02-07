@@ -7,7 +7,7 @@ const CardComponent = ({ name, price, price_discount, image }) => {
   return (
     <WrapperCardStyle
       hoverable
-      style={{ width: 250, height: 400, padding: "5px" }}
+      style={{ width: 250, height: 380, padding: "5px" }}
       cover={<img alt={name} src={image || "default_image_url_here"} />}
     >
       <WrapperDiscoutHeader>Trả góp 0%</WrapperDiscoutHeader>

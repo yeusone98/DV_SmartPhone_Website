@@ -446,12 +446,46 @@ export const WrapperCustomerReview = styled.div`
   border-radius: 8px;
 `
 export const WrapperSpecifications = styled.div`
- font-size: 16px;
- padding: 20px;
- margin-left: 50px;
+ font-size: 14px;
+  padding: 0 20px;
+  margin-left: 50px;
+
+  table {
+    width: 100%;
+    border: 1px solid #ddd;
+    border-collapse: collapse;
+    empty-cells: initial;
+  }
+
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    min-width: 50px; 
+    height: 40px; 
+  }
+
+  th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
 `
 export const WrapperDescription = styled.div`
- padding: 20px;
+ text-align: justify;
+ padding: 0 20px;
+ max-width: 100%;
+ img {
+    max-width: 100%;
+    height: auto;
+    display: block; 
+  }
+    *{
+    font-size: 16px;
+    }
+  span {
+  font-size: 14px;
+  }
+ 
 `
 export const TextSameProducts = styled.div`
   font-size: 20px;
