@@ -10,7 +10,7 @@ const DefaultComponent = ({children}) => {
         <MainContent>
         {children}
         </MainContent>
-      <FooterComponent/>
+      {/* <FooterComponent/> */}
     </WrapperDefault>
   )
 }

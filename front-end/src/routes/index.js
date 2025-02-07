@@ -12,6 +12,7 @@ import AdminDashboard from "../components/AdminDashBoard/AdmindashBoard";
 import AccountVerification from "../pages/AccountVerification/AccountVerification";
 import ForgotPassword from "../pages/AccountVerification/ForgotPassword";
 import ResetPassword from "../pages/AccountVerification/ResetPassword";
+import CheckOutPage from "../pages/CheckOutPage/CheckOutPage";
 
 const routes = [
     {
@@ -84,6 +85,11 @@ const routes = [
     {
         path: '/reset-password',
         page: ResetPassword,
+        isShowHeader: false,
+    },
+    {
+        path: '/checkout',
+        page: CheckOutPage,
         isShowHeader: false,
     },
     {

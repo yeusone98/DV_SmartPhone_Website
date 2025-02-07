@@ -188,7 +188,7 @@ const AdminDashboard = () => {
   return (
     <StyledLayout>
       <StyledSider trigger={null} collapsible collapsed={collapsed}>
-        <div className="logo">Phone Store</div>
+        <div className="logo">VDSTORE</div>
         <Menu
           theme="dark"
           mode="inline"
