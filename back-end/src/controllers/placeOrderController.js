@@ -1,82 +1,79 @@
 import { placeOrderModel } from '~/models/placeOrderModel'
 import { cartModel } from '~/models/cartModel'
-import { productModel } from '~/models/productModel'
 import { StatusCodes } from 'http-status-codes'
-import { ObjectId } from 'mongodb'
-import { GET_DB } from '~/config/mongodb'
 
 const placeOrder = async (req, res, next) => {
     try {
-        const userId = req.jwtDecoded._id; // Lấy ID người dùng từ token
-        const { province, district, ward, address_detail, full_name, phone_number } = req.body;
+        const userId = req.jwtDecoded._id // Lấy ID người dùng từ token
+        const { province, district, ward, address_detail, full_name, phone_number, paymentMethod } = req.body
 
-        // Kiểm tra các trường thông tin
-        if (!province || !district || !ward || !address_detail || !full_name || !phone_number) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Missing required fields!' });
+        // Kiểm tra thông tin bắt buộc
+        if (!province || !district || !ward || !address_detail || !full_name || !phone_number || !paymentMethod) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Thiếu thông tin bắt buộc!' })
+        }
+
+        // Kiểm tra phương thức thanh toán hợp lệ
+        if (!['COD', 'Banking'].includes(paymentMethod)) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Phương thức thanh toán không hợp lệ!' })
         }
 
         // Lấy giỏ hàng từ database
-        const cart = await cartModel.findCartByUserId(userId);
+        const cart = await cartModel.findCartByUserId(userId)
         if (!cart || !cart.products || cart.products.length === 0) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Cart is empty!' });
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Giỏ hàng trống!' })
         }
 
-        // Lấy danh sách product_id từ giỏ hàng
-        const productIds = cart.products.map((item) => new ObjectId(item.product_id));
-
-        // Lấy thông tin sản phẩm từ collection `products`
-        const db = GET_DB();
-        const productsDetails = await db
-            .collection('products')
-            .find({ _id: { $in: productIds } })
-            .toArray();
-
-        // Gắn tên sản phẩm vào từng mục trong giỏ hàng
+        // Gắn thông tin sản phẩm vào từng mục trong giỏ hàng (cart.products đã chứa đủ thông tin)
         const productsWithName = cart.products.map((cartItem) => {
-            const productDetail = productsDetails.find(
-                (product) => product._id.toString() === cartItem.product_id
-            );
             return {
-                ...cartItem,
-                name: productDetail?.name || 'Unknown Product'
-            };
-        });
+                product_id: cartItem.product_id.toString(),
+                product_name: cartItem.product_name,
+                image_url: cartItem.image_url,
+                color: cartItem.color,
+                storage: cartItem.storage,
+                quantity: cartItem.quantity,
+                unit_price: cartItem.unit_price,
+                total_price_per_product: cartItem.quantity * cartItem.unit_price
+            }
+        })
+
+        // Tính tổng tiền đơn hàng
+        const total_price = productsWithName.reduce((sum, item) => sum + item.total_price_per_product, 0)
 
         // Chuẩn bị dữ liệu đơn hàng
         const orderData = {
             customer_id: userId,
-            products: productsWithName, // Gắn danh sách sản phẩm có tên
-            total_price: cart.total_price,
-            payment: {
-                method: 'COD',
-                transaction_id: null,
-                status: 'pending'
-            },
+            full_name,
+            phone_number,
             province,
             district,
             ward,
             address_detail,
-            full_name,
-            phone_number,
-            createdAt: new Date()
-        };
+            products: productsWithName, // Danh sách sản phẩm đã có tên
+            total_price,
+            payment: {
+                method: paymentMethod, // Lưu COD hoặc Banking
+                transaction_id: null, // Banking có thể cập nhật transaction sau
+                status: 'pending'
+            },
+            createdAt: new Date(),
+        }
 
         // Debug log
-        console.log('Order data to validate:', orderData);
+        console.log('Dữ liệu đơn hàng:', orderData)
 
         // Tạo đơn hàng
-        const newOrder = await placeOrderModel.createOrder(orderData);
+        const newOrder = await placeOrderModel.createOrder(orderData)
 
         // Xóa giỏ hàng sau khi đặt hàng thành công
-        await cartModel.removeCart(userId);
+        await cartModel.removeCart(userId)
 
-        res.status(StatusCodes.CREATED).json({ message: 'Order placed successfully!', order: newOrder });
+        res.status(StatusCodes.CREATED).json({ message: 'Đặt hàng thành công!', order: newOrder })
     } catch (error) {
-        console.error('Error in placeOrder:', error.message);
-        next(error);
+        console.error('Lỗi trong placeOrder:', error.message)
+        next(error)
     }
-};
-
+}
 
 export const placeOrderController = {
     placeOrder

@@ -189,9 +189,6 @@ const SignInPage = () => {
         <WrapperTextSignInSmall>
           Bạn chưa có tài khoản? <a href="/register">Đăng ký ngay</a>
         </WrapperTextSignInSmall>
-        <WrapperTextSignInSmall>
-          <a href="/forgot-password">Quên mật khẩu</a>
-        </WrapperTextSignInSmall>
       </FormContainer>
     </WrapperPageLogin>
   );

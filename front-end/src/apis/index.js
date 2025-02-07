@@ -136,6 +136,7 @@ export const removeCartItemAPI = async ({ product_id, color, storage }) => {
     return response.data;
 };
 
+// Đặt hàng
 export const placeOrderAPI = async (data) => {
     const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/orders`, data);
     return response.data;

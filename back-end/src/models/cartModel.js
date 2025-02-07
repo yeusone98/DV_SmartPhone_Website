@@ -11,17 +11,20 @@ const CART_SCHEMA = Joi.object({
     products: Joi.array().items(
         Joi.object({
             product_id: Joi.string().required(),
-            color: Joi.string().required(), // Thêm color
-            storage: Joi.string().required(), // Thêm storage
+            product_name: Joi.string().required(), // Thêm trường name của sản phẩm
+            image_url: Joi.string().required(), // Thêm trường image_url
+            color: Joi.string().required(),
+            storage: Joi.string().required(),
             quantity: Joi.number().integer().min(1).required(),
             unit_price: Joi.number().required(),
             total_price_per_product: Joi.number().required()
         })
-    ),
+    ).required(),
     total_price: Joi.number().required(),
     createdAt: Joi.date().timestamp('javascript').default(Date.now),
     updatedAt: Joi.date().timestamp('javascript').default(null)
 });
+
 
 
 // Hàm validate dữ liệu trước khi tạo giỏ hàng
@@ -46,39 +49,8 @@ const findCartByUserId = async (userId) => {
 
     if (!cart) return null;
 
-    // Lấy danh sách `product_id` từ giỏ hàng
-    const productIds = cart.products.map((item) => new ObjectId(item.product_id));
-
-    // Lấy chi tiết sản phẩm từ `products`
-    const productsDetails = await db
-        .collection('products')
-        .find({ _id: { $in: productIds } })
-        .toArray();
-
-    // Kết hợp `name` và `image_url` từ variant
-    const productsWithDetails = cart.products.map((cartItem) => {
-        const productDetail = productsDetails.find(
-            (product) => product._id.toString() === cartItem.product_id.toString()
-        );
-
-        // Tìm đúng variant theo `color` và `storage`
-        const selectedVariant = productDetail?.variants?.find(
-            (variant) => variant.color === cartItem.color && variant.storage === cartItem.storage
-        );
-
-        return {
-            ...cartItem,
-            name: cartItem.name || productDetail?.name || 'Sản phẩm không xác định', // ✅ Đảm bảo có name
-            image_url: cartItem.image_url || selectedVariant?.images?.[0] || 'https://via.placeholder.com/50' // ✅ Đảm bảo có ảnh
-        };
-    });
-
-    return {
-        ...cart,
-        products: productsWithDetails
-    };
+    return cart; 
 };
-
 
 
 
@@ -86,6 +58,18 @@ const findCartByUserId = async (userId) => {
 const addProductToCart = async (userId, productId, color, storage, quantity, unit_price) => {
     const db = GET_DB();
     const productIdObj = new ObjectId(productId);
+
+    // Tìm sản phẩm trong bảng `products`
+    const productDetail = await db.collection('products').findOne({ _id: productIdObj });
+
+    if (!productDetail) {
+        throw new Error('Product not found');
+    }
+
+    // Lấy thông tin variant
+    const selectedVariant = productDetail?.variants?.find(
+        (variant) => variant.color === color && variant.storage === storage
+    );
 
     let cart = await db.collection('cart').findOne({ customer_id: userId });
 
@@ -95,6 +79,8 @@ const addProductToCart = async (userId, productId, color, storage, quantity, uni
             customer_id: userId,
             products: [{
                 product_id: productIdObj,
+                product_name: productDetail.name,  // Lưu name vào giỏ hàng
+                image_url: selectedVariant?.images?.[0] || 'https://via.placeholder.com/50',  // Lưu image vào giỏ hàng
                 color,
                 storage,
                 quantity,
@@ -125,6 +111,8 @@ const addProductToCart = async (userId, productId, color, storage, quantity, uni
         // Nếu sản phẩm chưa có, thêm mới vào giỏ hàng
         cart.products.push({
             product_id: productIdObj,
+            product_name: productDetail.name,  // Lưu name vào giỏ hàng
+            image_url: selectedVariant?.images?.[0] || 'https://via.placeholder.com/50',  // Lưu image vào giỏ hàng
             color,
             storage,
             quantity,
@@ -144,6 +132,8 @@ const addProductToCart = async (userId, productId, color, storage, quantity, uni
 
     return cart;
 };
+
+
 
 
 

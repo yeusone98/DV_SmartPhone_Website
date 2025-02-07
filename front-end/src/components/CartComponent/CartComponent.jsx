@@ -34,15 +34,15 @@ const CartComponent = () => {
     try {
       const cart = await fetchCartAPI();
       if (!cart || !cart.products) {
-        console.error("❌ API trả về giỏ hàng rỗng:", cart);
+        console.error("API trả về giỏ hàng rỗng:", cart);
         return;
       }
       setCartItems(
         cart.products.map((item) => ({
           key: `${item.product_id}_${item.storage}_${item.color}`,
           product_id: item.product_id,
-          product: item.name || "Sản phẩm không xác định",
-          image: item.image_url || "https://via.placeholder.com/50",
+          product_name: item.product_name || "Sản phẩm không xác định",
+          image_url: item.image_url || "https://via.placeholder.com/50",
           storage: item.storage || "Không xác định",
           color: item.color || "Không xác định",
           unit_price: Number(item.unit_price) || 0,
@@ -52,7 +52,7 @@ const CartComponent = () => {
         }))
       );
     } catch (error) {
-      console.error("❌ Lỗi khi tải giỏ hàng:", error);
+      console.error(" Lỗi khi tải giỏ hàng:", error);
       message.error("Không thể tải giỏ hàng, vui lòng thử lại sau.");
     }
   };
@@ -174,6 +174,11 @@ const CartComponent = () => {
     },
   ];
 
+  const handleCheckout = () => {
+    const cartData = { cartItems, totalPrice };  // Dữ liệu giỏ hàng
+    navigate('/checkout', { state: cartData });  // Gửi dữ liệu vào state
+  };
+
   return (
     <div style={{ backgroundColor: "rgb(239, 239, 239)" }}>
       <WrapperCartComponent>
@@ -197,7 +202,7 @@ const CartComponent = () => {
               <TotalAmount>{`${totalPrice.toLocaleString()} đ`}</TotalAmount>
               <WrapperNote>(Bao gồm thuế VAT)</WrapperNote>
             </div>
-            <CheckoutButton size="large" type="primary">
+            <CheckoutButton size="large" type="primary" onClick={handleCheckout}>
               Thanh toán
             </CheckoutButton>
           </TotalContainer>
