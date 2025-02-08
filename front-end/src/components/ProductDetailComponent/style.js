@@ -20,7 +20,6 @@ export const WrapperProductDetailPage = styled.div`
 export const WrapeerStyleImageSmall = styled(Image)`
   height: 64px;
   width: 64px;
-  border: 1px rgb(196, 190, 190) solid;
   border-radius: 5px;
 `;
 export const WrapeerStyleImage = styled(Col)`

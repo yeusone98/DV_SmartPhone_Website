@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Icon, {
   CaretDownOutlined,
   LogoutOutlined,
+  ProfileOutlined,
   ShoppingCartOutlined,
   UserOutlined,
 } from "@ant-design/icons";
@@ -15,6 +16,7 @@ import Cookies from "js-cookie";
 import { useDispatch, useSelector } from "react-redux";
 import { logout, selectCurrentUser } from "../../features/user/userSlice";
 import { message } from "antd";
+import SearchComponent from "../SearchComponent/SearchComponent";
 
 const HeaderComponent = () => {
   const navigate = useNavigate();
@@ -38,10 +40,15 @@ const HeaderComponent = () => {
   // Tạo menu khi nhấn vào displayName
   const menu = (
     <Menu>
-      <Menu.Item key="logout" onClick={handleLogout} style={{color: 'red', alignItems: 'center',justifyContent: 'center'}}>
-        Đăng xuất
-        <LogoutOutlined style={{marginLeft:'5px'}}/>
+      <Menu.Item key="" onClick={()=>navigate('/order-view')} style={{ alignItems: 'center',justifyContent: 'center'}}>
+      <ProfileOutlined style={{marginRight: '5px'}}/>
+        Đơn hàng của tôi
       </Menu.Item>
+      <Menu.Item key="logout" onClick={handleLogout} style={{ alignItems: 'center',justifyContent: 'center'}}>
+      <LogoutOutlined style={{marginRight:'5px'}}/>
+        Đăng xuất
+      </Menu.Item>
+      
     </Menu>
   );
 
@@ -62,11 +69,12 @@ const HeaderComponent = () => {
 
         {/* Thanh tìm kiếm */}
         <Col span={12}>
-          <ButtonInputSearch
+          {/* <ButtonInputSearch
             size="12"
             textButton="Tìm kiếm"
             placeholder="Bạn đang cần tìm gì?"
-          />
+          /> */}
+          <SearchComponent/>
         </Col>
 
         {/* User Account và Giỏ hàng */}
@@ -84,7 +92,7 @@ const HeaderComponent = () => {
               // Nếu chưa đăng nhập, hiển thị Đăng nhập/Đăng ký
               <Link to="/login">
                 <div>
-                  <UserOutlined style={{ fontSize: "25px" }} />
+                  <UserOutlined style={{ fontSize: "25px", color: '#fff' }} />
                   <WrapperTextHeaderSmall>Đăng nhập/Đăng ký</WrapperTextHeaderSmall>
                 </div>
               </Link>

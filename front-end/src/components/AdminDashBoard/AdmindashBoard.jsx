@@ -135,8 +135,7 @@ const AdminDashboard = () => {
                 <Statistic
                   title="Total Revenue"
                   value={dashboardData.totalRevenue}
-                  precision={2}
-                  prefix="$"
+                  suffix="đ"
                 />
               </Card>
               <Card>

@@ -24,7 +24,7 @@ import {
   Row,
   message,
 } from "antd";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import imgProduct from "../../assets/images/iphone-16-pro-max.png";
 import {
   AverageRating,
@@ -89,6 +89,8 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../../features/cart/cartSlice"; 
 
+import imgNull from "../../assets/images/facebook.png";
+
 const ProductDetailComponent = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
@@ -106,7 +108,13 @@ const ProductDetailComponent = () => {
   const [replyText, setReplyText] = useState({}); // Nội dung phản hồi
   const [showReplyForm, setShowReplyForm] = useState({}); // Hiển thị form phản hồi
 
-  
+  const reviewInputRef = useRef(null);
+
+  useEffect(() => {
+      if (reviewInputRef.current) {
+          reviewInputRef.current.focus({ cursor: "end" }); // Giữ vị trí con trỏ cuối
+      }
+  }, [reviewText]);
  
   // 🎯 **Gọi API để lấy danh sách đánh giá**
   useEffect(() => {
@@ -145,12 +153,12 @@ const ProductDetailComponent = () => {
             comment: reviewText
         });
 
-        setReviewText(""); // Reset nội dung
+        //setReviewText(""); // Reset nội dung
 
         // Gọi lại API để cập nhật danh sách đánh giá
         const updatedReviews = await fetchReviewsAPI(id);
         setReviews(updatedReviews);
-
+        setReviewText(""); // Reset nội dung
         message.success("Đánh giá đã được thêm thành công!");
     } catch (error) {
         message.error("Lỗi khi thêm đánh giá!");
@@ -308,7 +316,10 @@ const ProductDetailComponent = () => {
       }
   };
   
-    
+  // Xử lý phần re-render text khi nhập nội dung đánh giá
+  const handleTextChange = (e) => {
+    setReviewText(e.target.value);
+  };
     
 
   if (!product || !selectedVariant) return <div>Loading...</div>;
@@ -329,14 +340,13 @@ const ProductDetailComponent = () => {
         />
       </div>
       <Input.TextArea
+        ref={reviewInputRef}
         placeholder="Nhập nội dung đánh giá *"
         style={{ marginBottom: "16px" }}
         rows={4}
-        value={reviewText}
-        onChange={(e) => {
-          console.log("Review Text:", e.target.value);
-          setReviewText(e.target.value);
-        }}
+        value={reviewText || ""}
+        onChange={handleTextChange}
+        
       />
       <div style={{ textAlign: "right" }}>
         <Button onClick={onCancel} style={{ marginRight: "8px" }}>
@@ -355,22 +365,21 @@ const ProductDetailComponent = () => {
   };
 
 
-
   return (
     <WrapperProductDetailPage>
       <Row style={{ padding: "16px", backgroundColor: "#fff", borderRadius: "8px" }}>
         {/* Phần hình ảnh */}
-        <Col span={10} style={{ border: "1px solid #919eab52", borderRadius: "8px", paddingRight: "30px" }}>
+        <Col span={10} style={{padding:'20px', border: "1px solid #919eab52", borderRadius: "8px", paddingRight: "30px" }}>
           <div style={{ display: "flex", justifyContent: "center" }}>
             <Image src={selectedVariant.images[0]} alt="image product" preview={false} />
           </div>
-          <Row style={{ paddingTop: "10px", justifyContent: "space-between" }}>
+          {/* <Row style={{ paddingTop: "10px", justifyContent: "space-between" }}>
             {selectedVariant.images?.map((img, index) => (
               <WrapeerStyleImage span={4} key={index}>
                 <WrapeerStyleImageSmall src={img} alt={`small ${index}`} preview={false} />
               </WrapeerStyleImage>
             ))}
-          </Row>
+          </Row> */}
         </Col>
 
         {/* Phần thông tin chính */}

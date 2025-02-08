@@ -11,7 +11,7 @@ export const WrapperTypeProduct = styled.div`
   border-bottom: 1px solid rgb(182, 182, 182);
   height: 44px;
    margin-bottom: -6px; 
-   color: rgb(127, 128, 132);
+   color: rgb(110, 110, 112);
 `;
 export const WrapperTextHome = styled.div`
 font-size: 20px;
