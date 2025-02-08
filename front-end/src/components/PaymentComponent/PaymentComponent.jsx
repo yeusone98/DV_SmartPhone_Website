@@ -7,6 +7,7 @@ import {
 import {
   Button,
   Col,
+  Descriptions,
   Form,
   Input,
   Radio,
@@ -118,7 +119,9 @@ const PaymentComponent = () => {
   };
 
   const renderShippingForm = () => (
-    <Form form={form} layout="vertical">
+    <div>
+      <Descriptions title="Điền thông tin & địa chỉ nhận hàng" bordered></Descriptions>
+      <Form form={form} layout="vertical">
       <Form.Item
         label="Họ và tên"
         name="fullName"
@@ -144,12 +147,13 @@ const PaymentComponent = () => {
         <Input />
       </Form.Item>
     </Form>
+    </div>
   );
 
   const renderPaymentForm = () => (
     <Form form={form} layout="vertical">
       <Form.Item
-        style={{ fontSize: "16px" }}
+        style={{ fontSize: "20px" }}
         label="Phương thức thanh toán"
         required
       >

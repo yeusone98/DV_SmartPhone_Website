@@ -46,12 +46,14 @@ const HomePage = () => {
   return (
     <>
       <div style={{ padding: "0 120px", backgroundColor: "#efefef" }}>
+        <Link to={'/'} style={{ textDecoration: "none" }}>
         <WrapperTypeProduct>
         <HomeOutlined  style={{color:'rgb(22, 98, 240)', fontSize: '24px'}} />
           {["Trang Chủ"].map((item) => (
             <TypeProduct name={item} key={item} />
           ))}
         </WrapperTypeProduct>
+        </Link>
       </div>
       <div id="container" style={{ backgroundColor: "#efefef", padding: "0 120px", height: "auto" }}>
         <SliderComponent arrImages={[slider1, slider2, slider3]} />
