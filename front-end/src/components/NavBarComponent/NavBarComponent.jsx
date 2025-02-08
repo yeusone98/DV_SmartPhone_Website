@@ -57,7 +57,7 @@ const NavBarComponent = () => {
 
   return (
     <div>
-      <WrapperLabelText>Label Navbar</WrapperLabelText>
+      <WrapperLabelText>Tìm kiếm sản phẩm</WrapperLabelText>
       <WrapperContent>
         {renderContent("text", [
           "Iphone",
@@ -67,15 +67,8 @@ const NavBarComponent = () => {
           "Vsmart",
         ])}
       </WrapperContent>
-      <WrapperContent>
-        {renderContent("checkbox", [
-          { value: "A", label: "A" },
-          { value: "B", label: "B" },
-          { value: "C", label: "C" },
-          { value: "D", label: "D" },
-        ])}
-      </WrapperContent>
-      <WrapperContent>{renderContent("star", [3,4,5])}</WrapperContent>
+      
+      <WrapperLabelText>Lọc theo giá:</WrapperLabelText>
     <WrapperContent>{renderContent("price",['Dưới 40', 'Trên 50'])}</WrapperContent>
     </div>
   );

@@ -6,15 +6,13 @@ import { WrapperNavBar,WrapperProducts } from './style'
 
 const TypeProductPage = () => {
   return (
-    <div style={{padding:'0 120px', backgroundColor: '#efefef'}}>
+    <div style={{padding:'20px 120px', backgroundColor: '#efefef'}}>
     <Row style={{paddingTop: '20px',flexWrap: 'nowrap'}}>
         <WrapperNavBar span={4}>
           <NavBarComponent/>
         </WrapperNavBar>
         <Col span={20}>
           <WrapperProducts >
-            <CardComponent/>
-            <CardComponent/>
             <CardComponent/>
             <CardComponent/>
             <CardComponent/>

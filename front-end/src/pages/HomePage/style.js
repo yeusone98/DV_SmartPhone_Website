@@ -4,14 +4,20 @@ import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
 export const WrapperTypeProduct = styled.div`
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: 10px;
   justify-content: flex-start;
   font-weight: 600;
-  font-size: 15px;
+  font-size: 16px;
   border-bottom: 1px solid rgb(182, 182, 182);
   height: 44px;
    margin-bottom: -6px; 
+   color: rgb(127, 128, 132);
 `;
+export const WrapperTextHome = styled.div`
+font-size: 20px;
+  font-weight: 600;
+`;
+
 
 export const WrapperProductList = styled.div`
   font-size: 20px;
