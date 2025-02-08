@@ -53,7 +53,6 @@ const findCartByUserId = async (userId) => {
 };
 
 
-
 // Hàm thêm sản phẩm vào giỏ hàng
 const addProductToCart = async (userId, productId, color, storage, quantity, unit_price) => {
     const db = GET_DB();

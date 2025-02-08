@@ -13,8 +13,7 @@ import {
   DropdownTrigger 
 } from './style';
 
-const SelectOptionProduct = ({ variants, selectedVariant, onSelectVariant }) => {
-  // Tạo các items cho dropdown từ props variants
+const SelectOptionProduct = ({ variants, selectedVariant, onSelectVariant, productName }) => {
   const items = variants.map((variant, index) => ({
     key: index,
     label: (
@@ -27,7 +26,7 @@ const SelectOptionProduct = ({ variants, selectedVariant, onSelectVariant }) => 
               style={{ width: '40px', height: '40px', objectFit: 'cover' }}
             />
           </PreviewContainer>
-          <span>{variant.storage} GB | {variant.color}</span>
+          <span> {productName} {variant.storage} GB | {variant.color}</span>
         </VariantInfo>
         <PriceContainer>
           <CurrentPrice>{variant.price.toLocaleString()}đ</CurrentPrice>
@@ -56,7 +55,7 @@ const SelectOptionProduct = ({ variants, selectedVariant, onSelectVariant }) => 
                 alt="selected variant" 
                 style={{ width: '20px', height: '20px', marginRight: '8px' }}
               />
-              {selectedVariant.storage} GB | {selectedVariant.color} 
+              {productName} {selectedVariant.storage} GB | {selectedVariant.color}
               {selectedVariant.price_discount ? (
                 <>
                   <span style={{ color: "red", fontWeight: "bold" }}>

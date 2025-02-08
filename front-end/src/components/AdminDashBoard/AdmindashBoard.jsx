@@ -1,28 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import {
-  Layout,
-  Menu,
-  Card,
-  Typography,
-  Input,
-  Badge,
-  Avatar,
-  Space,
-  Statistic,
-  Dropdown,
-  message,
-} from 'antd';
-import {
-  DashboardOutlined,
-  ShoppingCartOutlined,
-  UserOutlined,
-  InboxOutlined,
-  BellOutlined,
-  SettingOutlined,
-  SearchOutlined,
-  LogoutOutlined,
-} from '@ant-design/icons';
+import { Layout, Menu, Card, Typography, Input, Badge, Avatar, Space, Statistic, Dropdown, message } from 'antd';
+import { DashboardOutlined, ShoppingCartOutlined, UserOutlined, InboxOutlined, BellOutlined, SettingOutlined, SearchOutlined, LogoutOutlined } from '@ant-design/icons';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import OrderManagement from '../OrderMangagerComponent/OrderManagerComponent';
 import Cookies from 'js-cookie';
@@ -30,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { logout, selectCurrentUser } from '../../features/user/userSlice';
 import { useNavigate } from 'react-router-dom';
 import ProductManagement from '../ProductManagerComponent/ProductManagerComponent';
+import { fetchDashboardDataAPI } from '../../apis'; // Import API call
 
 const { Header, Sider, Content } = Layout;
 
@@ -97,10 +77,30 @@ const salesData = [
 const AdminDashboard = () => {
   const [collapsed] = useState(false);
   const [selectedMenu, setSelectedMenu] = useState('1');
+  const [dashboardData, setDashboardData] = useState({
+    totalRevenue: 0,
+    totalOrders: 0,
+    totalCustomers: 0,
+    totalProducts: 0,
+  });
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const currentUser = useSelector(selectCurrentUser); // Lấy user từ Redux
+
+  // Gọi dữ liệu dashboard
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const data = await fetchDashboardDataAPI();
+        setDashboardData(data);
+      } catch (error) {
+        message.error('Lỗi khi tải dữ liệu tổng quan!');
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   const handleLogout = () => {
     // Xóa cookies chứa token
@@ -117,9 +117,9 @@ const AdminDashboard = () => {
 
   const userMenu = (
     <Menu>
-      <Menu.Item key="logout" onClick={handleLogout} style={{color: 'red', alignItems: 'center',justifyContent: 'center'}}>
-      Đăng xuất
-      <LogoutOutlined style={{marginLeft:'5px'}}/>
+      <Menu.Item key="logout" onClick={handleLogout} style={{ color: 'red', alignItems: 'center', justifyContent: 'center' }}>
+        Đăng xuất
+        <LogoutOutlined style={{ marginLeft: '5px' }} />
       </Menu.Item>
     </Menu>
   );
@@ -133,34 +133,30 @@ const AdminDashboard = () => {
               <Card>
                 <Statistic
                   title="Total Revenue"
-                  value={45231}
+                  value={dashboardData.totalRevenue}
                   precision={2}
                   prefix="$"
-                  suffix={<small style={{ color: '#3f8600' }}>+20.1%</small>}
                 />
               </Card>
               <Card>
                 <Statistic
                   title="Total Orders"
-                  value={1205}
+                  value={dashboardData.totalOrders}
                   prefix={<ShoppingCartOutlined />}
-                  suffix={<small style={{ color: '#3f8600' }}>+12.5%</small>}
                 />
               </Card>
               <Card>
                 <Statistic
                   title="Total Customers"
-                  value={3456}
+                  value={dashboardData.totalCustomers}
                   prefix={<UserOutlined />}
-                  suffix={<small style={{ color: '#3f8600' }}>+8.2%</small>}
                 />
               </Card>
               <Card>
                 <Statistic
                   title="Total Products"
-                  value={85}
+                  value={dashboardData.totalProducts}
                   prefix={<InboxOutlined />}
-                  suffix={<small style={{ color: '#3f8600' }}>+5.4%</small>}
                 />
               </Card>
             </StatsContainer>

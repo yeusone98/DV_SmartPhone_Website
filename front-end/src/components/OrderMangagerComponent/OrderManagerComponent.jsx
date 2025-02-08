@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import {
   Table,
@@ -26,6 +26,7 @@ import {
   SearchOutlined,
   FilterOutlined,
 } from '@ant-design/icons';
+import { fetchOrdersAPI, fetchOrderByIdAPI, updateOrderAPI, deleteOrderAPI } from '../../apis'; // Import các API gọi từ backend
 
 const { Option } = Select;
 
@@ -40,41 +41,32 @@ const FilterContainer = styled.div`
   margin-bottom: 24px;
 `;
 
-// Giả lập dữ liệu
-const mockOrders = [
-  {
-    id: '1',
-    orderNumber: 'ORD-2024-001',
-    customerName: 'John Doe',
-    phone: '0123456789',
-    products: [
-      { name: 'iPhone 13', quantity: 1, price: 999 },
-      { name: 'AirPods Pro', quantity: 1, price: 249 }
-    ],
-    totalAmount: 1248,
-    status: 'pending',
-    paymentStatus: 'paid',
-    orderDate: '2024-01-19',
-    shippingAddress: '123 Main St, City, Country',
-  },
-  // Thêm các đơn hàng mẫu khác...
-];
-
 const OrderManagement = () => {
-  const [orders, setOrders] = useState(mockOrders);
+  const [orders, setOrders] = useState([]);
   const [viewOrder, setViewOrder] = useState(null);
   const [editingOrder, setEditingOrder] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isDrawerVisible, setIsDrawerVisible] = useState(false);
   const [form] = Form.useForm();
 
-  // Các tùy chọn trạng thái
+
+  useEffect(() => {
+    // Gọi API để lấy danh sách đơn hàng khi component được render lần đầu
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    try {
+      const data = await fetchOrdersAPI();  // Lấy tất cả đơn hàng
+      setOrders(data);
+    } catch (error) {
+      message.error('Lỗi khi tải danh sách đơn hàng.');
+    }
+  };
+
   const orderStatuses = [
     { label: 'Pending', value: 'pending', color: 'gold' },
-    { label: 'Processing', value: 'processing', color: 'blue' },
-    { label: 'Shipped', value: 'shipped', color: 'cyan' },
-    { label: 'Delivered', value: 'delivered', color: 'green' },
-    { label: 'Cancelled', value: 'cancelled', color: 'red' },
+    { label: 'Paid', value: 'delivered', color: 'green' },
   ];
 
   const columns = [
@@ -83,39 +75,47 @@ const OrderManagement = () => {
       dataIndex: 'orderNumber',
       key: 'orderNumber',
       sorter: (a, b) => a.orderNumber.localeCompare(b.orderNumber),
+      render: (text, record, index) => `ORD-${String(index + 1).padStart(3, '0')}`, // Thêm số thứ tự cho đơn hàng
     },
     {
       title: 'Customer',
-      dataIndex: 'customerName',
-      key: 'customerName',
-      sorter: (a, b) => a.customerName.localeCompare(b.customerName),
+      dataIndex: 'full_name',
+      key: 'full_name',
+      sorter: (a, b) => a.full_name.localeCompare(b.full_name),
     },
     {
       title: 'Total Amount',
-      dataIndex: 'totalAmount',
-      key: 'totalAmount',
+      dataIndex: 'total_price',
+      key: 'total_price',
       render: (amount) => `$${amount.toFixed(2)}`,
-      sorter: (a, b) => a.totalAmount - b.totalAmount,
+      sorter: (a, b) => a.total_price - b.total_price,
     },
     {
       title: 'Status',
-      dataIndex: 'status',
+      dataIndex: 'payment',  // Thay vì chỉ sử dụng 'status', sẽ lấy từ 'payment'
       key: 'status',
-      render: (status) => {
-        const statusObj = orderStatuses.find(s => s.value === status);
+      render: (payment) => {
+        const statusObj = orderStatuses.find(s => s.value === payment?.status); // Truy xuất status từ payment
         return <Tag color={statusObj?.color}>{statusObj?.label}</Tag>;
       },
       filters: orderStatuses.map(status => ({
         text: status.label,
         value: status.value,
       })),
-      onFilter: (value, record) => record.status === value,
+      onFilter: (value, record) => record.payment?.status === value,  // Cập nhật cho đúng với dữ liệu mới
     },
     {
       title: 'Order Date',
-      dataIndex: 'orderDate',
-      key: 'orderDate',
-      sorter: (a, b) => new Date(a.orderDate) - new Date(b.orderDate),
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      sorter: (a, b) => new Date(a.createdAt) - new Date(b.createdAt),
+      render: (date) => dayjs(date).format('YYYY-MM-DD HH:mm:ss'), // Hiển thị định dạng ngày tháng
+    },
+    {
+      title: 'Payment Method',
+      dataIndex: 'payment',
+      key: 'paymentMethod',
+      render: (payment) => payment?.method || 'Không có thông tin',  // Kiểm tra có payment.method không, nếu không thì hiển thị 'Không có thông tin'
     },
     {
       title: 'Actions',
@@ -151,22 +151,27 @@ const OrderManagement = () => {
     setEditingOrder(order);
     form.setFieldsValue({
       ...order,
-      orderDate: dayjs(order.orderDate),
+      orderDate: dayjs(order.createdAt),
     });
     setIsModalVisible(true);
   };
 
   // Xóa đơn hàng
-  const handleDeleteOrder = (order) => {
+  const handleDeleteOrder = async (order) => {
     Modal.confirm({
       title: 'Are you sure you want to delete this order?',
       content: `Order number: ${order.orderNumber}`,
       okText: 'Yes',
       okType: 'danger',
       cancelText: 'No',
-      onOk() {
-        setOrders(orders.filter(o => o.id !== order.id));
-        message.success('Order deleted successfully');
+      onOk: async () => {
+        try {
+          await deleteOrderAPI(order.id);
+          setOrders(orders.filter(o => o.id !== order.id));
+          message.success('Order deleted successfully');
+        } catch (error) {
+          message.error('Error deleting order');
+        }
       },
     });
   };
@@ -175,9 +180,8 @@ const OrderManagement = () => {
   const handleSaveOrder = async (values) => {
     try {
       if (editingOrder) {
-        setOrders(orders.map(o => 
-          o.id === editingOrder.id ? { ...o, ...values } : o
-        ));
+        await updateOrderAPI(editingOrder.id, values);  // Gọi API cập nhật đơn hàng
+        setOrders(orders.map(o => o.id === editingOrder.id ? { ...o, ...values } : o));
         message.success('Order updated successfully');
       } else {
         // Thêm đơn hàng mới
@@ -206,20 +210,21 @@ const OrderManagement = () => {
           <Col span={6}>
             <Statistic 
               title="Total Revenue" 
-              value={orders.reduce((sum, order) => sum + order.totalAmount, 0)}
+              value={orders.reduce((sum, order) => sum + order.total_price, 0)}
               prefix="$"
             />
           </Col>
           <Col span={6}>
             <Statistic 
               title="Pending Orders" 
-              value={orders.filter(o => o.status === 'pending').length}
+              value={orders.filter(o => o.payment?.status === 'pending').length}
             />
           </Col>
+
           <Col span={6}>
             <Statistic 
-              title="Delivered Orders" 
-              value={orders.filter(o => o.status === 'delivered').length}
+              title="Paid Orders" 
+              value={orders.filter(o => o.payment?.status === 'paid').length}
             />
           </Col>
         </Row>
@@ -288,29 +293,25 @@ const OrderManagement = () => {
           <Form.Item
             name="customerName"
             label="Customer Name"
-            rules={[{ required: true }]}
-          >
+            rules={[{ required: true }]}>
             <Input />
           </Form.Item>
           <Form.Item
             name="phone"
             label="Phone"
-            rules={[{ required: true }]}
-          >
+            rules={[{ required: true }]}>
             <Input />
           </Form.Item>
           <Form.Item
             name="shippingAddress"
             label="Shipping Address"
-            rules={[{ required: true }]}
-          >
+            rules={[{ required: true }]}>
             <Input.TextArea />
           </Form.Item>
           <Form.Item
             name="status"
             label="Status"
-            rules={[{ required: true }]}
-          >
+            rules={[{ required: true }]}>
             <Select>
               {orderStatuses.map(status => (
                 <Option key={status.value} value={status.value}>
@@ -346,74 +347,74 @@ const OrderManagement = () => {
           setViewOrder(null);
         }}
       >
-        {viewOrder && (
-          <>
-            <Descriptions column={1}>
-              <Descriptions.Item label="Order Number">
-                {viewOrder.orderNumber}
-              </Descriptions.Item>
-              <Descriptions.Item label="Customer">
-                {viewOrder.customerName}
-              </Descriptions.Item>
-              <Descriptions.Item label="Phone">
-                {viewOrder.phone}
-              </Descriptions.Item>
-              <Descriptions.Item label="Shipping Address">
-                {viewOrder.shippingAddress}
-              </Descriptions.Item>
-              <Descriptions.Item label="Order Date">
-                {viewOrder.orderDate}
-              </Descriptions.Item>
-              <Descriptions.Item label="Status">
-                <Tag color={orderStatuses.find(s => s.value === viewOrder.status)?.color}>
-                  {orderStatuses.find(s => s.value === viewOrder.status)?.label}
-                </Tag>
-              </Descriptions.Item>
-            </Descriptions>
+      {viewOrder && (
+        <>
+          <Descriptions column={1}>
+            <Descriptions.Item label="Order Number">
+              {viewOrder.orderNumber} {/* Số đơn hàng */}
+            </Descriptions.Item>
+            <Descriptions.Item label="Customer">
+              {viewOrder.full_name} {/* Tên khách hàng */}
+            </Descriptions.Item>
+            <Descriptions.Item label="Phone">
+              {viewOrder.phone_number} {/* Số điện thoại */}
+            </Descriptions.Item>
+            <Descriptions.Item label="Shipping Address">
+              {viewOrder.address_detail} {/* Địa chỉ giao hàng */}
+            </Descriptions.Item>
+            <Descriptions.Item label="Order Date">
+              {dayjs(viewOrder.createdAt).format('YYYY-MM-DD HH:mm:ss')} {/* Ngày tạo đơn hàng */}
+            </Descriptions.Item>
+            <Descriptions.Item label="Status">
+              <Tag color={viewOrder.payment?.status === 'pending' ? 'gold' : 'green'}>
+                {viewOrder.payment?.status === 'pending' ? 'Pending' : 'Completed'} {/* Hiển thị trạng thái */}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="Payment Method">
+              {viewOrder.payment?.method || 'Not Available'} {/* Phương thức thanh toán */}
+            </Descriptions.Item>
+          </Descriptions>
 
-            <Table
-              title={() => 'Order Items'}
-              dataSource={viewOrder.products}
-              columns={[
-                {
-                  title: 'Product',
-                  dataIndex: 'name',
-                },
-                {
-                  title: 'Quantity',
-                  dataIndex: 'quantity',
-                },
-                {
-                  title: 'Price',
-                  dataIndex: 'price',
-                  render: (price) => `$${price}`,
-                },
-                {
-                  title: 'Subtotal',
-                  render: (_, record) => `$${record.price * record.quantity}`,
-                },
-              ]}
-              pagination={false}
-              summary={(pageData) => {
-                const total = pageData.reduce(
-                  (sum, item) => sum + item.price * item.quantity,
-                  0
-                );
-                return (
-                  <Table.Summary.Row>
-                    <Table.Summary.Cell index={0} colSpan={3}>
-                      <strong>Total</strong>
-                    </Table.Summary.Cell>
-                    <Table.Summary.Cell index={1}>
-                      <strong>${total}</strong>
-                    </Table.Summary.Cell>
-                  </Table.Summary.Row>
-                );
-              }}
-            />
-          </>
-        )}
-      </Drawer>
+          <Table
+            title={() => 'Order Items'}  // Tiêu đề cho bảng sản phẩm
+            dataSource={viewOrder.products}  // Dữ liệu sản phẩm
+            columns={[
+              {
+                title: 'Product',
+                dataIndex: 'product_name',  // Hiển thị tên sản phẩm
+              },
+              {
+                title: 'Quantity',
+                dataIndex: 'quantity',  // Hiển thị số lượng
+              },
+              {
+                title: 'Price',
+                dataIndex: 'unit_price',  // Hiển thị giá đơn vị
+                render: (price) => `$${price.toFixed(2)}`,  // Định dạng giá
+              },
+              {
+                title: 'Subtotal',
+                render: (_, record) => `$${(record.unit_price * record.quantity).toFixed(2)}`,  // Tính tổng tiền cho mỗi sản phẩm
+              },
+            ]}
+            pagination={false}
+            summary={(pageData) => {
+              const total = pageData.reduce((sum, item) => sum + item.unit_price * item.quantity, 0);
+              return (
+                <Table.Summary.Row>
+                  <Table.Summary.Cell index={0} colSpan={3}>
+                    <strong>Total</strong>
+                  </Table.Summary.Cell>
+                  <Table.Summary.Cell index={1}>
+                    <strong>${total.toFixed(2)}</strong>
+                  </Table.Summary.Cell>
+                </Table.Summary.Row>
+              );
+            }}
+          />
+        </>
+      )}
+    </Drawer>
     </>
   );
 };

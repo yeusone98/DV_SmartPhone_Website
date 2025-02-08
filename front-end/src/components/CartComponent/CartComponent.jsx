@@ -44,7 +44,7 @@ const CartComponent = () => {
       const formattedCart = cart.products.map((item) => ({
         key: `${item.product_id}_${item.storage}_${item.color}`,
         product_id: item.product_id,
-        product: item.name || "Sản phẩm không xác định",
+        product: item.product_name || "Sản phẩm không xác định",
         image: item.image_url || "https://via.placeholder.com/50",
         storage: item.storage || "Không xác định",
         color: item.color || "Không xác định",

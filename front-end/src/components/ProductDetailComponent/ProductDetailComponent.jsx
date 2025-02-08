@@ -396,6 +396,7 @@ const ProductDetailComponent = () => {
               variants={product.variants}
               selectedVariant={selectedVariant}
               onSelectVariant={handleSelectVariant}
+              productName={product.name} 
             />
           </div>
           <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>

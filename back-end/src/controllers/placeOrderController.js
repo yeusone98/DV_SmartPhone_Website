@@ -1,7 +1,6 @@
 import { placeOrderModel } from '~/models/placeOrderModel'
 import { cartModel } from '~/models/cartModel'
 import { StatusCodes } from 'http-status-codes'
-
 import { productModel } from '~/models/productModel'
 
 const placeOrder = async (req, res, next) => {
@@ -25,6 +24,11 @@ const placeOrder = async (req, res, next) => {
             return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Giỏ hàng trống!' })
         }
 
+        // Tạo mã đơn hàng
+        const year = new Date().getFullYear();  // Lấy năm hiện tại
+        const orderCount = await placeOrderModel.findOrderCountByYear(year);  // Tìm số lượng đơn hàng trong năm hiện tại
+        const orderNumber = `ORD-${year}-${String(orderCount + 1).padStart(3, '0')}`;  // Tạo mã đơn hàng mới
+
         // Gắn thông tin sản phẩm vào từng mục trong giỏ hàng (cart.products đã chứa đủ thông tin)
         const productsWithName = cart.products.map((cartItem) => {
             return {
@@ -45,6 +49,7 @@ const placeOrder = async (req, res, next) => {
         // Chuẩn bị dữ liệu đơn hàng
         const orderData = {
             customer_id: userId,
+            orderNumber,  // Mã đơn hàng mới
             full_name,
             phone_number,
             province,
@@ -85,7 +90,6 @@ const placeOrder = async (req, res, next) => {
                 }
             }
         }
-
         // Xóa giỏ hàng sau khi đặt hàng thành công
         await cartModel.removeCart(userId)
 
@@ -97,6 +101,129 @@ const placeOrder = async (req, res, next) => {
 }
 
 
+
+const updateOrder = async (req, res, next) => {
+    try {
+        const { orderId } = req.params
+        const { full_name, phone_number, address_detail, status } = req.body
+
+        // Kiểm tra các trường bắt buộc
+        if (!full_name || !phone_number || !address_detail || !status) {
+            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Thiếu thông tin bắt buộc!' })
+        }
+
+        // Tìm đơn hàng trong database
+        const order = await placeOrderModel.findOrderById(orderId)
+        if (!order) {
+            return res.status(StatusCodes.NOT_FOUND).json({ message: 'Đơn hàng không tồn tại!' })
+        }
+
+        // Cập nhật thông tin đơn hàng
+        const updatedOrderData = {
+            full_name,
+            phone_number,
+            address_detail,
+            status, // status có thể là 'pending', 'completed', 'cancelled'...
+            updatedAt: new Date(),
+        }
+
+        const updatedOrder = await placeOrderModel.updateOrder(orderId, updatedOrderData)
+
+        res.status(StatusCodes.OK).json({
+            message: 'Cập nhật đơn hàng thành công!',
+            order: updatedOrder
+        })
+    } catch (error) {
+        console.error('Lỗi trong cập nhật đơn hàng:', error.message)
+        next(error)
+    }
+}
+
+
+const deleteOrder = async (req, res, next) => {
+    try {
+        const { orderId } = req.params
+
+        // Tìm đơn hàng trong database
+        const order = await placeOrderModel.findOrderById(orderId)
+        if (!order) {
+            return res.status(StatusCodes.NOT_FOUND).json({ message: 'Đơn hàng không tồn tại!' })
+        }
+
+        // Xóa đơn hàng trong database
+        const deleteResult = await placeOrderModel.deleteOrder(orderId)
+
+        if (!deleteResult.deletedCount) {
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Không thể xóa đơn hàng!' })
+        }
+
+        // Nếu cần, bạn có thể phục hồi lại stock cho các sản phẩm đã bị trừ (giống như trong updateOrder)
+        for (const product of order.products) {
+            const variant = product.variant_id; // Lấy variant_id từ đơn hàng
+            const variantData = await productModel.findProductById(product.product_id);
+
+            if (variantData) {
+                const variantToUpdate = variantData.variants.find(v => v.storage === product.storage && v.color === product.color);
+                if (variantToUpdate) {
+                    // Khôi phục lại stock
+                    variantToUpdate.stock += product.quantity;
+
+                    // Cập nhật lại vào database
+                    await productModel.updateProduct(variantData._id, {
+                        variants: variantData.variants
+                    });
+                }
+            }
+        }
+
+        res.status(StatusCodes.OK).json({ message: 'Đơn hàng đã được xóa thành công!' })
+    } catch (error) {
+        console.error('Lỗi trong xóa đơn hàng:', error.message)
+        next(error)
+    }
+}
+
+// placeOrderController.js
+
+const getOrders = async (req, res, next) => {
+    try {
+        // Lấy tất cả đơn hàng từ database
+        const orders = await placeOrderModel.findAllOrders()
+
+        if (!orders || orders.length === 0) {
+            return res.status(StatusCodes.NOT_FOUND).json({ message: 'Không có đơn hàng nào!' })
+        }
+
+        // Trả về tất cả đơn hàng
+        res.status(StatusCodes.OK).json(orders)
+    } catch (error) {
+        console.error('Lỗi trong getOrders:', error.message)
+        next(error)
+    }
+}
+
+const getOrderById = async (req, res, next) => {
+    try {
+        const { orderId } = req.params
+
+        // Tìm đơn hàng trong database
+        const order = await placeOrderModel.findOrderById(orderId)
+        if (!order) {
+            return res.status(StatusCodes.NOT_FOUND).json({ message: 'Đơn hàng không tồn tại!' })
+        }
+
+        // Trả về thông tin đơn hàng
+        res.status(StatusCodes.OK).json(order)
+    } catch (error) {
+        console.error('Lỗi trong getOrderById:', error.message)
+        next(error)
+    }
+}
+
 export const placeOrderController = {
-    placeOrder
+    placeOrder,
+    updateOrder,
+    deleteOrder,
+    getOrders,
+    getOrderById
 }

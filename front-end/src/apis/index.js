@@ -142,6 +142,35 @@ export const placeOrderAPI = async (data) => {
     return response.data;
 };
 
+
+// Lấy tất cả đơn hàng
+
+export const fetchOrdersAPI = async () => {
+    const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/orders`);
+    return response.data;
+}
+
+// Lấy đơn hàng theo orderId
+
+export const fetchOrderByIdAPI = async ( id ) => {
+    const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/orders/${id}`);
+    return response.data;
+}
+
+// Cập nhật đơn hàng
+
+export const updateOrderAPI = async (id, data) => {
+    const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/orders/${id}`, data);
+    return response.data;
+}
+
+// Xóa đơn hàng
+
+export const deleteOrderAPI = async (id) => {
+    const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/orders/${id}`);
+    return response.data;
+}
+
 // Lấy danh sách review của sản phẩm
 export const fetchReviewsAPI = async (productId) => {
     const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/reviews/${productId}`);
@@ -171,4 +200,13 @@ export const deleteReplyAPI = async (reviewId, replyIndex) => {
     const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/reviews/${reviewId}/reply/${replyIndex}`);
     return response.data;
 };
+
+// Dashboard
+
+export const fetchDashboardDataAPI = async () => {
+    const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/dashboard`);
+    return response.data;
+}
+
+
 

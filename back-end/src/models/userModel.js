@@ -3,7 +3,7 @@ import { ObjectId } from 'mongodb'
 import { GET_DB } from '~/config/mongodb'
 import { EMAIL_RULE, EMAIL_RULE_MESSAGE } from '~/utils/validator'
 
-// Define tạm 2 roles cho user, tùy việc mở rộng dự án như thế nào mà mọi người có thể thêm role tùy ý sao cho phù hợp sau.
+// Define tạm 2 roles cho user
 const USER_ROLES = {
     CLIENT: 'client',
     ADMIN: 'admin'

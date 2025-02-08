@@ -170,11 +170,11 @@ const PaymentComponent = () => {
                   <div key={index} style={{ marginBottom: '10px' }}>
                       <PriceRow>
                           <img
-                              src={item.image_url}  // Hiển thị hình ảnh sản phẩm
+                              src={item.image_url}  
                               alt={item.product_name}
                               style={{ width: '50px', marginRight: '10px' }} 
                           />
-                          <span>{item.product_name} {item.storage} GB {item.color} số lượng: {item.quantity}</span>
+                          <span> {item.product_name} {item.storage} GB {item.color} số lượng: {item.quantity}</span>
                           <span>{item.total_price_per_product.toLocaleString()} đ</span>
                       </PriceRow>
                   </div>
