@@ -107,6 +107,40 @@ const resetPassword = async (req, res, next) => {
     }
 }
 
+const getCustomers = async (req, res, next) => {
+    try {
+        const customers = await userService.getCustomers()
+        // Transform _id to id
+        const transformedCustomers = customers.map(customer => ({
+            id: customer._id.toString(),
+            email: customer.email,
+            displayName: customer.displayName,
+            role: customer.role
+        // ... other fields if needed
+        }))
+        res.status(StatusCodes.OK).json(transformedCustomers)
+    } catch (error) {
+        next(error)
+    }
+}
+
+const updateCustomer = async (req, res, next) => {
+    try {
+        const result = await userService.updateCustomer(req.params.id, req.body)
+        res.status(StatusCodes.OK).json(result)
+    } catch (error) {
+        next(error)
+    }
+}
+
+const deleteCustomer = async (req, res, next) => {
+    try {
+        await userService.deleteCustomer(req.params.id)
+        res.status(StatusCodes.OK).json({ message: 'Customer deleted successfully' })
+    } catch (error) {
+        next(error)
+    }
+}
 
 export const userController = {
     createNew,
@@ -115,5 +149,8 @@ export const userController = {
     logout,
     refreshToken,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    getCustomers,
+    updateCustomer,
+    deleteCustomer
 }

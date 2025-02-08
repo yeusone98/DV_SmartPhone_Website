@@ -26,7 +26,7 @@ import {
   SearchOutlined,
   FilterOutlined,
 } from '@ant-design/icons';
-import { fetchOrdersAPI, fetchOrderByIdAPI, updateOrderAPI, deleteOrderAPI } from '../../apis'; // Import các API gọi từ backend
+import { fetchOrdersAPI, updateOrderAPI, deleteOrderAPI } from '../../apis'; // Import các API gọi từ backend
 
 const { Option } = Select;
 
@@ -51,7 +51,6 @@ const OrderManagement = () => {
 
 
   useEffect(() => {
-    // Gọi API để lấy danh sách đơn hàng khi component được render lần đầu
     fetchOrders();
   }, []);
 

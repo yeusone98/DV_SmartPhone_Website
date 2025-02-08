@@ -28,6 +28,21 @@ const USER_COLLECTION_SCHEMA = Joi.object({
     _destroy: Joi.boolean().default(false)
 })
 
+
+const findAllClients = async () => {
+    return await GET_DB()
+        .collection(USER_COLLECTION_NAME)
+        .find({ role: USER_ROLES.CLIENT })
+        .toArray()
+}
+
+const deleteById = async (id) => {
+    await GET_DB()
+        .collection(USER_COLLECTION_NAME)
+        .deleteOne({ _id: new ObjectId(id) })
+}
+
+
 // Chỉ định ra những Fields mà chúng ta không muốn cho phép cập nhật trong hàm update()
 const INVALID_UPDATE_FIELDS = ['_id', 'email', 'username', 'createdAt']
 
@@ -97,5 +112,7 @@ export const userModel = {
     createNew,
     findOneById,
     findOneByEmail,
-    update
+    update,
+    findAllClients,
+    deleteById
 }

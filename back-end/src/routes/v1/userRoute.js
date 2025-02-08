@@ -24,5 +24,12 @@ Router.route('/forgot-password')
 Router.route('/reset-password')
     .post(userValidation.resetPassword, userController.resetPassword)
 
+Router.route('/')
+    .get(userController.getCustomers)
+
+Router.route('/:id')
+    .put(userValidation.updateCustomer, userController.updateCustomer)
+    .delete(userController.deleteCustomer)
+
 
 export const userRoute = Router
