@@ -160,16 +160,15 @@ export const fetchOrderByIdAPI = async ( id ) => {
 // Cập nhật đơn hàng
 
 export const updateOrderAPI = async (id, data) => {
-    const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/orders/${id}`, data);
+    const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/orders/${id}`,data);
     return response.data;
-}
+  };
 
 // Xóa đơn hàng
-
 export const deleteOrderAPI = async (id) => {
     const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/orders/${id}`);
     return response.data;
-}
+  };
 
 // Lấy danh sách review của sản phẩm
 export const fetchReviewsAPI = async (productId) => {

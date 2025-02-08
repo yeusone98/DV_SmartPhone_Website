@@ -30,7 +30,7 @@ const ORDER_SCHEMA = Joi.object({
     payment: Joi.object({
         method: Joi.string().valid('COD', 'Banking').required(),
         transaction_id: Joi.string().allow(null),
-        status: Joi.string().valid('pending', 'paid', ).default('pending')
+        status: Joi.string().valid('Pending', 'Paid').required()
     }).required(),
     createdAt: Joi.date().timestamp('javascript').default(Date.now)
 })
@@ -57,27 +57,47 @@ const createOrder = async (data) => {
     }
 }
 
-const findOrderById = async (orderId) => {
-    const db = GET_DB()
-    const order = await db.collection('orders').findOne({ _id: new ObjectId(orderId) })
-    return order
+const findOrderById = async (id) => {
+    try {
+        console.log('[DEBUG] Order ID received:', id)
+        if (!ObjectId.isValid(id)) {
+            throw new Error(`Invalid Order ID: ${id}`)
+        }
+
+        const db = GET_DB()
+        const order = await db.collection(ORDER_COLLECTION_NAME).findOne({
+            _id: new ObjectId(id)
+        })
+
+        if (!order) {
+            throw new Error('Order not found')
+        }
+
+        return order
+    } catch (error) {
+        console.error('[ERROR] findOrderById:', error.message)
+        throw error // Giữ nguyên stack trace
+    }
 }
 
-const updateOrder = async (orderId, updatedData) => {
+const updateOrder = async (id, updatedData) => {
     const db = GET_DB()
-    const result = await db.collection('orders').findOneAndUpdate(
-        { _id: new ObjectId(orderId) },
-        { $set: updatedData },
+    const result = await db.collection(ORDER_COLLECTION_NAME).findOneAndUpdate(
+        { _id: new ObjectId(id) },
+        { $set: updatedData }, // Sử dụng $set để merge dữ liệu
         { returnDocument: 'after' }
     )
     return result.value
 }
 
-const deleteOrder = async (orderId) => {
-    const db = GET_DB()
-    const result = await db.collection('orders').deleteOne({ _id: new ObjectId(orderId) })
-    return result
-}
+// Trong model (placeOrderModel.js)
+const deleteOrder = async (id) => {
+    const db = GET_DB();
+    const result = await db.collection('orders').deleteOne({ 
+      _id: new ObjectId(id) 
+    });
+    return result;
+  };
 
 const findAllOrders = async () => {
     const db = GET_DB()
@@ -90,7 +110,7 @@ const findOrderCountByYear = async (year) => {
     const count = await db.collection('orders').countDocuments({
         createdAt: { $gte: new Date(`${year}-01-01T00:00:00.000Z`), $lt: new Date(`${year + 1}-01-01T00:00:00.000Z`) }
     })
-    return count;
+    return count
 }
 
 

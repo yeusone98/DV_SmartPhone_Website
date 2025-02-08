@@ -57,16 +57,21 @@ const OrderManagement = () => {
 
   const fetchOrders = async () => {
     try {
-      const data = await fetchOrdersAPI();  // Lấy tất cả đơn hàng
-      setOrders(data);
+      const data = await fetchOrdersAPI();
+      const mappedData = data.map(order => ({
+        ...order,
+        id: order._id,
+        createdAt: new Date(order.createdAt), // Đảm bảo xử lý Date
+      }));
+      setOrders(mappedData);
     } catch (error) {
-      message.error('Lỗi khi tải danh sách đơn hàng.');
+      message.error(`Lỗi khi tải đơn hàng: ${error.message}`);
     }
   };
 
   const orderStatuses = [
-    { label: 'Pending', value: 'pending', color: 'gold' },
-    { label: 'Paid', value: 'delivered', color: 'green' },
+    { label: 'Pending', value: 'Pending', color: 'gold' },
+    { label: 'Paid', value: 'Paid', color: 'green' },
   ];
 
   const columns = [
@@ -74,8 +79,11 @@ const OrderManagement = () => {
       title: 'Order Number',
       dataIndex: 'orderNumber',
       key: 'orderNumber',
-      sorter: (a, b) => a.orderNumber.localeCompare(b.orderNumber),
-      render: (text, record, index) => `ORD-${String(index + 1).padStart(3, '0')}`, // Thêm số thứ tự cho đơn hàng
+      sorter: (a, b) => {
+        const orderA = String(a.orderNumber);
+        const orderB = String(b.orderNumber);
+        return orderA.localeCompare(orderB);   
+      },
     },
     {
       title: 'Customer',
@@ -91,18 +99,18 @@ const OrderManagement = () => {
       sorter: (a, b) => a.total_price - b.total_price,
     },
     {
-      title: 'Status',
-      dataIndex: 'payment',  // Thay vì chỉ sử dụng 'status', sẽ lấy từ 'payment'
+      title: 'Trạng thái',
+      dataIndex: ['payment', 'status'],
       key: 'status',
-      render: (payment) => {
-        const statusObj = orderStatuses.find(s => s.value === payment?.status); // Truy xuất status từ payment
-        return <Tag color={statusObj?.color}>{statusObj?.label}</Tag>;
+      render: (status) => {
+        const statusObj = orderStatuses.find(s => s.value === status);
+        return <Tag color={statusObj?.color}>{statusObj?.label || 'Unknown'}</Tag>;
       },
       filters: orderStatuses.map(status => ({
         text: status.label,
         value: status.value,
       })),
-      onFilter: (value, record) => record.payment?.status === value,  // Cập nhật cho đúng với dữ liệu mới
+      onFilter: (value, record) => record.payment?.status === value,
     },
     {
       title: 'Order Date',
@@ -157,48 +165,63 @@ const OrderManagement = () => {
   };
 
   // Xóa đơn hàng
+  // Trong component OrderManagement
   const handleDeleteOrder = async (order) => {
-    Modal.confirm({
-      title: 'Are you sure you want to delete this order?',
-      content: `Order number: ${order.orderNumber}`,
-      okText: 'Yes',
-      okType: 'danger',
-      cancelText: 'No',
-      onOk: async () => {
-        try {
-          await deleteOrderAPI(order.id);
-          setOrders(orders.filter(o => o.id !== order.id));
-          message.success('Order deleted successfully');
-        } catch (error) {
-          message.error('Error deleting order');
-        }
-      },
-    });
+    try {
+      console.log('Sending delete request for:', order.id);  // Log kiểm tra xem id đã được lấy đúng chưa
+  
+      // Gọi API xóa đơn hàng
+      const response = await deleteOrderAPI(order.id);
+  
+      // Kiểm tra phản hồi từ API
+      if (response && response.message) {
+        // Cập nhật lại danh sách đơn hàng trong UI
+        setOrders(prev => prev.filter(o => o.id !== order.id));
+        message.success('Order deleted successfully');
+      } else {
+        throw new Error('Invalid response from server');
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      message.error(error.message || 'Failed to delete order');
+    }
   };
+  
+  
+  
 
   // Lưu thay đổi đơn hàng
   const handleSaveOrder = async (values) => {
     try {
       if (editingOrder) {
-        await updateOrderAPI(editingOrder.id, values);  // Gọi API cập nhật đơn hàng
-        setOrders(orders.map(o => o.id === editingOrder.id ? { ...o, ...values } : o));
-        message.success('Order updated successfully');
-      } else {
-        // Thêm đơn hàng mới
-        const newOrder = {
-          id: String(orders.length + 1),
-          ...values,
-          orderNumber: `ORD-2024-${String(orders.length + 1).padStart(3, '0')}`,
+        const formattedData = {
+          full_name: values.customerName,
+          phone_number: values.phone,
+          address_detail: values.shippingAddress,
+          payment: {
+            ...editingOrder.payment, // Giữ lại các thông tin khác của payment
+            status: values.status,    // Cập nhật status mới
+          },
         };
-        setOrders([...orders, newOrder]);
-        message.success('Order created successfully');
+  
+        // Gọi API cập nhật đơn hàng
+        await updateOrderAPI(editingOrder.id, formattedData);
+          
+        // Cập nhật lại danh sách đơn hàng trong UI
+        const updatedOrders = orders.map(o =>
+          o.id === editingOrder.id ? { ...o, ...formattedData } : o
+        );
+        setOrders(updatedOrders);
+          
+        message.success('Cập nhật đơn hàng thành công!');
       }
       setIsModalVisible(false);
       form.resetFields();
     } catch (error) {
-      message.error('Error saving order');
+      message.error('Lỗi khi cập nhật đơn hàng: ' + error.message);
     }
   };
+  
 
   return (
     <>
@@ -217,14 +240,14 @@ const OrderManagement = () => {
           <Col span={6}>
             <Statistic 
               title="Pending Orders" 
-              value={orders.filter(o => o.payment?.status === 'pending').length}
+              value={orders.filter(o => o.payment?.status === 'Pending').length}
             />
           </Col>
 
           <Col span={6}>
             <Statistic 
               title="Paid Orders" 
-              value={orders.filter(o => o.payment?.status === 'paid').length}
+              value={orders.filter(o => o.payment?.status === 'Paid').length}
             />
           </Col>
         </Row>
@@ -286,10 +309,16 @@ const OrderManagement = () => {
         footer={null}
       >
         <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSaveOrder}
-        >
+        form={form}
+        layout="vertical"
+        onFinish={handleSaveOrder}
+        initialValues={{
+        customerName: editingOrder?.full_name,
+        phone: editingOrder?.phone_number,
+        shippingAddress: editingOrder?.address_detail,
+        status: editingOrder?.payment?.status,
+        }}
+      >
           <Form.Item
             name="customerName"
             label="Customer Name"
@@ -366,8 +395,8 @@ const OrderManagement = () => {
               {dayjs(viewOrder.createdAt).format('YYYY-MM-DD HH:mm:ss')} {/* Ngày tạo đơn hàng */}
             </Descriptions.Item>
             <Descriptions.Item label="Status">
-              <Tag color={viewOrder.payment?.status === 'pending' ? 'gold' : 'green'}>
-                {viewOrder.payment?.status === 'pending' ? 'Pending' : 'Completed'} {/* Hiển thị trạng thái */}
+              <Tag color={viewOrder.payment?.status === 'Pending' ? 'gold' : 'green'}>
+                {viewOrder.payment?.status === 'Pending' ? 'Pending' : 'Paid'} {/* Hiển thị trạng thái */}
               </Tag>
             </Descriptions.Item>
             <Descriptions.Item label="Payment Method">
@@ -390,11 +419,11 @@ const OrderManagement = () => {
               {
                 title: 'Price',
                 dataIndex: 'unit_price',  // Hiển thị giá đơn vị
-                render: (price) => `$${price.toFixed(2)}`,  // Định dạng giá
+                render: (price) => `${price.toLocaleString()} VND`,  // Định dạng giá
               },
               {
                 title: 'Subtotal',
-                render: (_, record) => `$${(record.unit_price * record.quantity).toFixed(2)}`,  // Tính tổng tiền cho mỗi sản phẩm
+                render: (_, record) => `${(record.unit_price * record.quantity).toLocaleString()} VND`,  // Tính tổng tiền cho mỗi sản phẩm
               },
             ]}
             pagination={false}
@@ -406,7 +435,7 @@ const OrderManagement = () => {
                     <strong>Total</strong>
                   </Table.Summary.Cell>
                   <Table.Summary.Cell index={1}>
-                    <strong>${total.toFixed(2)}</strong>
+                    <strong>{total.toLocaleString()} VND</strong>
                   </Table.Summary.Cell>
                 </Table.Summary.Row>
               );
