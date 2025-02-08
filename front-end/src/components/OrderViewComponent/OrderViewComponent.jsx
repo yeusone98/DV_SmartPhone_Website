@@ -8,44 +8,33 @@ const { Title, Text } = Typography;
 
 
 
-const OrderViewComponent = () => {
+const OrderViewComponent = ({ orderData }) => {
   const [orderStatus, setOrderStatus] = useState('Processing');
-  const [isModalOpen, setIsModalOpen] = useState(false);
   
   // Mock data for demonstration
   const orderInfo = {
-    orderId: "ORD-2024-001",
-    orderDate: "2024-02-08",
+    orderId: orderData.orderId,
+    orderDate: orderData.orderDate,
     status: orderStatus,
     customer: {
-      name: "Nguyễn Văn A",
-      email: "nguyenvana@email.com",
-      phone: "0123456789",
-      address: "123 Đường ABC, Quận 1, TP.HCM"
+      name: orderData.customer.name,
+      phone: orderData.customer.phone,
+      address: orderData.customer.address
     },
     payment: {
-      method: "Credit Card",
-      status: "Paid",
-      total: "1,500,000 VNĐ"
+      method: orderData.payment.method,
+      status: orderData.payment.status,
+      total: orderData.payment.total
     }
   };
 
-  const orderItems = [
-    {
-      key: '1',
-      product: 'iPhone 13',
-      price: '20,000,000 VNĐ',
-      quantity: 1,
-      total: '20,000,000 VNĐ'
-    },
-    {
-      key: '2',
-      product: 'Airpods Pro',
-      price: '5,000,000 VNĐ',
-      quantity: 2,
-      total: '10,000,000 VNĐ'
-    }
-  ];
+  const orderItems = orderData.items?.map((item, index) => ({
+    key: item.key,
+    product: item.product,
+    price: item.price,
+    quantity: item.quantity,
+    total: item.total
+  })) || [];
 
   const columns = [
     {
@@ -79,33 +68,7 @@ const OrderViewComponent = () => {
     return statusMap[status] || 'default';
   };
 
-  // Các hàm xử lý modal
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
 
-  const handleOk = () => {
-    setOrderStatus('Cancelled');
-    setIsModalOpen(false);
-    message.success('Đơn hàng đã được hủy thành công');
-  };
-
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
-
-  // Component hiển thị nút hủy đơn hàng
-  const CancelOrderButton = () => {
-    if (orderStatus === 'Processing') {
-      return (
-        <Button danger  onClick={showModal} icon={<ExclamationCircleOutlined />}>
-          
-          Hủy đơn hàng
-        </Button>
-      );
-    }
-    return null;
-  };
 
   return (
     <PageContainer>
@@ -116,37 +79,7 @@ const OrderViewComponent = () => {
             Chi tiết đơn hàng
           </Space>
         </Title>
-        <CancelOrderButton />
       </Row>
-
-      {/* Modal xác nhận hủy đơn hàng */}
-      <Modal
-        title={
-          <Space>
-            <WarningOutlined style={{ color: '#ff4d4f' }} />
-            Xác nhận hủy đơn hàng
-          </Space>
-        }
-        open={isModalOpen}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        okText="Xác nhận hủy"
-        cancelText="Đóng"
-        okButtonProps={{ danger: true }}
-        centered
-        width={500}
-      >
-        <div>
-          <Text>Bạn có chắc chắn muốn hủy đơn hàng #{orderInfo.orderId}?</Text>
-          <WarningText>
-            <ul>
-              <li>Đơn hàng sẽ bị hủy vĩnh viễn</li>
-              <li>Nếu đã thanh toán, quá trình hoàn tiền có thể mất 5-7 ngày làm việc</li>
-              <li>Hành động này không thể hoàn tác sau khi thực hiện</li>
-            </ul>
-          </WarningText>
-        </div>
-      </Modal>
 
       <StyledCard>
         <Row gutter={[16, 16]}>
@@ -169,9 +102,6 @@ const OrderViewComponent = () => {
             <Descriptions title="Thông tin khách hàng" bordered>
               <Descriptions.Item label="Tên" span={3}>
                 {orderInfo.customer.name}
-              </Descriptions.Item>
-              <Descriptions.Item label="Email" span={3}>
-                {orderInfo.customer.email}
               </Descriptions.Item>
               <Descriptions.Item label="Số điện thoại" span={3}>
                 {orderInfo.customer.phone}

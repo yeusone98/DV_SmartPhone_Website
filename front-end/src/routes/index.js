@@ -14,6 +14,7 @@ import ForgotPassword from "../pages/AccountVerification/ForgotPassword";
 import ResetPassword from "../pages/AccountVerification/ResetPassword";
 import CheckOutPage from "../pages/CheckOutPage/CheckOutPage";
 import OrderViewPage from "../pages/OrderViewPage/OrderViewPage";
+import SelectOrder from "../pages/SelectOrder/SelectOrder";
 
 const routes = [
     {
@@ -94,8 +95,14 @@ const routes = [
         isShowHeader: true,
     },
     {
-        path: '/order-view',
+        path: "/orders/order-view/:orderId",
         page: OrderViewPage,
+        isShowHeader: true,
+    },
+
+    {
+        path: "/order-select",
+        page: SelectOrder,
         isShowHeader: true,
     },
     

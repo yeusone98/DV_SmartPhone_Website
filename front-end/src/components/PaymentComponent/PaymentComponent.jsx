@@ -48,6 +48,7 @@ const PaymentComponent = () => {
   const [shippingInfo, setShippingInfo] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const [orderNumber, setOrderNumber] = useState(null);
+  const [orderId, setOrderId] = useState(null);
   const steps = [
     { title: "Shipping", icon: <HomeOutlined /> },
     { title: "Payment", icon: <CreditCardOutlined /> },
@@ -106,6 +107,8 @@ const PaymentComponent = () => {
       if (response && response.message === "Đặt hàng thành công!") {
         const orderNumber = response.order.orderNumber
         setOrderNumber(orderNumber);
+        const orderId = response.order._id.toString();
+        setOrderId(orderId);
         await fetchCartAPI(); // Load lại giỏ hàng
         message.success("Đặt hàng thành công!");
         setCurrent(2);
@@ -230,7 +233,7 @@ const PaymentComponent = () => {
       <CheckOutlined style={{ fontSize: 64, color: "#52c41a" }} />
       <h2>Đặt hàng thành công!</h2>
       {orderNumber && <p>Mã đơn hàng của bạn: #{orderNumber}</p>}
-      <Button onClick={()=> navigate('/order-view')} type="text" style={{ marginTop: '20px', textDecoration: 'underline', fontSize:'14px' }}>Xem chi tiết đơn hàng</Button>
+      <Button onClick={()=> navigate(`/orders/order-view/${orderId}`)} type="text" style={{ marginTop: '20px', textDecoration: 'underline', fontSize:'14px' }}>Xem chi tiết đơn hàng</Button>
     </div>
   );
 

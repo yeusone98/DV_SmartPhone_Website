@@ -207,7 +207,7 @@ const CartComponent = () => {
             </ContinueButton>
             <Button  
             type="default"
-            onClick={() => navigate("/order-view")}
+            onClick={() => navigate("/order-select")}
             style={{ margin: '0 16px' }}
           > <FileTextOutlined />
             Xem đơn hàng 
