@@ -1,118 +1,124 @@
-import React from 'react';
-import { Avatar, Button } from 'antd';
-import { LikeOutlined } from '@ant-design/icons';
-import styled from 'styled-components';
+import React, { useState } from "react";
+import { Table, Tag, Typography, Card, Button, message, Row, Col } from "antd";
+import styled from "styled-components";
 
-const CommentContainer = styled.div`
-  padding: 16px;
-  background: #f0f2f5;
-  border-radius: 8px;
-  margin: 16px 0;
+const { Title, Text } = Typography;
+
+// Styled Components
+const Wrapper = styled.div`
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
 `;
 
-const UserInfo = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
+const StyledCard = styled(Card)`
+  margin-bottom: 20px;
 `;
 
-const Username = styled.span`
-  font-weight: 600;
-  font-size: 14px;
-`;
+const columns = [
+  {
+    title: "Sản phẩm",
+    dataIndex: "name",
+    key: "name",
+  },
+  {
+    title: "Số lượng",
+    dataIndex: "quantity",
+    key: "quantity",
+  },
+  {
+    title: "Giá",
+    dataIndex: "price",
+    key: "price",
+    render: (price) => `${price.toLocaleString()} VNĐ`,
+  },
+];
 
-const TimeAgo = styled.span`
-  color: #65676b;
-  font-size: 13px;
-  &:before {
-    content: '•';
-    margin: 0 6px;
-  }
-`;
+const TestComponent = () => {
+  const [orderData, setOrderData] = useState({
+    orderId: "VD123456",
+    status: "Pending",
+    orderDate: "05/02/2025 - 14:30",
+    total: 2500000,
+    shippingAddress: "19 Nguyễn Hữu Thọ, Quận 7, HCM",
+    items: [
+      { key: "1", name: "iPhone 15", quantity: 1, price: 2000000 },
+      { key: "2", name: "Tai nghe AirPods", quantity: 1, price: 500000 },
+    ],
+  });
 
-const AdminBadge = styled.span`
-  background: #e4e6eb;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 12px;
-  margin: 0 8px;
-`;
+  const handleCancelOrder = () => {
+    setOrderData((prev) => ({ ...prev, status: "Đã hủy" }));
+    message.success("Đơn hàng đã được hủy!");
+  };
 
-const CommentText = styled.div`
-  font-size: 15px;
-  margin: 8px 0;
-`;
-
-const ActionBar = styled.div`
-  display: flex;
-  gap: 12px;
-  margin-top: 8px;
-`;
-
-const ActionButton = styled.button`
-  background: none;
-  border: none;
-  color: #65676b;
-  font-weight: 600;
-  font-size: 13px;
-  cursor: pointer;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
-const Comment = () => {
   return (
-    <>
-      {/* Original post */}
-      <CommentContainer>
-        <UserInfo>
-          <Avatar>D</Avatar>
-          <Username>Do Van Phon</Username>
-          <TimeAgo>3 ngày trước</TimeAgo>
-        </UserInfo>
-        <CommentText>Tôi muốn mua iPhone 15 128gb</CommentText>
-        <ActionBar>
-          <ActionButton>
-            <LikeOutlined />
-            <span>0</span>
-          </ActionButton>
-          <ActionButton>Trả lời</ActionButton>
-        </ActionBar>
-      </CommentContainer>
+    <Wrapper>
+      <Title level={3}>Chi tiết đơn hàng</Title>
 
-      {/* Reply */}
-      <CommentContainer style={{ marginLeft: 48 }}>
-        <UserInfo>
-          <Avatar src="path-to-shopee-logo.png" />
-          <Username>Ngô Hải Long</Username>
-          <AdminBadge>Quản trị viên</AdminBadge>
-          <TimeAgo>3 ngày trước</TimeAgo>
-        </UserInfo>
-        <CommentText>
-          Chào anh Phon,
-          <br /><br />
-          Dạ, iPhone 15 128GB giá chỉ từ 18.890.000 đ giá này đã Giảm ngay 4,100,000đ áp dụng đến 06/02 và hỗ trợ Trả góp 0%, anh đang ở khu vực nào em hỗ trợ anh mua hàng luôn nha
-          <br /><br />
-          Bên em xin phép liên hệ để tư vấn chi tiết hơn. Nếu cần thêm thông tin khác anh (chị) gọi tổng đài miễn phí 18006601 hoặc có thể chat qua Zalo tại đây
-          <br /><br />
-          Thân mến!
-        </CommentText>
-        <ActionBar>
-          <ActionButton>
-            <LikeOutlined />
-            <span>0</span>
-          </ActionButton>
-        </ActionBar>
-      </CommentContainer>
-    </>
+      <Row style={{ height: "130px" }}>
+        <Col span={12} style={{ height: "100%" }}>
+          <StyledCard
+            style={{
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+            }}
+          >
+            <Text strong>Mã đơn hàng: </Text>
+            <Text>{orderData.orderId}</Text>
+            <br />
+            <Text strong>Thời gian đặt hàng: </Text>
+            <Text>{orderData.orderDate}</Text>
+            <br />
+            <Text strong>Trạng thái: </Text>
+            <Tag color={orderData.status === "Đã hủy" ? "red" : "blue"}>
+              {orderData.status}
+            </Tag>
+          </StyledCard>
+        </Col>
+
+        <Col span={12} style={{ height: "100%" }}>
+          <StyledCard
+            style={{
+              height: "100%",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              
+            }}
+          >
+            <Title level={4} style={{lineHeight:'0', marginTop:0}}>Địa chỉ giao hàng</Title>
+            <Text style={{paddingTop: '15px'}}>{orderData.shippingAddress}</Text>
+          </StyledCard>
+        </Col>
+      </Row>
+
+      <StyledCard>
+        <Title level={4}>Sản phẩm trong đơn hàng: #{orderData.orderId}</Title>
+        <Table
+          columns={columns}
+          dataSource={orderData.items}
+          pagination={false}
+        />
+      </StyledCard>
+
+      <StyledCard>
+        <Text  strong>Tổng tiền: </Text>
+        <Text style={{color:'blue',  fontSize: "18px", fontWeight: "bold" }}> 
+          {orderData.total.toLocaleString()} VNĐ
+        </Text>
+      </StyledCard>
+
+      {orderData.status === "Pending" && (
+        <Button type="primary" danger onClick={handleCancelOrder}>
+          Hủy đơn hàng
+        </Button>
+      )}
+    </Wrapper>
   );
 };
 
-export default Comment;
+export default TestComponent;

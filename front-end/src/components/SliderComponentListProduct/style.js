@@ -49,6 +49,5 @@ export const WrapperStyleSlider = styled(Slider)`
   .slick-prev:hover,
   .slick-next:hover {
     background-color: rgba(218, 210, 210, 0.8) !important;
-    box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2);
   }
 `;

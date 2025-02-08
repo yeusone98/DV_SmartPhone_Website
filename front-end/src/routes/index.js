@@ -13,6 +13,7 @@ import AccountVerification from "../pages/AccountVerification/AccountVerificatio
 import ForgotPassword from "../pages/AccountVerification/ForgotPassword";
 import ResetPassword from "../pages/AccountVerification/ResetPassword";
 import CheckOutPage from "../pages/CheckOutPage/CheckOutPage";
+import OrderViewPage from "../pages/OrderViewPage/OrderViewPage";
 
 const routes = [
     {
@@ -92,6 +93,12 @@ const routes = [
         page: CheckOutPage,
         isShowHeader: true,
     },
+    {
+        path: '/order-view',
+        page: OrderViewPage,
+        isShowHeader: true,
+    },
+    
     {
         path: '*',
         page: NotFoundPage,

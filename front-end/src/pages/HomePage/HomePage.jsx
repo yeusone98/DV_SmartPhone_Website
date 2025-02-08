@@ -9,6 +9,7 @@ import slider1 from "../../assets/images/slide1.png";
 import slider2 from "../../assets/images/slide2.png";
 import slider3 from "../../assets/images/slide3.png";
 import SliderComponent from "../../components/SliderComponent/SliderComponent";
+import { HomeFilled, HomeOutlined } from "@ant-design/icons";
 
 const HomePage = () => {
   const [products, setProducts] = useState([]);
@@ -46,7 +47,8 @@ const HomePage = () => {
     <>
       <div style={{ padding: "0 120px", backgroundColor: "#efefef" }}>
         <WrapperTypeProduct>
-          {["Điện thoại", "Máy tính bảng", "Đồng hồ", "Laptop", "Âm thanh", "Phụ kiện"].map((item) => (
+        <HomeOutlined  style={{color:'rgb(22, 98, 240)', fontSize: '24px'}} />
+          {["Trang Chủ"].map((item) => (
             <TypeProduct name={item} key={item} />
           ))}
         </WrapperTypeProduct>

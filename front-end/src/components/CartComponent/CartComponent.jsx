@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { selectCurrentUser } from "../../features/user/userSlice";
 import { useNavigate } from "react-router-dom";
 import { setCart, updateCartQuantity } from "../../features/cart/cartSlice";
+import { FileTextOutlined, OrderedListOutlined } from "@ant-design/icons";
 
 
 const CartComponent = () => {
@@ -204,6 +205,13 @@ const CartComponent = () => {
             <ContinueButton type="text" onClick={() => navigate("/")}>
               ← Tiếp tục mua hàng
             </ContinueButton>
+            <Button  
+            type="default"
+            onClick={() => navigate("/order-view")}
+            style={{ margin: '0 16px' }}
+          > <FileTextOutlined />
+            Xem đơn hàng 
+          </Button>
             <div>
               <span>Tổng tiền: </span>
               <TotalAmount>{`${totalPrice.toLocaleString()} đ`}</TotalAmount>
