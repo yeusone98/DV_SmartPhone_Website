@@ -62,30 +62,30 @@ const CustomerManagement = () => {
     setIsModalVisible(true);
   };
 
-  const handleSaveCustomer = async (values) => {
-    try {
-      if (editingCustomer) {
-        const updatedData = {
-          displayName: values.displayName,
-        };
-        // Only include password if it's provided
-        if (values.password) {
-          updatedData.password = values.password;
-        }
-        await updateCustomerAPI(editingCustomer.id, updatedData);
-        // Update local state
-        const updatedCustomers = customers.map(customer => 
-          customer.id === editingCustomer.id ? { ...customer, ...updatedData } : customer
-        );
-        setCustomers(updatedCustomers);
-        message.success('Customer updated successfully!');
-      }
-      setIsModalVisible(false);
-      form.resetFields();
-    } catch (error) {
-      message.error(`Error updating customer: ${error.message}`);
-    }
-  };
+  // const handleSaveCustomer = async (values) => {
+  //   try {
+  //     if (editingCustomer) {
+  //       const updatedData = {
+  //         displayName: values.displayName,
+  //       };
+  //       // Only include password if it's provided
+  //       if (values.password) {
+  //         updatedData.password = values.password;
+  //       }
+  //       await updateCustomerAPI(editingCustomer.id, updatedData);
+  //       // Update local state
+  //       const updatedCustomers = customers.map(customer => 
+  //         customer.id === editingCustomer.id ? { ...customer, ...updatedData } : customer
+  //       );
+  //       setCustomers(updatedCustomers);
+  //       message.success('Customer updated successfully!');
+  //     }
+  //     setIsModalVisible(false);
+  //     form.resetFields();
+  //   } catch (error) {
+  //     message.error(`Error updating customer: ${error.message}`);
+  //   }
+  // };
 
   const handleDeleteCustomer = async (customer) => {
     try {
@@ -119,10 +119,6 @@ const CustomerManagement = () => {
       render: (_, record) => (
         <Space>
           <Button
-            icon={<EditOutlined />}
-            onClick={() => handleEditCustomer(record)}
-          />
-          <Button
             icon={<DeleteOutlined />}
             danger
             onClick={() => handleDeleteCustomer(record)}
@@ -147,60 +143,6 @@ const CustomerManagement = () => {
           }}
         />
       </StyledCard>
-
-      {/* Modal chỉnh sửa thông tin khách hàng */}
-      <Modal
-        title={editingCustomer ? 'Edit Customer' : 'Create Customer'}
-        visible={isModalVisible}
-        onCancel={() => {
-          setIsModalVisible(false);
-          setEditingCustomer(null);
-          form.resetFields();
-        }}
-        footer={null}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSaveCustomer}
-          initialValues={{
-            displayName: editingCustomer?.displayName,
-          }}
-        >
-
-          <Form.Item
-            name="displayName"
-            label="Display Name"
-            rules={[{ required: true }]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item
-            name="password"
-            label="Password"
-            rules={[{ required: false, min: 8, message: 'Password phải có ít nhất 8 ký tự' }]}
-          >
-            <Input.Password />
-          </Form.Item>  
-          <Form.Item>
-            <Space>
-              <Button type="primary" htmlType="submit">
-                Save
-              </Button>
-              <Button
-                onClick={() => {
-                  setIsModalVisible(false);
-                  setEditingCustomer(null);
-                  form.resetFields();
-                }}
-              >
-                Cancel
-              </Button>
-            </Space>
-          </Form.Item>
-        </Form>
-      </Modal>
     </>
   );
 };
