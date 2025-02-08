@@ -24,7 +24,7 @@ import {
   Row,
   message,
 } from "antd";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import imgProduct from "../../assets/images/iphone-16-pro-max.png";
 import {
   AverageRating,
@@ -108,7 +108,13 @@ const ProductDetailComponent = () => {
   const [replyText, setReplyText] = useState({}); // Nội dung phản hồi
   const [showReplyForm, setShowReplyForm] = useState({}); // Hiển thị form phản hồi
 
-  
+  const reviewInputRef = useRef(null);
+
+  useEffect(() => {
+      if (reviewInputRef.current) {
+          reviewInputRef.current.focus({ cursor: "end" }); // Giữ vị trí con trỏ cuối
+      }
+  }, [reviewText]);
  
   // 🎯 **Gọi API để lấy danh sách đánh giá**
   useEffect(() => {
@@ -147,12 +153,12 @@ const ProductDetailComponent = () => {
             comment: reviewText
         });
 
-        setReviewText(""); // Reset nội dung
+        //setReviewText(""); // Reset nội dung
 
         // Gọi lại API để cập nhật danh sách đánh giá
         const updatedReviews = await fetchReviewsAPI(id);
         setReviews(updatedReviews);
-
+        setReviewText(""); // Reset nội dung
         message.success("Đánh giá đã được thêm thành công!");
     } catch (error) {
         message.error("Lỗi khi thêm đánh giá!");
@@ -310,7 +316,10 @@ const ProductDetailComponent = () => {
       }
   };
   
-    
+  // Xử lý phần re-render text khi nhập nội dung đánh giá
+  const handleTextChange = (e) => {
+    setReviewText(e.target.value);
+  };
     
 
   if (!product || !selectedVariant) return <div>Loading...</div>;
@@ -331,14 +340,13 @@ const ProductDetailComponent = () => {
         />
       </div>
       <Input.TextArea
+        ref={reviewInputRef}
         placeholder="Nhập nội dung đánh giá *"
         style={{ marginBottom: "16px" }}
         rows={4}
-        value={reviewText}
-        onChange={(e) => {
-          console.log("Review Text:", e.target.value);
-          setReviewText(e.target.value);
-        }}
+        value={reviewText || ""}
+        onChange={handleTextChange}
+        
       />
       <div style={{ textAlign: "right" }}>
         <Button onClick={onCancel} style={{ marginRight: "8px" }}>
