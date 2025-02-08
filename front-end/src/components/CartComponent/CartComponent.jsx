@@ -45,8 +45,8 @@ const CartComponent = () => {
       const formattedCart = cart.products.map((item) => ({
         key: `${item.product_id}_${item.storage}_${item.color}`,
         product_id: item.product_id,
-        product: item.product_name || "Sản phẩm không xác định",
-        image: item.image_url || "https://via.placeholder.com/50",
+        product_name: item.product_name || "Sản phẩm không xác định",
+        image_url: item.image_url || "https://via.placeholder.com/50",
         storage: item.storage || "Không xác định",
         color: item.color || "Không xác định",
         unit_price: Number(item.unit_price) || 0,
@@ -129,13 +129,13 @@ const CartComponent = () => {
       render: (text, record) => (
         <div style={{ display: "flex", alignItems: "center" }}>
           <img
-            src={record.image}
-            alt={record.product}
+            src={record.image_url}
+            alt={record.product_name}
             style={{ width: 50, marginRight: 10 }}
           />
           <div>
             <div style={{ fontWeight: "normal" }}>
-              {text} {`${record.storage} GB ${record.color}`}
+              {record.product_name} {`${record.storage} GB ${record.color}`}
             </div>
           </div>
         </div>

@@ -47,7 +47,7 @@ const PaymentComponent = () => {
   const [current, setCurrent] = useState(0);
   const [shippingInfo, setShippingInfo] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("COD");
-
+  const [orderNumber, setOrderNumber] = useState(null);
   const steps = [
     { title: "Shipping", icon: <HomeOutlined /> },
     { title: "Payment", icon: <CreditCardOutlined /> },
@@ -70,7 +70,6 @@ const PaymentComponent = () => {
       handleSubmitOrder();
     }
   };
-
   // Xử lý đặt hàng
   const handleSubmitOrder = async () => {
     if (!paymentMethod) {
@@ -91,7 +90,7 @@ const PaymentComponent = () => {
         products: cartItems.map((item) => ({
           product_id: item.product_id,
           product_name: item.product_name,
-          image_url: item.image_url,
+          image_url: item.image_url,  
           color: item.color,
           storage: item.storage,
           quantity: item.quantity,
@@ -103,9 +102,10 @@ const PaymentComponent = () => {
       console.log("Order Data to Send:", orderData);
       // Gọi API đặt hàng
       const response = await placeOrderAPI(orderData);
-
       // Kiểm tra phản hồi từ API
       if (response && response.message === "Đặt hàng thành công!") {
+        const orderNumber = response.order.orderNumber
+        setOrderNumber(orderNumber);
         await fetchCartAPI(); // Load lại giỏ hàng
         message.success("Đặt hàng thành công!");
         setCurrent(2);
@@ -229,7 +229,7 @@ const PaymentComponent = () => {
     <div style={{ textAlign: "center", padding: "40px 0" }}>
       <CheckOutlined style={{ fontSize: 64, color: "#52c41a" }} />
       <h2>Đặt hàng thành công!</h2>
-      <p>Mã đơn hàng của bạn: #123456</p>
+      {orderNumber && <p>Mã đơn hàng của bạn: #{orderNumber}</p>}
       <Button onClick={()=> navigate('/order-view')} type="text" style={{ marginTop: '20px', textDecoration: 'underline', fontSize:'14px' }}>Xem chi tiết đơn hàng</Button>
     </div>
   );
@@ -262,7 +262,7 @@ const PaymentComponent = () => {
                   <div key={index} style={{ marginBottom: "10px" }}>
                     <PriceRow>
                       <img
-                        src={item.image_url} // Hiển thị hình ảnh sản phẩm
+                        src={item.image_url}    
                         alt={item.product_name}
                         style={{ width: "50px", marginRight: "10px" }}
                       />
