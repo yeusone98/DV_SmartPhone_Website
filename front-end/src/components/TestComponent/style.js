@@ -1,136 +1,67 @@
-import { Button } from "antd";
+import { Button, Card } from "antd";
 import styled from "styled-components";
-
-// Styled Components
-export const WrapperContainer = styled.div`
+import ButtonComponent from "../ButtonComponent/ButtonComponent";
+export const CheckoutContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
-  padding: 16px;
+  padding: 24px;
 `;
-
-export const ProductSection = styled.div`
-  background: #fff;
+export const StyledCard = styled(Card)`
+  margin-bottom: 24px;
   border-radius: 8px;
-  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 `;
-
-export const ImageContainer = styled.div`
-  border: 1px solid #919eab52;
+export const OrderSummary = styled.div`
+  background: #f5f5f5;
+  padding: 24px;
   border-radius: 8px;
-  padding-right: 30px;
 `;
-
-export const ProductTitle = styled.h1`
-  color: rgb(36, 36, 36);
-  font-size: 24px;
-  font-weight: 500;
-  line-height: 32px;
-  word-break: break-word;
-`;
-
-export const PriceContainer = styled.div`
-  margin: 16px 0;
-`;
-
-export const CurrentPrice = styled.span`
-  font-size: 32px;
-  color: #ff4842;
-  font-weight: 500;
-`;
-
-export const OriginalPrice = styled.span`
-  font-size: 24px;
-  color: #808089;
-  text-decoration: line-through;
-  margin-left: 12px;
-`;
-
-export const QuantityContainer = styled.div`
+export const PriceRow = styled.div`
   display: flex;
-  align-items: center;
-  margin: 16px 0;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  color: ${props => props.$isTotal ? '#ff4842' : 'inherit'};
+  font-weight: ${props => props.$isTotal ? 'bold' : 'normal'};
+  font-size: ${props => props.$isTotal ? '16px' : '14px'};
 `;
-
-export const QuantityControl = styled.div`
-  display: flex;
-  align-items: center;
-  border: 1px solid #919eab52;
-  border-radius: 6px;
-  width: 110px;
+export const VatText = styled.div`
+  text-align: right;
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
 `;
-
-export const QuantityButton = styled(Button)`
+export const DiscountNote = styled.div`
+  font-size: 12px;
+  color: #666;
+  margin-top: 16px;
+  font-style: italic;
+`;
+export const NavigationButtons = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 24px;
+`;
+export const WrapperBtnContinue = styled(Button)`
+  padding: 10px 0;
+  border-radius: 8px;
+  background-color: rgb(0, 69, 255);
+  color: #fff;
   border: none;
-  padding: 0 8px;
-  height: 32px;
-  &:hover {
-    background: transparent;
-  }
-`;
-
-export const ButtonGroup = styled.div`
-  display: flex;
-  gap: 16px;
-  margin-top: 20px;
-`;
-
-export const AddToCartButton = styled(Button)`
-  width: 200px;
-  background: rgb(255, 193, 7);
-  &:hover {
-    background: rgb(183, 129, 3) !important;
-  }
-`;
-
-export const BuyNowButton = styled(Button)`
-  width: 200px;
-  background: rgb(0, 69, 255);
+  font-weight: 600;
+  text-align: center;
+  
   &:hover {
     background: rgb(0, 39, 183) !important;
+    color: #fff !important;
   }
 `;
-
-export const TabContainer = styled.div`
-  margin-top: 24px;
-`;
-
-export const TabButton = styled(Button)`
-  ${props => props.active && `
-    color: #1890ff;
-    border-bottom: 2px solid #1890ff;
-  `}
-  border-radius: 0;
-  margin-right: 24px;
-`;
-
-export const ReviewCard = styled.div`
-  background: white;
-  border-radius: 8px;
-  padding: 24px;
-  margin-top: 16px;
-`;
-
-export const ReviewHeader = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 12px;
-`;
-
-export const ReviewerName = styled.span`
-  margin-left: 8px;
-  font-weight: 500;
-`;
-
-export const ReviewDate = styled.span`
-  margin-left: auto;
-  color: #8c8c8c;
-`;
-
-export const VerifiedBadge = styled.span`
-  background: #e6f7ff;
-  color: #1890ff;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  margin-left: 12px;
+export const WrapperBtnBack = styled(Button)`
+  background: transparent;
+  color: #666;
+  
+  &:hover {
+    background: transparent !important;
+    color: #333 !important;
+  }
 `;

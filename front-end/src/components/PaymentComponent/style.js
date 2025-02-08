@@ -2,10 +2,15 @@ import { Button, Card } from "antd";
 import styled from "styled-components";
 import ButtonComponent from "../ButtonComponent/ButtonComponent";
 
+export const WrapperCheckOutPage = styled.div`
+  background-color: #efefef;
+  padding: 0 120px;
+`
 export const CheckoutContainer = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 24px;
+
 `;
 
 export const StyledCard = styled(Card)`
@@ -24,9 +29,17 @@ export const PriceRow = styled.div`
   display: flex;
   justify-content: space-between;
   margin-bottom: 12px;
-  color: ${props => props.$isTotal ? '#ff4842' : 'inherit'};
-  font-weight: ${props => props.$isTotal ? 'bold' : 'normal'};
-  font-size: ${props => props.$isTotal ? '16px' : '14px'};
+  color: inherit;
+  font-weight: normal;
+  font-size: 14px;
+`;
+export const PriceRowTotal = styled.div`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  color: #ff4842;
+  font-weight: bold;
+  font-size: 16px;
 `;
 
 export const VatText = styled.div`
@@ -34,6 +47,7 @@ export const VatText = styled.div`
   font-size: 12px;
   color: #666;
   margin-top: 4px;
+  font-style:italic;
 `;
 
 export const DiscountNote = styled.div`
