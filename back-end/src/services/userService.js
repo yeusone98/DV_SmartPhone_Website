@@ -143,11 +143,38 @@ const resetPassword = async ({ email, token, newPassword }) => {
     await userModel.update(user._id, { password: hashedPassword, resetToken: null })
 }
 
+const getCustomers = async () => {
+    try {
+        return await userModel.findAllClients()
+    } catch (error) { throw error }
+}
+
+const updateCustomer = async (id, updateData) => {
+    try {
+        const validUpdateData = {}
+        if (updateData.displayName) {
+            validUpdateData.displayName = updateData.displayName
+        }
+        if (updateData.password) {
+            validUpdateData.password = bcrypjs.hashSync(updateData.password, 10)
+        }
+        return await userModel.update(id, validUpdateData)
+    } catch (error) { throw error }
+}
+
+const deleteCustomer = async (id) => {
+    try {
+        await userModel.deleteById(id)
+    } catch (error) { throw error }
+}
 
 export const userService = {
     createNew,
     verifyAccount,
     login,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    getCustomers,
+    updateCustomer,
+    deleteCustomer
 }

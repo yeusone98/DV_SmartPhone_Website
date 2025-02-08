@@ -4,6 +4,7 @@ import { Layout, Menu, Card, Typography, Input, Badge, Avatar, Space, Statistic,
 import { DashboardOutlined, ShoppingCartOutlined, UserOutlined, InboxOutlined, BellOutlined, SettingOutlined, SearchOutlined, LogoutOutlined } from '@ant-design/icons';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import OrderManagement from '../OrderMangagerComponent/OrderManagerComponent';
+import CustomerManagagerComponent from '../CustomerManagagerComponent/CustomerManagagerComponent';
 import Cookies from 'js-cookie';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout, selectCurrentUser } from '../../features/user/userSlice';
@@ -179,7 +180,7 @@ const AdminDashboard = () => {
       case '3':
         return <OrderManagement />;
       default:
-        return <div>Coming soon...</div>;
+        return <CustomerManagagerComponent />;
     }
   };
 

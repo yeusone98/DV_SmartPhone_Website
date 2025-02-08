@@ -82,11 +82,25 @@ const resetPassword = async (req, res, next) => {
     }
 }
 
+const updateCustomer = async (req, res, next) => {
+    const correctCondition = Joi.object({
+        displayName: Joi.string().optional(),
+        password: Joi.string().min(8).optional().allow('') // Allow empty
+    })
+
+    try {
+        await correctCondition.validateAsync(req.body, { abortEarly: false })
+        next()
+    } catch (error) {
+        next(new ApiError(StatusCodes.UNPROCESSABLE_ENTITY, error.message))
+    }
+}
 
 export const userValidation = {
     createNew,
     verifyAccount,
     login,
     forgotPassword,
-    resetPassword
+    resetPassword,
+    updateCustomer
 }

@@ -3,6 +3,40 @@ import { API_ROOT } from '../utils/constants';
 import { message } from 'antd'; // Sử dụng message của Ant Design
 
 /** Users */
+
+export const fetchCustomersAPI = async () => {
+    try {
+        const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/users/`);
+        return response.data;
+    } catch (error) {
+        message.error('Failed to fetch customers. Please try again.');
+        throw error;
+    }
+};
+
+export const updateCustomerAPI = async (id, data) => {
+    try {
+        const response = await authorizedAxiosInstance.put(`${API_ROOT}/v1/users/${id}`, data);
+        message.success('Customer updated successfully!');
+        return response.data;
+    } catch (error) {
+        message.error('Failed to update customer. Please try again.');
+        throw error;
+    }
+};
+
+export const deleteCustomerAPI = async (id) => {
+    try {
+        const response = await authorizedAxiosInstance.delete(`${API_ROOT}/v1/users/${id}`);
+        message.success('Customer deleted successfully!');
+        return response.data;
+    } catch (error) {
+        message.error('Failed to delete customer. Please try again.');
+        throw error;
+    }
+};
+
+
 export const registerUserAPI = async (data) => {
     try {
         const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/users/register`, data);
