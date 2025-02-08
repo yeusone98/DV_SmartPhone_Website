@@ -89,6 +89,8 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../../features/cart/cartSlice"; 
 
+import imgNull from "../../assets/images/facebook.png";
+
 const ProductDetailComponent = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
@@ -353,7 +355,6 @@ const ProductDetailComponent = () => {
     const total = reviews.reduce((sum, review) => sum + review.rating, 0);
     return (total / reviews.length).toFixed(1);
   };
-
 
 
   return (
