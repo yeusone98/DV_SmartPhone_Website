@@ -369,17 +369,17 @@ const ProductDetailComponent = () => {
     <WrapperProductDetailPage>
       <Row style={{ padding: "16px", backgroundColor: "#fff", borderRadius: "8px" }}>
         {/* Phần hình ảnh */}
-        <Col span={10} style={{ border: "1px solid #919eab52", borderRadius: "8px", paddingRight: "30px" }}>
+        <Col span={10} style={{padding:'20px', border: "1px solid #919eab52", borderRadius: "8px", paddingRight: "30px" }}>
           <div style={{ display: "flex", justifyContent: "center" }}>
             <Image src={selectedVariant.images[0]} alt="image product" preview={false} />
           </div>
-          <Row style={{ paddingTop: "10px", justifyContent: "space-between" }}>
+          {/* <Row style={{ paddingTop: "10px", justifyContent: "space-between" }}>
             {selectedVariant.images?.map((img, index) => (
               <WrapeerStyleImage span={4} key={index}>
                 <WrapeerStyleImageSmall src={img} alt={`small ${index}`} preview={false} />
               </WrapeerStyleImage>
             ))}
-          </Row>
+          </Row> */}
         </Col>
 
         {/* Phần thông tin chính */}
