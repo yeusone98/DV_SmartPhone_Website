@@ -94,7 +94,7 @@ const OrderManagement = () => {
       title: 'Total Amount',
       dataIndex: 'total_price',
       key: 'total_price',
-      render: (amount) => `$${amount.toFixed(2)}`,
+      render: (amount) => new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(amount),
       sorter: (a, b) => a.total_price - b.total_price,
     },
     {
@@ -233,7 +233,7 @@ const OrderManagement = () => {
             <Statistic 
               title="Total Revenue" 
               value={orders.reduce((sum, order) => sum + order.total_price, 0)}
-              prefix="$"
+              suffix="đ"
             />
           </Col>
           <Col span={6}>
