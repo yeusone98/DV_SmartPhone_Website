@@ -74,7 +74,6 @@ const placeOrder = async (req, res, next) => {
 
         // Cập nhật stock cho các variant sản phẩm
         for (const product of cart.products) {
-            const variant = product.variant_id // Sử dụng variant_id để truy vấn vào collection product
             const variantData = await productModel.findProductById(product.product_id)
 
             if (variantData) {
