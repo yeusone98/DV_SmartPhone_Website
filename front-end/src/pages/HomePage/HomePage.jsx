@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { fetchProductsAPI } from "../../apis"; // Đảm bảo bạn đã import hàm API
+import { fetchProductsAPI } from "../../apis"; 
 import CardComponent from "../../components/CardComponent/CardComponent";
 import SliderComponentListProduct from "../../components/SliderComponentListProduct/SliderComponentListProduct";
 import {
+  WrapperContainer,
   WrapperTextTitleProduct,
   WrapperProductList,
   WrapperProductListCetegory,
-  WrapperSlideProduct,
   WrapperProducts,
   SpaceFooter,
   WrapperTypeProduct,
-  WrapperBottonMore
+  WrapperBottonMore,
+  WrapperSlideProducts
 } from "./style";
 import TypeProduct from "../../components/TypeProduct/TypeProduct";
 import slider1 from "../../assets/images/slide1.png";
@@ -21,41 +22,34 @@ import SliderComponent from "../../components/SliderComponent/SliderComponent";
 import { HomeOutlined } from "@ant-design/icons";
 
 const HomePage = () => {
-  const [products, setProducts] = useState([]); // Danh sách sản phẩm
-  const [visibleCount, setVisibleCount] = useState(12); // Số sản phẩm hiển thị ban đầu
+  const [products, setProducts] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(10);
 
-  // Lấy dữ liệu sản phẩm từ API
   useEffect(() => {
     const fetchProducts = async () => {
       const response = await fetchProductsAPI({});
-      setProducts(response); // Giả sử response trả về là một mảng các sản phẩm
+      setProducts(response);
     };
     fetchProducts();
   }, []);
 
-  // 7 sản phẩm đầu tiên cho slider
   const sliderProducts = products.slice(0, 7);
-
-  // Danh sách sản phẩm hiển thị dựa trên visibleCount
   const visibleProducts = products.slice(0, visibleCount);
 
-  // Hàm xử lý khi nhấn "Xem thêm"
   const handleLoadMore = () => {
-    setVisibleCount((prevCount) => prevCount + 12);
+    setVisibleCount((prevCount) => prevCount + 10);
   };
 
   return (
     <>
-      <div style={{ padding: "0 120px", backgroundColor: "#efefef" }}>
+      <WrapperContainer>
         <Link to={"/"} style={{ textDecoration: "none" }}>
           <WrapperTypeProduct>
             <HomeOutlined style={{ color: "rgb(22, 98, 240)", fontSize: "24px" }} />
             <TypeProduct name="Trang Chủ" />
           </WrapperTypeProduct>
         </Link>
-      </div>
 
-      <div id="container" style={{ backgroundColor: "#efefef", padding: "0 120px", height: "auto" }}>
         <SliderComponent arrImages={[slider1, slider2, slider3]} />
 
         <WrapperTextTitleProduct>
@@ -63,7 +57,7 @@ const HomePage = () => {
             SẢN PHẨM DÀNH CHO BẠN <WrapperProductListCetegory>Phù hợp nhất</WrapperProductListCetegory>
           </WrapperProductList>
         </WrapperTextTitleProduct>
-
+        <WrapperSlideProducts >
         <SliderComponentListProduct
           arrImages={sliderProducts.map((product) => {
             const firstVariant = product.variants?.[0];
@@ -81,6 +75,8 @@ const HomePage = () => {
             );
           })}
         />
+        </WrapperSlideProducts>
+        
 
         <WrapperTextTitleProduct>
           <WrapperProductList>
@@ -88,7 +84,6 @@ const HomePage = () => {
           </WrapperProductList>
         </WrapperTextTitleProduct>
 
-        {/* Danh sách sản phẩm */}
         <WrapperProducts>
           {visibleProducts.map((product) => {
             const firstVariant = product.variants?.[0];
@@ -107,26 +102,12 @@ const HomePage = () => {
           })}
         </WrapperProducts>
 
-        {/* Nút "Xem thêm" */}
         {visibleCount < products.length && (
-          <div style={{ display: "flex", justifyContent: "center", marginTop: "10px" }}>
-            <WrapperBottonMore
-              textButton={"Xem thêm"}
-              type="outline"
-              onClick={handleLoadMore} 
-              styleButton={{
-                border: "1px solid rgb(0, 69, 255)",
-                color: "rgb(0, 69, 255)",
-                width: "240px",
-                height: "38px",
-                cursor: "pointer"
-              }}
-            />
-          </div>
+          <WrapperBottonMore textButton={"Xem thêm"} type="outline" onClick={handleLoadMore} />
         )}
 
         <SpaceFooter />
-      </div>
+      </WrapperContainer>
     </>
   );
 };

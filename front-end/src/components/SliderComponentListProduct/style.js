@@ -5,6 +5,7 @@ export const WrapperSlider = styled.div`
   border-radius: 8px;
 `;
 export const WrapperStyleSlider = styled(Slider)`
+
   .slick-prev,
   .slick-next {
     z-index: 1;
