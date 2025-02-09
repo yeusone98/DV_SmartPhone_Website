@@ -1,25 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import { Button, List, message } from 'antd';
-import { useNavigate, Link } from 'react-router-dom';
-import { fetchOrdersAPI } from "../../apis"; 
-import dayjs from 'dayjs';
+// SelectOrder.js
+import React, { useState, useEffect } from "react";
+import { Button, List, message } from "antd";
+import { useNavigate } from "react-router-dom";
+import { fetchOrdersByUserAPI } from "../../apis"; // Sử dụng API mới
+import { useSelector } from "react-redux";
+import { selectCurrentUser } from "../../features/user/userSlice"; // Lấy thông tin người dùng từ Redux
+import dayjs from "dayjs";
 
 const SelectOrder = () => {
   const [orders, setOrders] = useState([]);
-  
+  const currentUser = useSelector(selectCurrentUser); // Lấy thông tin người dùng từ Redux
+  const navigate = useNavigate();
+
   useEffect(() => {
-    // Fetch danh sách đơn hàng của người dùng
     const fetchOrders = async () => {
+      if (!currentUser) {
+        message.error("Vui lòng đăng nhập để xem đơn hàng.");
+        navigate("/login"); // Nếu người dùng chưa đăng nhập, chuyển hướng đến trang đăng nhập
+        return;
+      }
+
       try {
-        const data = await fetchOrdersAPI();
-        setOrders(data); // Giả sử API trả về danh sách các đơn hàng
+        // Gọi API mới để lấy danh sách đơn hàng của người dùng hiện tại
+        const data = await fetchOrdersByUserAPI(); // API mới chỉ trả về đơn hàng của người dùng
+        setOrders(data); // Set đơn hàng của người dùng
       } catch (error) {
-        message.error("Không thể tải danh sách đơn hàng");
+        message.error("Không thể tải danh sách đơn hàng.");
       }
     };
-    fetchOrders();
-  }, []);
 
+    fetchOrders();
+  }, [currentUser, navigate]);
+
+  if (!currentUser) {
+    return <div>Vui lòng đăng nhập để xem đơn hàng.</div>;
+  }
 
   return (
     <div>
@@ -33,9 +48,9 @@ const SelectOrder = () => {
               title={`Đơn hàng #${order.orderNumber}`}
               description={dayjs(order.createdAt).format('YYYY-MM-DD')}
             />
-            <Link to={`/orders/order-view/${order._id}`}>
-                <Button>Xem chi tiết</Button>
-            </Link>
+            <Button onClick={() => navigate(`/orders/order-view/${order._id}`)}>
+              Xem chi tiết
+            </Button>
           </List.Item>
         )}
       />
