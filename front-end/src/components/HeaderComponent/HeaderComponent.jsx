@@ -28,7 +28,7 @@ const HeaderComponent = () => {
 
   const menu = (
     <Menu>
-      <Menu.Item key="orders" onClick={() => navigate('/order-view')}>
+      <Menu.Item key="orders" onClick={() => navigate('/order-select')}>
         <ProfileOutlined style={{ marginRight: "5px" }} /> Đơn hàng của tôi
       </Menu.Item>
       <Menu.Item key="logout" onClick={handleLogout}>
@@ -97,7 +97,7 @@ const HeaderComponent = () => {
           {currentUser ? (
             <>
               <Menu.Item key="orders">
-                <Link to="/order-view">Đơn hàng của tôi</Link>
+                <Link to="/order-select">Đơn hàng của tôi</Link>
               </Menu.Item>
               <Menu.Item key="logout" onClick={handleLogout}>
                 Đăng xuất

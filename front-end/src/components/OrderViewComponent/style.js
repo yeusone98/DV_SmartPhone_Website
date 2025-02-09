@@ -10,6 +10,7 @@ export const StyledCard = styled(Card)`
 export const PageContainer = styled.div`
   padding: 24px;
   min-height: 100vh;
+  padding: 20px 150px;
 `;
 
 export const WarningText = styled(Text)`

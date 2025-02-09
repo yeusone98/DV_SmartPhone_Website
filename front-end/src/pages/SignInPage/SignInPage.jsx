@@ -56,7 +56,7 @@ const SignInPage = () => {
       toast.success('Đăng nhập thành công!');
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.message || 'Đăng nhập thất bại! Vui lòng thử lại.');
+      setError('Đăng nhập thất bại! Vui lòng kiểm tra email và mật khẩu.');
       toast.error('Đăng nhập thất bại! Vui lòng kiểm tra email và mật khẩu.');
     }
   };
@@ -122,7 +122,7 @@ const SignInPage = () => {
               { type: 'email', message: 'Email không hợp lệ!' },
             ]}
           >
-            <Input placeholder="Nhập email" />
+            <Input placeholder="Nhập email" />  
           </Form.Item>
 
           <Form.Item
