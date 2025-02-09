@@ -315,6 +315,51 @@ const ProductDetailComponent = () => {
           console.error("Error in handleAddToCart:", error);
       }
   };
+  //Xử lý phần mua ngay
+  const handleBuyNow = () => {
+    // Kiểm tra đăng nhập
+    if (!currentUser) {
+      message.error("Bạn cần đăng nhập để mua hàng!");
+      navigate("/login");
+      return;
+    }
+  
+    // Kiểm tra đã chọn variant
+    if (!selectedVariant) {
+      message.error("Vui lòng chọn phiên bản sản phẩm!");
+      return;
+    }
+  
+    // Tính giá cuối cùng (đã tính khuyến mãi nếu có)
+    const finalPrice = selectedVariant.price_discount || selectedVariant.price;
+    
+    // Tạo object chứa thông tin sản phẩm được mua
+    const productData = {
+      product_id: product._id,
+      product_name: product.name,
+      image_url: selectedVariant.images[0],
+      color: selectedVariant.color,
+      storage: String(selectedVariant.storage),
+      quantity: quantity,
+      unit_price: finalPrice,
+      total_price_per_product: finalPrice * quantity
+    };
+    console.log("Product Data:", productData);
+    console.log("Navigate State:", {
+      productItems: [productData],
+      totalPrice: productData.total_price_per_product
+    });
+    // Chuyển hướng đến trang thanh toán với một sản phẩm
+    navigate("/checkout", {
+      state: {
+        productItems: [productData], // Mảng chỉ chứa một sản phẩm
+        totalPrice: productData.total_price_per_product // Tổng tiền của một sản phẩm
+      }
+    });
+  };
+
+
+
   
   // Xử lý phần re-render text khi nhập nội dung đánh giá
   const handleTextChange = (e) => {
@@ -430,7 +475,7 @@ const ProductDetailComponent = () => {
           </div>
           <WrapperAddCartBuyNow>
           <WrapperButtonAddCart size="large" textButton="Thêm vào giỏ hàng" onClick={handleAddToCart}/>
-            <WrapperBtnBuyNow size="large" textButton="Mua ngay" />
+            <WrapperBtnBuyNow size="large" textButton="Mua ngay" onClick={handleBuyNow} />
           </WrapperAddCartBuyNow>
         </Col>
       </Row>
@@ -526,7 +571,7 @@ const ProductDetailComponent = () => {
                   Viết đánh giá của bạn
                 </WrapperBtnWriteReview>
               </Col>
-            </Row>
+            </Row>  
           </ReviewCard>
 
           {showReviewForm && <ReviewForm onCancel={() => setShowReviewForm(false)} />}

@@ -6,6 +6,8 @@ import { fetchOrdersByUserAPI } from "../../apis"; // Sử dụng API mới
 import { useSelector } from "react-redux";
 import { selectCurrentUser } from "../../features/user/userSlice"; // Lấy thông tin người dùng từ Redux
 import dayjs from "dayjs";
+import Title from "antd/es/typography/Title";
+import { SelectOutlined } from "@ant-design/icons";
 
 const SelectOrder = () => {
   const [orders, setOrders] = useState([]);
@@ -37,8 +39,10 @@ const SelectOrder = () => {
   }
 
   return (
-    <div>
-      <h3>Chọn đơn hàng để xem chi tiết:</h3>
+    <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+      <Title level={4} style={{paddingBottom:'20px'}}><SelectOutlined style={{marginRight:'10px'}} />Chọn đơn hàng để xem chi tiết:
+      </Title>
+      
       <List
         bordered
         dataSource={orders}

@@ -3,7 +3,7 @@ import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
 
 export const WrapperContainer = styled.div`
   max-width: 1200px;
-  
+  padding: 0 12%;
   margin: 0 auto;
   background-color: #efefef;
   overflow: hidden;
@@ -18,7 +18,7 @@ export const WrapperTypeProduct = styled.div`
   font-size: 16px;
   height: auto;
   padding: 10px;
-  color: rgb(110, 110, 112);
+  color: rgb(92, 92, 95);
 `;
 
 export const WrapperTextTitleProduct = styled.div`
