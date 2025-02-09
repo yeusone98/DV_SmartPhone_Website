@@ -182,7 +182,18 @@ export const placeOrderAPI = async (data) => {
 export const fetchOrdersAPI = async () => {
     const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/orders`);
     return response.data;
-}
+};
+
+
+export const fetchOrdersByUserAPI = async () => {
+    try {
+        const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/orders/order`);
+        return response.data; // Trả về dữ liệu đơn hàng của người dùng
+    } catch (error) {
+        message.error('Không thể tải đơn hàng của bạn.');
+        throw error;
+    }
+};
 
 // Lấy đơn hàng theo orderId
 

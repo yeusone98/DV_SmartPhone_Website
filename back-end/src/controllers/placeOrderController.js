@@ -200,14 +200,21 @@ const deleteOrder = async (req, res, next) => {
 
 const getOrders = async (req, res, next) => {
     try {
-        // Lấy tất cả đơn hàng từ database
-        const orders = await placeOrderModel.findAllOrders()
+        const userId = req.query.userId; // Lấy userId từ query params
+        let query = {};
+
+        // Nếu có userId, thêm điều kiện lọc theo customer_id
+        if (userId) {
+            query.customer_id = new ObjectId(userId);
+        }
+
+        // Lấy đơn hàng với query đã lọc
+        const orders = await placeOrderModel.findAllOrders(query);
 
         if (!orders || orders.length === 0) {
             return res.status(StatusCodes.NOT_FOUND).json({ message: 'Không có đơn hàng nào!' })
         }
 
-        // Trả về tất cả đơn hàng
         res.status(StatusCodes.OK).json(orders)
     } catch (error) {
         console.error('Lỗi trong getOrders:', error.message)
@@ -229,14 +236,34 @@ const getOrderById = async (req, res, next) => {
         const order = await placeOrderModel.findOrderById(id)
         res.status(StatusCodes.OK).json(order)
     } catch (error) {
-        // ... giữ nguyên
+        console.error('Lỗi trong getOrderById:', error.message)
+        next(error)
     }
 }
+
+const getOrdersByUser = async (req, res, next) => {
+    try {
+        const userId = req.jwtDecoded._id;  // Lấy userId từ token JWT
+        const orders = await placeOrderModel.findAllOrders({ customer_id: userId });  // Lọc theo customer_id
+
+        if (!orders || orders.length === 0) {
+            return res.status(StatusCodes.NOT_FOUND).json({ message: 'Không có đơn hàng nào của bạn!' });
+        }
+
+        res.status(StatusCodes.OK).json(orders);
+    } catch (error) {
+        console.error('Lỗi trong getOrdersByUser:', error.message);
+        next(error);
+    }
+};
+
+
 
 export const placeOrderController = {
     placeOrder,
     updateOrder,
     deleteOrder,
     getOrders,
-    getOrderById
+    getOrderById,
+    getOrdersByUser
 }

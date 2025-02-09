@@ -99,9 +99,9 @@ const deleteOrder = async (id) => {
     return result;
   };
 
-const findAllOrders = async () => {
+  const findAllOrders = async (query = {}) => {
     const db = GET_DB()
-    const orders = await db.collection('orders').find().toArray()
+    const orders = await db.collection('orders').find(query).toArray()
     return orders
 }
 
@@ -120,5 +120,5 @@ export const placeOrderModel = {
     updateOrder,
     deleteOrder,
     findAllOrders,
-    findOrderCountByYear
+    findOrderCountByYear,
 }
