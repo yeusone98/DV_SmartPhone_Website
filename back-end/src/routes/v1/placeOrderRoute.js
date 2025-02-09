@@ -16,5 +16,4 @@ Router.route('/:id')
     .delete(authMiddleware.isAuthorized, placeOrderController.deleteOrder)
     .get(authMiddleware.isAuthorized, placeOrderController.getOrderById)
 
-
 export const placeOrderRoute = Router
