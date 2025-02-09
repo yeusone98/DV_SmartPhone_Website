@@ -103,9 +103,9 @@ const SignInPage = () => {
       )}
 
       <FormContainer>
-        <Logo>
+        <Link to={'/'}><Logo>
           <img style={{ height: '40px', width: '160px' }} src={logo} alt="Logo" />
-        </Logo>
+        </Logo></Link>
         <WrapperTextSignIn>Đăng nhập tài khoản</WrapperTextSignIn>
 
         <Form
