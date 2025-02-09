@@ -93,7 +93,7 @@ const HeaderComponent = () => {
               <Link to="/login">
                 <div>
                   <UserOutlined style={{ fontSize: "25px", color: '#fff' }} />
-                  <WrapperTextHeaderSmall>Đăng nhập/Đăng ký</WrapperTextHeaderSmall>
+                  <WrapperTextHeaderSmall>Đăng nhập</WrapperTextHeaderSmall>
                 </div>
               </Link>
             )}
