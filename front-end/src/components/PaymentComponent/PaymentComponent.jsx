@@ -42,13 +42,21 @@ import { useNavigate } from "react-router-dom";
 const PaymentComponent = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { cartItems, totalPrice } = location.state;
+  //const { cartItems, totalPrice } = location.state;
+
+  //!thay đổi
+  const { cartItems, productItems, totalPrice } = location.state;
+  const items = productItems && productItems.length > 0 ? productItems : cartItems || [];
+  console.log("Received Location State:", location.state);
+  
+
   const [form] = Form.useForm();
   const [current, setCurrent] = useState(0);
   const [shippingInfo, setShippingInfo] = useState(null);
   const [paymentMethod, setPaymentMethod] = useState("COD");
   const [orderNumber, setOrderNumber] = useState(null);
   const [orderId, setOrderId] = useState(null);
+  
   const steps = [
     { title: "Shipping", icon: <HomeOutlined /> },
     { title: "Payment", icon: <CreditCardOutlined /> },
@@ -79,7 +87,6 @@ const PaymentComponent = () => {
     }
 
     try {
-      // Tạo dữ liệu đơn hàng
       const orderData = {
         province: shippingInfo.province,
         district: shippingInfo.district,
@@ -88,7 +95,7 @@ const PaymentComponent = () => {
         full_name: shippingInfo.fullName,
         phone_number: shippingInfo.phone,
         paymentMethod,
-        products: cartItems.map((item) => ({
+        products: items.map((item) => ({
           product_id: item.product_id,
           product_name: item.product_name,
           image_url: item.image_url,  
@@ -101,24 +108,30 @@ const PaymentComponent = () => {
         total_price: totalPrice,
       };
       console.log("Order Data to Send:", orderData);
-      // Gọi API đặt hàng
-      const response = await placeOrderAPI(orderData);
-      // Kiểm tra phản hồi từ API
-      if (response && response.message === "Đặt hàng thành công!") {
-        const orderNumber = response.order.orderNumber
-        setOrderNumber(orderNumber);
-        const orderId = response.order._id.toString();
-        setOrderId(orderId);
-        await fetchCartAPI(); // Load lại giỏ hàng
-        message.success("Đặt hàng thành công!");
-        setCurrent(2);
-      } else {
-        message.error(response?.message || "Có lỗi xảy ra khi đặt hàng");
-      }
-    } catch (error) {
-      console.error("Order Error:", error);
-      message.error("Đặt hàng thất bại, vui lòng thử lại!");
-    }
+      console.log("Items to be ordered:", items);
+       // Gọi API đặt hàng
+       const response = await placeOrderAPI(orderData);
+      
+       if (response && response.message === "Đặt hàng thành công!") {
+         const orderNumber = response.order.orderNumber;
+         setOrderNumber(orderNumber);
+         const orderId = response.order._id.toString();
+         setOrderId(orderId);
+         
+         // Chỉ cập nhật giỏ hàng nếu mua từ cartItems
+         if (cartItems) {
+           await fetchCartAPI();
+         }
+         
+         message.success("Đặt hàng thành công!");
+         setCurrent(2);
+       } else {
+         message.error(response?.message || "Có lỗi xảy ra khi đặt hàng");
+       }
+     } catch (error) {
+       console.error("Order Error:", error);
+       message.error("Đặt hàng thất bại, vui lòng thử lại!");
+     }
   };
 
   const renderShippingForm = () => (
@@ -261,7 +274,7 @@ const PaymentComponent = () => {
           <Col span={12}>
             <StyledCard title="Thông tin đơn hàng">
               <OrderSummary>
-                {cartItems.map((item, index) => (
+                {items.map((item, index) => (
                   <div key={index} style={{ marginBottom: "10px" }}>
                     <PriceRow>
                       <img
