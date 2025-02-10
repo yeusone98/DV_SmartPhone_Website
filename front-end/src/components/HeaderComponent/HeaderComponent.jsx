@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MenuOutlined, UserOutlined, ShoppingCartOutlined, LogoutOutlined, ProfileOutlined } from "@ant-design/icons";
+import { MenuOutlined, UserOutlined, ShoppingCartOutlined, LogoutOutlined, ProfileOutlined, CaretDownOutlined } from "@ant-design/icons";
 import { Badge, Dropdown, Menu, Drawer } from "antd";
 import { WrapperHeader, WrapperHeaderAccount, WrapperTextHeaderSmall, MobileMenuIcon, WrapperLogo, WrapperSearch, WrapperAccountCart } from "./style";
 import { Link, useNavigate } from "react-router-dom";
@@ -63,13 +63,16 @@ const HeaderComponent = () => {
           {currentUser ? (
             <Dropdown overlay={menu} trigger={["click"]}>
               <div style={{ cursor: "pointer", color: "#fff" }}>
+              <UserOutlined style={{ fontSize: "25px", color: "rgb(207, 206, 206)" }} />
                 <WrapperTextHeaderSmall>{currentUser.displayName}</WrapperTextHeaderSmall>
+                <CaretDownOutlined />
               </div>
             </Dropdown>
           ) : (
             <Link to="/login">
               <UserOutlined style={{ fontSize: "25px", color: "#fff" }} />
               <WrapperTextHeaderSmall>Đăng nhập</WrapperTextHeaderSmall>
+              <CaretDownOutlined />
             </Link>
           )}
         </WrapperHeaderAccount>

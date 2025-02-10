@@ -40,12 +40,12 @@ const routes = [
     {
         path: '/login',
         page: SignInPage,
-        isShowHeader: false,
+        isShowHeader: true,
     },
     {
         path: '/register',
         page: SignUpPage,
-        isShowHeader: false,
+        isShowHeader: true,
     },
     {
         path: '/product-detail/:id',
@@ -87,7 +87,7 @@ const routes = [
     {
         path: '/reset-password',
         page: ResetPassword,
-        isShowHeader: false,
+        isShowHeader: true,
     },
     {
         path: '/checkout',
