@@ -3,7 +3,7 @@ import styled from "styled-components";
 
 export const ButtonContainer = styled.div`
   position: fixed;
-  right: 20px;
+  right: 40px;
   bottom: 100px;
   display: flex;
   flex-direction: column;

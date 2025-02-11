@@ -13,11 +13,11 @@ export const WrapperCardStyle = styled(Card)`
 
   width: 100%;
   max-width: 200px; 
-    height: 360px;
+  height: 360px;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-
+  border: 1px solid rgb(230, 224, 224);
   & img {
     margin-top: 10px;
     max-width: 100%;

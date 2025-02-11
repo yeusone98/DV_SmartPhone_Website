@@ -18,7 +18,7 @@ const ContactButtonComponent = () => {
       <StyledButton 
         icon={
           <img
-            style={{ height: "40px", width: "40px" }}
+            style={{ height: "50px", width: "50px" }}
             src={messenger}
             alt="messenger"
           />
@@ -31,7 +31,7 @@ const ContactButtonComponent = () => {
       <StyledButton
         icon={
           <img
-            style={{ height: "40px", width: "40px" }}
+            style={{ height: "50px", width: "50px" }}
             src={telephone}
             alt="messenger"
           />
@@ -43,7 +43,7 @@ const ContactButtonComponent = () => {
       <StyledButton
         icon={
           <img
-            style={{ height: "40px", width: "40px" }}
+            style={{ height: "50px", width: "50px" }}
             src={zalo}
             alt="zalo"
           />

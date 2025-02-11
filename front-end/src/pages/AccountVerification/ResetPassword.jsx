@@ -63,7 +63,7 @@ function ResetPassword() {
         }}
       >
         <Title level={4} style={{ textAlign: 'center', marginBottom: 20 }}>
-          Reset Password
+          Đặt lại mật khẩu
         </Title>
         <Form
           layout="vertical"
@@ -71,28 +71,28 @@ function ResetPassword() {
           initialValues={{ password: '', confirmPassword: '' }}
         >
           <Form.Item
-            label="New Password"
+            label="Mật khẩu mới"
             name="password"
             rules={[
               { required: true, message: 'Please enter your new password!' },
               { min: 6, message: 'Password must be at least 6 characters.' },
             ]}
           >
-            <Input.Password placeholder="Enter new password" />
+            <Input.Password placeholder="Nhập mật khẩu mới" />
           </Form.Item>
           <Form.Item
-            label="Confirm New Password"
+            label="Xác nhận lại mật khẩu mới "
             name="confirmPassword"
             rules={[
               { required: true, message: 'Please confirm your new password!' },
               { min: 6, message: 'Password must be at least 6 characters.' },
             ]}
           >
-            <Input.Password placeholder="Confirm new password" />
+            <Input.Password placeholder="Xác nhận lại mật khẩu mới " />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" block loading={loading}>
-              Reset Password
+              Đặt lại
             </Button>
           </Form.Item>
         </Form>

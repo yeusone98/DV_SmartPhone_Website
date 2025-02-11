@@ -64,7 +64,7 @@ const HomePage = () => {
             const image = firstVariant?.images?.[0] || "default_image_url_here";
 
             return (
-              <Link to={`/product-detail/${product._id}`} key={product._id} style={{ textDecoration: "none" }}>
+              <Link to={`/product-detail/${product._id}`} key={product._id} style={{ textDecoration: "none"}}>
                 <CardComponent
                   name={product.name}
                   price={firstVariant?.price?.toLocaleString("vi-VN")}
