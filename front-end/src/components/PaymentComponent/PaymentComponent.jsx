@@ -88,24 +88,24 @@ const PaymentComponent = () => {
 
     try {
       const orderData = {
-        province: shippingInfo.province,
-        district: shippingInfo.district,
-        ward: shippingInfo.ward,
-        address_detail: shippingInfo.address,
-        full_name: shippingInfo.fullName,
-        phone_number: shippingInfo.phone,
-        paymentMethod,
-        products: items.map((item) => ({
-          product_id: item.product_id,
-          product_name: item.product_name,
-          image_url: item.image_url,  
-          color: item.color,
-          storage: item.storage,
-          quantity: item.quantity,
-          unit_price: item.unit_price,
-          total_price_per_product: item.unit_price * item.quantity,
-        })),
-        total_price: totalPrice,
+          province: shippingInfo.province,
+          district: shippingInfo.district,
+          ward: shippingInfo.ward,
+          address_detail: shippingInfo.address,
+          full_name: shippingInfo.fullName,
+          phone_number: shippingInfo.phone,
+          paymentMethod,
+          products: items.map(item => ({
+              product_id: item.product_id,
+              product_name: item.product_name,
+              image_url: item.image_url,
+              color: item.color,
+              storage: item.storage,
+              quantity: item.quantity,
+              unit_price: item.unit_price,
+              total_price_per_product: item.unit_price * item.quantity
+          })),
+          total_price: totalPrice
       };
       console.log("Order Data to Send:", orderData);
       console.log("Items to be ordered:", items);

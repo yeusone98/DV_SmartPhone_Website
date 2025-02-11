@@ -6,12 +6,24 @@ import { ObjectId } from 'mongodb'
 const placeOrder = async (req, res, next) => {
     try {
         const userId = req.jwtDecoded._id // Lấy ID người dùng từ token
-        const { province, district, ward, address_detail, full_name, phone_number, paymentMethod } = req.body
+        const {
+            province,
+            district,
+            ward,
+            address_detail,
+            full_name,
+            phone_number,
+            paymentMethod,
+            products // Thêm trường products từ request body
+        } = req.body
 
         // Kiểm tra thông tin bắt buộc
         if (!province || !district || !ward || !address_detail || !full_name || !phone_number || !paymentMethod) {
             return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Thiếu thông tin bắt buộc!' })
         }
+
+        let orderProducts = []
+        let total_price = 0
 
         // Kiểm tra phương thức thanh toán hợp lệ
         if (!['COD', 'Banking'].includes(paymentMethod)) {
@@ -29,9 +41,28 @@ const placeOrder = async (req, res, next) => {
         const orderCount = await placeOrderModel.findOrderCountByYear(year) // Tìm số lượng đơn hàng trong năm hiện tại
         const orderNumber = `ORD-${year}-${String(orderCount + 1).padStart(3, '0')}` // Tạo mã đơn hàng mới
 
-        // Gắn thông tin sản phẩm vào từng mục trong giỏ hàng (cart.products đã chứa đủ thông tin)
-        const productsWithName = cart.products.map((cartItem) => {
-            return {
+        if (products && products.length > 0) {
+            // Trường hợp mua ngay
+            orderProducts = products.map(product => ({
+                product_id: product.product_id,
+                product_name: product.product_name,
+                image_url: product.image_url,
+                color: product.color,
+                storage: product.storage,
+                quantity: product.quantity,
+                unit_price: product.unit_price,
+                total_price_per_product: product.quantity * product.unit_price
+            }))
+
+            total_price = orderProducts.reduce((sum, item) => sum + item.total_price_per_product, 0)
+        } else {
+            // Trường hợp mua từ giỏ hàng
+            const cart = await cartModel.findCartByUserId(userId)
+            if (!cart || !cart.products || cart.products.length === 0) {
+                return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Giỏ hàng trống!' })
+            }
+
+            orderProducts = cart.products.map((cartItem) => ({
                 product_id: cartItem.product_id.toString(),
                 product_name: cartItem.product_name,
                 image_url: cartItem.image_url,
@@ -40,27 +71,26 @@ const placeOrder = async (req, res, next) => {
                 quantity: cartItem.quantity,
                 unit_price: cartItem.unit_price,
                 total_price_per_product: cartItem.quantity * cartItem.unit_price
-            }
-        })
+            }))
 
-        // Tính tổng tiền đơn hàng
-        const total_price = productsWithName.reduce((sum, item) => sum + item.total_price_per_product, 0)
+            total_price = orderProducts.reduce((sum, item) => sum + item.total_price_per_product, 0)
+        }
 
         // Chuẩn bị dữ liệu đơn hàng
         const orderData = {
             customer_id: userId,
-            orderNumber, // Mã đơn hàng mới
+            orderNumber,
             full_name,
             phone_number,
             province,
             district,
             ward,
             address_detail,
-            products: productsWithName, // Danh sách sản phẩm đã có tên
+            products: orderProducts,
             total_price,
             payment: {
-                method: paymentMethod, // Lưu COD hoặc Banking
-                transaction_id: null, // Banking có thể cập nhật transaction sau
+                method: paymentMethod,
+                transaction_id: null,
                 status: 'Paid'
             },
             createdAt: new Date()
@@ -69,30 +99,38 @@ const placeOrder = async (req, res, next) => {
         // Debug log
         console.log('Dữ liệu đơn hàng:', orderData)
 
-        // Tạo đơn hàng
-        const newOrder = await placeOrderModel.createOrder(orderData)
-
-        // Cập nhật stock cho các variant sản phẩm
-        for (const product of cart.products) {
-            const variantData = await productModel.findProductById(product.product_id)
-
-            if (variantData) {
-                const variantToUpdate = variantData.variants.find(v => v.storage === product.storage && v.color === product.color)
+        for (const product of orderProducts) {
+            const productData = await productModel.findProductById(product.product_id)
+            if (productData) {
+                const variantToUpdate = productData.variants.find(v =>
+                    v.storage === product.storage &&
+                    v.color === product.color
+                )
                 if (variantToUpdate) {
-                    // Trừ số lượng stock
+                    if (variantToUpdate.stock < product.quantity) {
+                        return res.status(StatusCodes.BAD_REQUEST).json({
+                            message: `Sản phẩm ${product.product_name} - ${product.color} - ${product.storage}GB không đủ hàng`
+                        })
+                    }
                     variantToUpdate.stock -= product.quantity
-
-                    // Cập nhật vào database
-                    await productModel.updateProduct(variantData._id, {
-                        variants: variantData.variants
-                    })
+                    await productModel.updateProduct(productData._id, { variants: productData.variants })
                 }
             }
         }
-        // Xóa giỏ hàng sau khi đặt hàng thành công
-        await cartModel.removeCart(userId)
 
-        res.status(StatusCodes.CREATED).json({ message: 'Đặt hàng thành công!', order: newOrder })
+        // Tạo đơn hàng
+        const newOrder = await placeOrderModel.createOrder(orderData)
+
+        // Xóa giỏ hàng nếu là mua từ giỏ hàng
+        if (!products) {
+            await cartModel.removeCart(userId)
+        }
+
+        res.status(StatusCodes.CREATED).json({
+            message: 'Đặt hàng thành công!',
+            order: newOrder
+        })
+
     } catch (error) {
         console.error('Lỗi trong placeOrder:', error.message)
         next(error)
@@ -102,25 +140,25 @@ const placeOrder = async (req, res, next) => {
 
 const updateOrder = async (req, res, next) => {
     try {
-        const { id } = req.params;
-        const { full_name, phone_number, address_detail, payment } = req.body; // Lấy payment từ body
+        const { id } = req.params
+        const { full_name, phone_number, address_detail, payment } = req.body // Lấy payment từ body
 
         // Validate status
-        const allowedStatuses = ['Pending', 'Paid'];
+        const allowedStatuses = ['Pending', 'Paid']
         if (payment?.status && !allowedStatuses.includes(payment.status)) {
-            return res.status(400).json({ message: 'Trạng thái không hợp lệ' });
+            return res.status(400).json({ message: 'Trạng thái không hợp lệ' })
         }
 
-        const order = await placeOrderModel.findOrderById(id);
+        const order = await placeOrderModel.findOrderById(id)
         if (!order) {
-            return res.status(404).json({ message: 'Đơn hàng không tồn tại!' });
+            return res.status(404).json({ message: 'Đơn hàng không tồn tại!' })
         }
 
         // Cập nhật payment status
         const updatedPayment = {
             ...order.payment,
             status: payment?.status || order.payment.status // Sử dụng status mới nếu có
-        };
+        }
 
         const updatedOrderData = {
             full_name,
@@ -128,46 +166,46 @@ const updateOrder = async (req, res, next) => {
             address_detail,
             payment: updatedPayment,
             updatedAt: new Date()
-        };
+        }
 
-        const updatedOrder = await placeOrderModel.updateOrder(id, updatedOrderData);
+        const updatedOrder = await placeOrderModel.updateOrder(id, updatedOrderData)
 
         res.status(200).json({
             message: 'Cập nhật thành công!',
             order: updatedOrder
-        });
+        })
     } catch (error) {
-        console.error('Lỗi cập nhật:', error);
-        next(error);
+        console.error('Lỗi cập nhật:', error)
+        next(error)
     }
-};
+}
 
 
 const deleteOrder = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { id } = req.params
 
         // Validate ObjectId
         if (!ObjectId.isValid(id)) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ 
-                message: 'Invalid Order ID format' 
-            });
+            return res.status(StatusCodes.BAD_REQUEST).json({
+                message: 'Invalid Order ID format'
+            })
         }
 
         // Tìm đơn hàng
-        const order = await placeOrderModel.findOrderById(id);
+        const order = await placeOrderModel.findOrderById(id)
         if (!order) {
-            return res.status(StatusCodes.NOT_FOUND).json({ 
-                message: 'Order not found!' 
-            });
+            return res.status(StatusCodes.NOT_FOUND).json({
+                message: 'Order not found!'
+            })
         }
 
         // Xóa đơn hàng
-        const deleteResult = await placeOrderModel.deleteOrder(id);
+        const deleteResult = await placeOrderModel.deleteOrder(id)
         if (deleteResult.deletedCount === 0) {
-            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ 
-                message: 'Failed to delete order' 
-            });
+            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+                message: 'Failed to delete order'
+            })
         }
 
         // Nếu cần, bạn có thể phục hồi lại stock cho các sản phẩm đã bị trừ (giống như trong updateOrder)
@@ -199,16 +237,16 @@ const deleteOrder = async (req, res, next) => {
 
 const getOrders = async (req, res, next) => {
     try {
-        const userId = req.query.userId; // Lấy userId từ query params
-        let query = {};
+        const userId = req.query.userId // Lấy userId từ query params
+        let query = {}
 
         // Nếu có userId, thêm điều kiện lọc theo customer_id
         if (userId) {
-            query.customer_id = new ObjectId(userId);
+            query.customer_id = new ObjectId(userId)
         }
 
         // Lấy đơn hàng với query đã lọc
-        const orders = await placeOrderModel.findAllOrders(query);
+        const orders = await placeOrderModel.findAllOrders(query)
 
         if (!orders || orders.length === 0) {
             return res.status(StatusCodes.NOT_FOUND).json({ message: 'Không có đơn hàng nào!' })
@@ -242,20 +280,19 @@ const getOrderById = async (req, res, next) => {
 
 const getOrdersByUser = async (req, res, next) => {
     try {
-        const userId = req.jwtDecoded._id;  // Lấy userId từ token JWT
-        const orders = await placeOrderModel.findAllOrders({ customer_id: userId });  // Lọc theo customer_id
+        const userId = req.jwtDecoded._id // Lấy userId từ token JWT
+        const orders = await placeOrderModel.findAllOrders({ customer_id: userId }) // Lọc theo customer_id
 
         if (!orders || orders.length === 0) {
-            return res.status(StatusCodes.NOT_FOUND).json({ message: 'Không có đơn hàng nào của bạn!' });
+            return res.status(StatusCodes.NOT_FOUND).json({ message: 'Không có đơn hàng nào của bạn!' })
         }
 
-        res.status(StatusCodes.OK).json(orders);
+        res.status(StatusCodes.OK).json(orders)
     } catch (error) {
-        console.error('Lỗi trong getOrdersByUser:', error.message);
-        next(error);
+        console.error('Lỗi trong getOrdersByUser:', error.message)
+        next(error)
     }
-};
-
+}
 
 
 export const placeOrderController = {
