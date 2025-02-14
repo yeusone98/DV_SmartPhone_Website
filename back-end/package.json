@@ -36,7 +36,8 @@
         "multer-storage-cloudinary": "^4.0.0",
         "nodejs-expressjs-mongodb-base-project": "file:",
         "react-router-dom": "^6.21.3",
-        "uuid": "^9.0.1"
+        "uuid": "^9.0.1",
+        "vnpay": "^1.6.1"
     },
     "devDependencies": {
         "@babel/cli": "^7.22.10",

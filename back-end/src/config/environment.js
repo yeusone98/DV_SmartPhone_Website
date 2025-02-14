@@ -23,6 +23,11 @@ export const env = {
 
     API_CLOUD_NAME: process.env.API_CLOUD_NAME,
     API_CLOUD_KEY: process.env.API_CLOUD_KEY,
-    API_CLOUD_SECRET: process.env.API_CLOUD_SECRET
+    API_CLOUD_SECRET: process.env.API_CLOUD_SECRET,
 
+    VNP_TMN_CODE: process.env.VNP_TMN_CODE,
+    VNP_HASH_SECRET: process.env.VNP_HASH_SECRET,
+    VNP_RETURN_URL: process.env.VNP_RETURN_URL,
+    VNP_URL: process.env.VNP_URL,
+    VNP_API_URL: process.env.VNP_API_URL
 }

@@ -2865,6 +2865,18 @@ mkdirp@^0.5.4:
   dependencies:
     minimist "^1.2.6"
 
+moment-timezone@^0.5.43:
+  version "0.5.47"
+  resolved "https://registry.npmjs.org/moment-timezone/-/moment-timezone-0.5.47.tgz"
+  integrity sha512-UbNt/JAWS0m/NJOebR0QMRHBk0hu03r5dx9GK8Cs0AS3I81yDcOc9k+DytPItgVvBP7J6Mf6U2n3BPAacAV9oA==
+  dependencies:
+    moment "^2.29.4"
+
+moment@^2.29.4:
+  version "2.30.1"
+  resolved "https://registry.npmjs.org/moment/-/moment-2.30.1.tgz"
+  integrity sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==
+
 mongodb-connection-string-url@^3.0.0:
   version "3.0.1"
   resolved "https://registry.npmjs.org/mongodb-connection-string-url/-/mongodb-connection-string-url-3.0.1.tgz"
@@ -3901,6 +3913,13 @@ verror@1.10.0:
     assert-plus "^1.0.0"
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
+
+vnpay@^1.6.1:
+  version "1.6.1"
+  resolved "https://registry.npmjs.org/vnpay/-/vnpay-1.6.1.tgz"
+  integrity sha512-z1/pV+v1qe69vZGJGJ7j7QEsObxLnN+X6u+uK71maIg1qGk0K6vpeaFT+7fHMBFf5iSuudlygBFUA3hhlkYZoQ==
+  dependencies:
+    moment-timezone "^0.5.43"
 
 webidl-conversions@^7.0.0:
   version "7.0.0"

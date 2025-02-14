@@ -26,7 +26,7 @@ const placeOrder = async (req, res, next) => {
         let total_price = 0
 
         // Kiểm tra phương thức thanh toán hợp lệ
-        if (!['COD', 'Banking'].includes(paymentMethod)) {
+        if (!['COD', 'Banking', 'Vnpay'].includes(paymentMethod)) {
             return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Phương thức thanh toán không hợp lệ!' })
         }
 

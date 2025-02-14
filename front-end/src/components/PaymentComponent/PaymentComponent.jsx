@@ -236,7 +236,11 @@ const PaymentComponent = () => {
                   <img src={qr_code} alt="QR Code" style={{ height:'100%', width: '100%' , marginLeft: '40px', borderRadius:'10px'}} />
                   </div>
                   </Col >
-                </Row>
+        </Row>
+      )}
+
+      {paymentMethod === "Vnpay" && (
+          <div></div>
       )}
     </Form>
   );
