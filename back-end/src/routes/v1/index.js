@@ -6,7 +6,7 @@ import { cartRoute } from '~/routes/v1/cartRoute'
 import { placeOrderRoute } from '~/routes/v1/placeOrderRoute'
 import { reviewRoute } from '~/routes/v1/reviewRoute'
 import { dashboardRoute } from '~/routes/v1/dashboardRoute'
-import { paymentRoute } from '~/routes/v1/paymentRoute'
+import { vnpayRoute } from '~/routes/v1/vnpayRoute'
 const Router = express.Router()
 
 Router.get('/status', (req, res) => {
@@ -37,6 +37,6 @@ Router.use('/reviews', reviewRoute)
 Router.use('/dashboard', dashboardRoute)
 
 /* Vnpay APIs */
-Router.use('/vnpay', paymentRoute)
+Router.use('/vnpay', vnpayRoute)
 
 export const APIs_V1 = Router

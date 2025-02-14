@@ -218,6 +218,27 @@ const PaymentComponent = () => {
             Thanh toán qua ngân hàng
           </Radio.Button>
           </div>
+          <div style={{marginTop: '10px'}}>
+          <Radio.Button
+            value="VNPAY"
+            style={{
+              width: "100%",
+              height: "50px",
+              display: "flex",
+              alignItems: "center",
+              padding: "0 16px",
+              borderRadius: 'none',
+            }}
+          >
+            {" "}
+            <img
+              src={vnpay_icon}
+              alt="vnPay Transfer"
+              style={{ height: "30px", marginRight: "8px" }}
+            />
+            Thanh toán qua VNPAY
+          </Radio.Button>
+          </div>
         </Radio.Group>
       </Form.Item>
       {paymentMethod === "Banking" && (
@@ -239,7 +260,7 @@ const PaymentComponent = () => {
         </Row>
       )}
 
-      {paymentMethod === "Vnpay" && (
+      {paymentMethod === "VNPAY" && (
           <div></div>
       )}
     </Form>

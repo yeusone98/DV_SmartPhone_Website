@@ -28,7 +28,7 @@ const ORDER_SCHEMA = Joi.object({
     ).required(),
     total_price: Joi.number().required(),
     payment: Joi.object({
-        method: Joi.string().valid('COD', 'Banking').required(),
+        method: Joi.string().valid('COD', 'Banking', 'VNPAY').required(),
         transaction_id: Joi.string().allow(null),
         status: Joi.string().valid('Pending', 'Paid').required()
     }).required(),
@@ -38,7 +38,7 @@ const ORDER_SCHEMA = Joi.object({
 // Xác thực dữ liệu trước khi tạo đơn hàng
 const validateBeforeCreate = async (data) => {
     return await ORDER_SCHEMA.validateAsync(data, { abortEarly: false })
-}
+}   
 
 // Tạo đơn hàng trong MongoDB
 const createOrder = async (data) => {
