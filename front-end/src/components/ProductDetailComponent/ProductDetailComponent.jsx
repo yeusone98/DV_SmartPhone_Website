@@ -87,7 +87,7 @@ import { useSelector } from "react-redux";
 import { selectCurrentUser } from '../../features/user/userSlice';
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { addToCart } from "../../features/cart/cartSlice"; 
+import { addToCart, increaseQuantity } from "../../features/cart/cartSlice"; 
 
 import imgNull from "../../assets/images/facebook.png";
 
@@ -244,6 +244,14 @@ const ProductDetailComponent = () => {
     setSelectedVariant(variant);
   };
 
+  //!aaaaaaaaaaaaa
+  const handleIncrease = (product) => {
+    dispatch(increaseQuantity({ 
+      product_id: product._id, 
+      color: product.selectedColor, 
+      storage: product.selectedStorage 
+    }));
+  };
   
   // Lấy giỏ hàng nếu đã đăng nhập
   const fetchCart = async () => {
@@ -308,8 +316,17 @@ const ProductDetailComponent = () => {
               await addToCartAPI(payload);
               message.success("Thêm vào giỏ hàng thành công!");
           }
-  
-          fetchCart(); // Load lại giỏ hàng sau khi cập nhật
+          // dispatch(increaseQuantity(Number(quantity) || 1));
+          //fetchCart(); // Load lại giỏ hàng sau khi cập nhật
+          dispatch(addToCart({ 
+            product: {
+              product_id: product._id,
+              color: selectedVariant.color,
+              storage: String(selectedVariant.storage),
+              unit_price: Number(selectedVariant.price_discount || selectedVariant.price),
+            },
+            quantity: quantity
+          }));
       } catch (error) {
           message.error("Thao tác thất bại, vui lòng thử lại!");
           console.error("Error in handleAddToCart:", error);
