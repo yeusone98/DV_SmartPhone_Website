@@ -3,11 +3,13 @@ import ProductDetailComponent from '../../components/ProductDetailComponent/Prod
 import TestComponent from '../../components/TestComponent/TestComponent'
 import PaymentFailed from '../../components/PaymentFailComponent/PaymentFailComponent'
 import PaymentSuccessComponent from '../../components/PaymentSuccessComponent/PaymentSuccessComponent'
+import ProductComparisonComponent from '../../components/ProductComparisonComponent/ProductComparisonComponent'
+
 
 function TestPage() {
   return (
     <div>
-      <TestComponent />
+      <ProductComparisonComponent/>
     </div>
   )
 }

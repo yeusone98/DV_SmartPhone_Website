@@ -91,6 +91,7 @@ import { useDispatch } from "react-redux";
 import { addToCart, increaseQuantity } from "../../features/cart/cartSlice"; 
 
 import imgNull from "../../assets/images/facebook.png";
+import ProductComparisonComponent from "../ProductComparisonComponent/ProductComparisonComponent";
 
 const ProductDetailComponent = () => {
   const { id } = useParams();
@@ -721,8 +722,9 @@ const ProductDetailComponent = () => {
           </ReviewBody>
         </WrapperReviews>
       </WrapperDetailInfoProduct>
+      <ProductComparisonComponent/>
       <Row >
-      <Col span={12}><TextSameProducts>SẢN PHẨM TƯƠNG TỰ</TextSameProducts></Col>
+      <Col span={12}><TextSameProducts>SẢN PHẨM KHÁC</TextSameProducts></Col>
       <Col span={12} style={{display:'flex',justifyContent:'flex-end',alignItems:'center'}}><ViewMoreButton type="text" onClick={() => navigate("/")}> Xem thêm →</ViewMoreButton></Col>
       </Row>
     </WrapperProductDetailPage>
