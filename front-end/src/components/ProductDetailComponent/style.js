@@ -12,6 +12,9 @@ import ButtonComponent from "../ButtonComponent/ButtonComponent";
 
 //!1
 export const WrapperProductDetailPage = styled.div`
+  max-width: 1500px;
+  padding: 0 12%;
+  margin: 0 auto;
   min-height: 100vh;
   height: auto;
   padding-bottom: 40px;

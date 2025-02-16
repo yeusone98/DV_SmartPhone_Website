@@ -4,6 +4,7 @@ import {
   PhoneOutlined,
   MessageOutlined,
   FacebookOutlined,
+  UpOutlined,
 } from "@ant-design/icons";
 import styled from "styled-components";
 import { ButtonContainer, CircleButton, StyledButton } from "./style";
@@ -51,6 +52,7 @@ const ContactButtonComponent = () => {
         
       >
       </StyledButton>
+      
     </ButtonContainer>
   );
 };

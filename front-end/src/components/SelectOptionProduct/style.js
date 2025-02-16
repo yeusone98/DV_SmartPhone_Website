@@ -1,8 +1,7 @@
 import styled from "styled-components";
 
 export const VariantContainer = styled.div`
-  width: 100%;
-  max-width: 500px;
+  max-width: 70%;
   padding: 16px;
 `;
 

@@ -11,6 +11,7 @@ import Icon, {
   SafetyCertificateFilled,
   StarFilled,
   DeleteOutlined,
+  ProductOutlined,
 } from "@ant-design/icons";
 import {
   Avatar,
@@ -424,6 +425,8 @@ const ProductDetailComponent = () => {
 
   return (
     <WrapperProductDetailPage>
+            <div style={{fontWeight: '600',
+        fontSize: '18px', paddingTop:'10px',paddingBottom: '10px'}}><ProductOutlined style={{fontSize:'24px',marginRight:'10px',color:'rgb(0, 69, 255)'}}/>Trang sản phẩm</div>
       <Row style={{ padding: "16px", backgroundColor: "#fff", borderRadius: "8px" }}>
         {/* Phần hình ảnh */}
         <Col span={10} style={{padding:'20px', border: "1px solid #919eab52", borderRadius: "8px", paddingRight: "30px" }}>

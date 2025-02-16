@@ -64,7 +64,6 @@ export const WrapperFooterIcon = styled.div`
   gap: 15px;
   margin-top: 10px;
   font-size: 20px;
-  justify-content: center;
 
   a {
     color: rgb(0, 89, 255);

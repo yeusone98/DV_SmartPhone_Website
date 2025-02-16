@@ -7,7 +7,7 @@ import PaymentSuccessComponent from '../../components/PaymentSuccessComponent/Pa
 function TestPage() {
   return (
     <div>
-      <PaymentSuccessComponent />
+      <TestComponent />
     </div>
   )
 }

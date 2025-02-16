@@ -36,6 +36,7 @@ export const WrapperTextHeaderSmall = styled.span`
   font-size: 15px;
   color: #fff;
   white-space: nowrap;
+  
 `;
 
 export const MobileMenuIcon = styled.div`
