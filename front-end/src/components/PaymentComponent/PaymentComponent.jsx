@@ -17,7 +17,7 @@ import {
   message,
 } from "antd";
 import { Navigate, useLocation } from "react-router-dom";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import bank_transfer from "../../assets/images/bank.png";
 import cod_icon from "../../assets/images/cod_icon.png";
 import qr_code from "../../assets/images/qr_code.png";
@@ -35,7 +35,7 @@ import {
   WrapperBtnContinue,
   WrapperCheckOutPage,
 } from "./style";
-import { placeOrderAPI, fetchCartAPI } from "../../apis";
+import { placeOrderAPI, fetchCartAPI, createPaymentVnPayAPI } from "../../apis";
 import AddressSelector from "../AddressSelectorComponent/AddressSelectorComponent";
 import { useNavigate } from "react-router-dom";
 
@@ -86,6 +86,7 @@ const PaymentComponent = () => {
       return;
     }
 
+
     try {
       const orderData = {
           province: shippingInfo.province,
@@ -109,6 +110,30 @@ const PaymentComponent = () => {
       };
       console.log("Order Data to Send:", orderData);
       console.log("Items to be ordered:", items);
+
+      // Xử lý riêng cho VNPAY
+      if (paymentMethod === "VNPAY") {
+        // Tạo đơn hàng tạm thời với trạng thái Pending
+        const orderResponse = await placeOrderAPI({
+          ...orderData,
+          paymentMethod: "VNPAY",
+        });
+
+        if (orderResponse && orderResponse.order) {
+          // Gọi API tạo thanh toán VNPay
+          const paymentResponse = await createPaymentVnPayAPI({
+            orderId: orderResponse.order._id,
+            amount: totalPrice,
+          });
+
+          // Chuyển hướng đến trang thanh toán VNPay
+          window.location.href = paymentResponse.paymentUrl;
+        }
+        return;
+      }
+
+      
+      
        // Gọi API đặt hàng
        const response = await placeOrderAPI(orderData);
       
@@ -133,6 +158,14 @@ const PaymentComponent = () => {
        message.error("Đặt hàng thất bại, vui lòng thử lại!");
      }
   };
+
+  useEffect(() => {
+    if (location.state?.shippingInfo) {
+      form.setFieldsValue(location.state.shippingInfo);
+      setShippingInfo(location.state.shippingInfo);
+      setCurrent(1);
+    }
+  }, [location.state]);
 
   const renderShippingForm = () => (
     <div>
@@ -166,7 +199,7 @@ const PaymentComponent = () => {
     </div>
   );
 
-  const renderPaymentForm = () => (
+  const   renderPaymentForm = () => (
     <Form form={form} layout="vertical">
       <Form.Item
         style={{ fontSize: "20px" }}
@@ -311,9 +344,7 @@ const PaymentComponent = () => {
                         {item.product_name} {item.storage} GB {item.color} | Số
                         lượng: {item.quantity}
                       </span>
-                      <span>
-                        {item.total_price_per_product.toLocaleString()} đ
-                      </span>
+                      <span>{(item?.unit_price * item?.quantity || 0).toLocaleString()} đ</span>
                     </PriceRow>
                   </div>
                 ))}

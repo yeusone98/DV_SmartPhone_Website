@@ -30,7 +30,7 @@ const ORDER_SCHEMA = Joi.object({
     payment: Joi.object({
         method: Joi.string().valid('COD', 'Banking', 'VNPAY').required(),
         transaction_id: Joi.string().allow(null),
-        status: Joi.string().valid('Pending', 'Paid').required()
+        status: Joi.string().valid('Pending', 'Paid', 'Failed')
     }).required(),
     createdAt: Joi.date().timestamp('javascript').default(Date.now)
 })
@@ -38,7 +38,7 @@ const ORDER_SCHEMA = Joi.object({
 // Xác thực dữ liệu trước khi tạo đơn hàng
 const validateBeforeCreate = async (data) => {
     return await ORDER_SCHEMA.validateAsync(data, { abortEarly: false })
-}   
+}
 
 // Tạo đơn hàng trong MongoDB
 const createOrder = async (data) => {
@@ -92,14 +92,14 @@ const updateOrder = async (id, updatedData) => {
 
 // Trong model (placeOrderModel.js)
 const deleteOrder = async (id) => {
-    const db = GET_DB();
-    const result = await db.collection('orders').deleteOne({ 
-      _id: new ObjectId(id) 
-    });
-    return result;
-  };
+    const db = GET_DB()
+    const result = await db.collection('orders').deleteOne({
+        _id: new ObjectId(id)
+    })
+    return result
+}
 
-  const findAllOrders = async (query = {}) => {
+const findAllOrders = async (query = {}) => {
     const db = GET_DB()
     const orders = await db.collection('orders').find(query).toArray()
     return orders
@@ -120,5 +120,5 @@ export const placeOrderModel = {
     updateOrder,
     deleteOrder,
     findAllOrders,
-    findOrderCountByYear,
+    findOrderCountByYear
 }

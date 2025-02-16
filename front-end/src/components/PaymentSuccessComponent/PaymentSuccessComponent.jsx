@@ -1,23 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Card, Button, Typography, Space, Divider } from 'antd';
 import { CheckCircleFilled } from '@ant-design/icons';
 import { ButtonGroup, Header, InfoRow, StyledCard, SuccessIcon, SupportText, WrapperContainerSuccess } from './style';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 
 
-const PaymentSuccessComponent = ({ orderData }) => {
-  // Default data if no order data provided
-  const defaultOrderData = {
-    orderId: 'ORD123456',
-    amount: 1500000,
-    paymentDate: new Date().toLocaleString('vi-VN'),
-    paymentMethod: 'VNPay',
-    customerName: 'Nguyễn Văn A',
-  };
+const PaymentSuccessComponent = ( ) => {
 
-  const order = orderData || defaultOrderData;
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Lấy orderId từ URL parameters
+  const orderId = searchParams.get('orderId');
+  
+  // Thông tin đơn hàng từ URL parameters
+  const orderData = {
+    orderNumber: searchParams.get('orderNumber'),
+    amount: Number(searchParams.get('amount')),
+    paymentDate: searchParams.get('paymentDate'),
+    paymentMethod: searchParams.get('paymentMethod'),
+    customerName: searchParams.get('customerName')
+  };
 
   // Format currency
   const formatCurrency = (amount) => {
@@ -47,35 +53,43 @@ const PaymentSuccessComponent = ({ orderData }) => {
         <Space direction="vertical" size={16} style={{ width: '100%' }}>
           <InfoRow>
             <Text type="secondary">Mã đơn hàng:</Text>
-            <Text strong>{order.orderId}</Text>
+            <Text strong>{orderData.orderNumber}</Text>
           </InfoRow>
           
           <InfoRow>
             <Text type="secondary">Số tiền:</Text>
-            <Text strong>{formatCurrency(order.amount)}</Text>
+            <Text strong>{formatCurrency(orderData.amount)}</Text>
           </InfoRow>
           
           <InfoRow>
             <Text type="secondary">Thời gian:</Text>
-            <Text strong>{order.paymentDate}</Text>
+            <Text strong>{orderData.paymentDate}</Text>
           </InfoRow>
           
           <InfoRow>
             <Text type="secondary">Phương thức:</Text>
-            <Text strong>{order.paymentMethod}</Text>
+            <Text strong>{orderData.paymentMethod}</Text>
           </InfoRow>
           
           <InfoRow>
             <Text type="secondary">Khách hàng:</Text>
-            <Text strong>{order.customerName}</Text>
+            <Text strong>{orderData.customerName}</Text>
           </InfoRow>
         </Space>
 
         <ButtonGroup>
-          <Button type="default" block>
+          <Button 
+            onClick={() => navigate(`/orders/order-view/${orderId}`)} 
+            type="default" 
+            block
+          >
             Xem chi tiết đơn hàng
           </Button>
-          <Button type="primary" block>
+          <Button 
+            onClick={() => navigate('/')} 
+            type="primary" 
+            block
+          >
             Tiếp tục mua sắm
           </Button>
         </ButtonGroup>

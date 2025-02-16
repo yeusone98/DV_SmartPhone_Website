@@ -5,7 +5,7 @@ import { productModel } from '~/models/productModel'
 import { ObjectId } from 'mongodb'
 const placeOrder = async (req, res, next) => {
     try {
-        const userId = req.jwtDecoded._id // Lấy ID người dùng từ token
+        const userId = req.jwtDecoded._id
         const {
             province,
             district,
@@ -30,19 +30,9 @@ const placeOrder = async (req, res, next) => {
             return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Phương thức thanh toán không hợp lệ!' })
         }
 
-        // Lấy giỏ hàng từ database
-        const cart = await cartModel.findCartByUserId(userId)
-        if (!cart || !cart.products || cart.products.length === 0) {
-            return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Giỏ hàng trống!' })
-        }
-
-        // Tạo mã đơn hàng
-        const year = new Date().getFullYear() // Lấy năm hiện tại
-        const orderCount = await placeOrderModel.findOrderCountByYear(year) // Tìm số lượng đơn hàng trong năm hiện tại
-        const orderNumber = `ORD-${year}-${String(orderCount + 1).padStart(3, '0')}` // Tạo mã đơn hàng mới
-
+        // Xử lý 2 trường hợp: Mua ngay (có products) hoặc Mua từ giỏ hàng
         if (products && products.length > 0) {
-            // Trường hợp mua ngay
+            // Trường hợp MUA NGAY
             orderProducts = products.map(product => ({
                 product_id: product.product_id,
                 product_name: product.product_name,
@@ -56,8 +46,9 @@ const placeOrder = async (req, res, next) => {
 
             total_price = orderProducts.reduce((sum, item) => sum + item.total_price_per_product, 0)
         } else {
-            // Trường hợp mua từ giỏ hàng
             const cart = await cartModel.findCartByUserId(userId)
+
+            // Kiểm tra giỏ hàng chỉ khi mua từ giỏ hàng
             if (!cart || !cart.products || cart.products.length === 0) {
                 return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Giỏ hàng trống!' })
             }
@@ -76,10 +67,12 @@ const placeOrder = async (req, res, next) => {
             total_price = orderProducts.reduce((sum, item) => sum + item.total_price_per_product, 0)
         }
 
-        // Chuẩn bị dữ liệu đơn hàng
+        // Phần còn lại giữ nguyên
+        const initialPaymentStatus = paymentMethod === 'VNPAY' ? 'Pending' : 'Paid'
+
         const orderData = {
             customer_id: userId,
-            orderNumber,
+            orderNumber: `ORD-${new Date().getFullYear()}-${String(await placeOrderModel.findOrderCountByYear(new Date().getFullYear()) + 1).padStart(3, '0')}`,
             full_name,
             phone_number,
             province,
@@ -91,14 +84,12 @@ const placeOrder = async (req, res, next) => {
             payment: {
                 method: paymentMethod,
                 transaction_id: null,
-                status: 'Paid'
+                status: initialPaymentStatus
             },
             createdAt: new Date()
         }
 
-        // Debug log
-        console.log('Dữ liệu đơn hàng:', orderData)
-
+        // Kiểm tra tồn kho và cập nhật
         for (const product of orderProducts) {
             const productData = await productModel.findProductById(product.product_id)
             if (productData) {
@@ -121,7 +112,7 @@ const placeOrder = async (req, res, next) => {
         // Tạo đơn hàng
         const newOrder = await placeOrderModel.createOrder(orderData)
 
-        // Xóa giỏ hàng nếu là mua từ giỏ hàng
+        // Chỉ xóa giỏ hàng khi mua từ giỏ hàng
         if (!products) {
             await cartModel.removeCart(userId)
         }

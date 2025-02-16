@@ -318,7 +318,7 @@ const ProductDetailComponent = () => {
               message.success("Thêm vào giỏ hàng thành công!");
           }
           // dispatch(increaseQuantity(Number(quantity) || 1));
-          //fetchCart(); // Load lại giỏ hàng sau khi cập nhật
+          fetchCart(); // Load lại giỏ hàng sau khi cập nhật
           dispatch(addToCart({ 
             product: {
               product_id: product._id,

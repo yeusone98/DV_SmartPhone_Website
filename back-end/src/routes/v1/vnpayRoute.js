@@ -1,15 +1,14 @@
-import express from 'express';
+import express from 'express'
 import { vnpayController } from '~/controllers/vnpayController'
-import { authMiddleware } from '~/middlewares/authMiddleware';
 
-const Router = express.Router();
-//, authMiddleware.isAuthorized
+const Router = express.Router()
+
 Router.post('/create-payment', vnpayController.createVNPayPayment)
 Router.get('/vnpay_return', vnpayController.vnpayReturn)
+// Trong file route
+Router.get('/order-confirmation', (req, res) => {
+    const { status } = req.query;
+    // Render trang xác nhận thanh toán tương ứng
+  });
 
-Router.get('/status', (req, res) => {
-    res.status(200).json({ message: 'Payment APIs are ready to use.' })
-
-})
-
-export const vnpayRoute = Router;
+export const vnpayRoute = Router

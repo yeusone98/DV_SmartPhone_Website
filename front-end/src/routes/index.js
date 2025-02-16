@@ -15,6 +15,9 @@ import ResetPassword from "../pages/AccountVerification/ResetPassword";
 import CheckOutPage from "../pages/CheckOutPage/CheckOutPage";
 import OrderViewPage from "../pages/OrderViewPage/OrderViewPage";
 import SelectOrder from "../pages/SelectOrder/SelectOrder";
+import OrderConfirmationPage from "../pages/OrderConfirmPage/OrderConfirmPage";
+import PaymentSuccessPage from "../pages/PaymentSuccessPage/PaymentSuccessPage";
+import PaymentFailPage from "../pages/PaymentFailPage/PaymentFailPage";
 
 const routes = [
     {
@@ -105,7 +108,19 @@ const routes = [
         page: SelectOrder,
         isShowHeader: true,
     },
-    
+
+    {
+        path: "/payment-success",
+        page: PaymentSuccessPage,
+        isShowHeader: true,
+    },
+
+    {
+        path: "/payment-fail",
+        page: PaymentFailPage,
+        isShowHeader: true,
+    },
+
     {
         path: '*',
         page: NotFoundPage,

@@ -215,6 +215,11 @@ export const deleteOrderAPI = async (id) => {
     return response.data;
   };
 
+export const getOrderByIdAPI = async (id) => {
+    const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/orders/${id}`);
+    return response.data;
+};
+
 // Lấy danh sách review của sản phẩm
 export const fetchReviewsAPI = async (productId) => {
     const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/reviews/${productId}`);
@@ -252,5 +257,15 @@ export const fetchDashboardDataAPI = async () => {
     return response.data;
 }
 
+// VNpay
 
+export const createPaymentVnPayAPI = async (data) => {
+    const response = await authorizedAxiosInstance.post(`${API_ROOT}/v1/vnpay/create-payment`, data);
+    return response.data;
+};
+
+export const vnpayReturnAPI = async (data) => {
+    const response = await authorizedAxiosInstance.get(`${API_ROOT}/v1/vnpay/vnpay_return`, data);
+    return response.data;
+};
 
