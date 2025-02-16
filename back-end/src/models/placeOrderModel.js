@@ -30,7 +30,7 @@ const ORDER_SCHEMA = Joi.object({
     payment: Joi.object({
         method: Joi.string().valid('COD', 'Banking', 'VNPAY').required(),
         transaction_id: Joi.string().allow(null),
-        status: Joi.string().valid('Pending', 'Paid', 'Failed')
+        status: Joi.string().valid('Pending', 'Paid', 'Failed', 'Confirmed', 'Completed', 'Cancel')
     }).required(),
     createdAt: Joi.date().timestamp('javascript').default(Date.now)
 })

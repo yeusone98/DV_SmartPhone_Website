@@ -15,7 +15,6 @@ const OrderViewComponent = ({ orderData }) => {
   const orderInfo = {
     orderId: orderData.orderId,
     orderDate: orderData.orderDate,
-    status: orderStatus,
     customer: {
       name: orderData.customer.name,
       phone: orderData.customer.phone,
@@ -59,15 +58,6 @@ const OrderViewComponent = ({ orderData }) => {
     }
   ];
 
-  const getStatusColor = (status) => {
-    const statusMap = {
-      Processing: 'blue',
-      Completed: 'green',
-      Cancelled: 'red'
-    };
-    return statusMap[status] || 'default';
-  };
-
 
 
   return (
@@ -92,9 +82,19 @@ const OrderViewComponent = ({ orderData }) => {
                 {orderInfo.orderDate}
               </Descriptions.Item>
               <Descriptions.Item label="Trạng thái" span={3}>
-                <Tag color={getStatusColor(orderStatus)}>
-                  {orderStatus}
-                </Tag>
+              <Tag 
+                color={
+                  orderInfo.payment.status === 'Pending' ? 'yellow' :
+                  orderInfo.payment.status === 'Paid' ? 'green' :
+                  orderInfo.payment.status === 'Failed' ? 'red' :
+                  orderInfo.payment.status === 'Confirmed' ? 'blue' :
+                  orderInfo.payment.status === 'Completed' ? 'lime' :
+                  orderInfo.payment.status === 'Cancel' ? 'gray' :
+                  'default' 
+                }
+              >
+                {orderInfo.payment.status}
+              </Tag>
               </Descriptions.Item>
             </Descriptions>
           </Col>
@@ -139,11 +139,6 @@ const OrderViewComponent = ({ orderData }) => {
         <Descriptions title="Thông tin thanh toán" bordered>
           <Descriptions.Item label="Phương thức thanh toán" span={3}>
             {orderInfo.payment.method}
-          </Descriptions.Item>
-          <Descriptions.Item label="Trạng thái thanh toán" span={3}>
-            <Tag color={orderInfo.payment.status === 'Paid' ? 'green' : 'red'}>
-              {orderInfo.payment.status}
-            </Tag>
           </Descriptions.Item>
           <Descriptions.Item label="Tổng thanh toán" span={3}>
             <strong>{orderInfo.payment.total}</strong>

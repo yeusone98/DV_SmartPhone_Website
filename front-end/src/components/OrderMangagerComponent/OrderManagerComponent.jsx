@@ -71,7 +71,12 @@ const OrderManagement = () => {
   const orderStatuses = [
     { label: 'Pending', value: 'Pending', color: 'gold' },
     { label: 'Paid', value: 'Paid', color: 'green' },
+    { label: 'Failed', value: 'Failed', color: 'red' },
+    { label: 'Confirmed', value: 'Confirmed', color: 'blue' },
+    { label: 'Completed', value: 'Completed', color: 'lime' },
+    { label: 'Cancel', value: 'Cancel', color: 'gray' }
   ];
+  
 
   const columns = [
     {
@@ -394,8 +399,8 @@ const OrderManagement = () => {
               {dayjs(viewOrder.createdAt).format('YYYY-MM-DD HH:mm:ss')} {/* Ngày tạo đơn hàng */}
             </Descriptions.Item>
             <Descriptions.Item label="Status">
-              <Tag color={viewOrder.payment?.status === 'Pending' ? 'gold' : 'green'}>
-                {viewOrder.payment?.status === 'Pending' ? 'Pending' : 'Paid'} {/* Hiển thị trạng thái */}
+              <Tag color={orderStatuses.find(status => status.value === viewOrder.payment?.status)?.color}>
+                {viewOrder.payment?.status}
               </Tag>
             </Descriptions.Item>
             <Descriptions.Item label="Payment Method">
