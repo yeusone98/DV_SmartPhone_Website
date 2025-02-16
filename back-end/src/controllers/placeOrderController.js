@@ -135,7 +135,7 @@ const updateOrder = async (req, res, next) => {
         const { full_name, phone_number, address_detail, payment } = req.body // Lấy payment từ body
 
         // Validate status
-        const allowedStatuses = ['Pending', 'Paid']
+        const allowedStatuses = ['Pending', 'Paid', 'Failed', 'Confirmed', 'Completed', 'Cancel']
         if (payment?.status && !allowedStatuses.includes(payment.status)) {
             return res.status(400).json({ message: 'Trạng thái không hợp lệ' })
         }
