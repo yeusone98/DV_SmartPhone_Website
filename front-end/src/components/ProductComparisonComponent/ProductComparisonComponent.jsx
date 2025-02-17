@@ -24,14 +24,24 @@ const ProductComparisonComponent = () => {
         const response = await fetchProductsAPI();
         const initialProducts = response.slice(0, 2).map(product => {
           const firstVariant = product.variants?.[0];
+          const specs = product.same_specifications?.[0] || {};
           return {
             id: product._id,
             name: product.name,
             price: firstVariant?.price,
             price_discount: firstVariant?.price_discount,
             image: firstVariant?.images?.[0],
-            color: firstVariant?.color,
-            storage: firstVariant?.storage
+            specs: {
+              weight: specs.weight,
+              material: specs.material,
+              cpu: specs.cpu,
+              cores: specs.cores,
+              ram: specs.ram,
+              screen_size: specs.screen_size,
+              screen_resolution: specs.screen_resolution,
+              storage: specs.storage,
+              battery: specs.battery
+            }
           };
         });
         setComparisonProducts(initialProducts);
@@ -92,14 +102,52 @@ const ProductComparisonComponent = () => {
       ),
     },
     {
-      title: 'Màu sắc',
-      dataIndex: 'color',
-      key: 'color',
+      title: 'Trọng lượng',
+      dataIndex: 'weight',
+      key: 'weight',
+      render: (_, record) => record.specs?.weight || 'N/A',
     },
     {
-      title: 'Bộ nhớ',
+      title: 'Chất liệu',
+      dataIndex: 'material',
+      key: 'material',
+      render: (_, record) => record.specs?.material || 'N/A',
+    },
+    {
+      title: 'CPU',
+      dataIndex: 'cpu',
+      key: 'cpu',
+      render: (_, record) => record.specs?.cpu || 'N/A',
+    },
+    {
+      title: 'Số nhân',
+      dataIndex: 'cores',
+      key: 'cores',
+      render: (_, record) => record.specs?.cores || 'N/A',
+    },
+    {
+      title: 'RAM',
+      dataIndex: 'ram',
+      key: 'ram',
+      render: (_, record) => record.specs?.ram || 'N/A',
+    },
+    {
+      title: 'Màn hình',
+      dataIndex: 'screen_size',
+      key: 'screen_size',
+      render: (_, record) => `${record.specs?.screen_size || 'N/A'} (${record.specs?.screen_resolution || 'N/A'})`,
+    },
+    {
+      title: 'ROM',
       dataIndex: 'storage',
       key: 'storage',
+      render: (_, record) => record.specs?.storage || 'N/A',
+    },
+    {
+      title: 'Pin',
+      dataIndex: 'battery',
+      key: 'battery',
+      render: (_, record) => record.specs?.battery || 'N/A',
     }
   ];
 
@@ -111,9 +159,19 @@ const ProductComparisonComponent = () => {
       price: firstVariant?.price,
       price_discount: firstVariant?.price_discount,
       image: firstVariant?.images?.[0],
-      color: firstVariant?.color,
-      storage: firstVariant?.storage,
+      specs: {
+        weight: product.same_specifications?.[0]?.weight,
+        material: product.same_specifications?.[0]?.material,
+        cpu: product.same_specifications?.[0]?.cpu,
+        cores: product.same_specifications?.[0]?.cores,
+        ram: product.same_specifications?.[0]?.ram,
+        screen_size: product.same_specifications?.[0]?.screen_size,
+        screen_resolution: product.same_specifications?.[0]?.screen_resolution,
+        storage: product.same_specifications?.[0]?.storage,
+        battery: product.same_specifications?.[0]?.battery
+      }
     };
+
     
     setComparisonProducts(prev => {
      
