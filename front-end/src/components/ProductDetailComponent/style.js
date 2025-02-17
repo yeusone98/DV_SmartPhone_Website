@@ -144,7 +144,7 @@ export const WrapperBtnBuyNow = styled(ButtonComponent)`
 export const WrapperDetailInfoProduct = styled.div`
   position: relative;
   margin-top: 20px;
-  margin-bottom: 40px;
+  margin-bottom: 20px;
   z-index: 1;
 `;
 export const WrapperBtnInfoProduct = styled(ButtonComponent)`

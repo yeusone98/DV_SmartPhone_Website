@@ -246,14 +246,7 @@ const ProductDetailComponent = () => {
     setSelectedVariant(variant);
   };
 
-  //!aaaaaaaaaaaaa
-  const handleIncrease = (product) => {
-    dispatch(increaseQuantity({ 
-      product_id: product._id, 
-      color: product.selectedColor, 
-      storage: product.selectedStorage 
-    }));
-  };
+  
   
   // Lấy giỏ hàng nếu đã đăng nhập
   const fetchCart = async () => {

@@ -76,6 +76,8 @@ const ProductManagement = () => {
         formData.append("description_detail", description);
         formData.append("technical_specifications", technicalSpecifications);
         formData.append("status", values.status);
+        
+
 
         // Xử lý ảnh chính
         formData.append("image_urls", JSON.stringify(

@@ -1,281 +1,242 @@
-import React, { useState } from 'react';
-import { Card, Table, Button, Typography, Space, Image, Row, Col, Input, Drawer, Empty } from 'antd';
-import { SearchOutlined, CloseOutlined } from '@ant-design/icons';
-import empty_state from '../../assets/images/empty_state.png'
+import React, { useState, useEffect, useCallback } from 'react';
+import { Card, Table, Button, Typography, Space, Image, Row, Col, Input, Drawer } from 'antd';
+import { SearchOutlined, CloseOutlined, DeleteOutlined } from '@ant-design/icons';
 import { fetchProductsAPI } from "../../apis";
+import { debounce } from 'lodash';
+import { Link } from 'react-router-dom';
+import empty_state from '../../assets/images/empty_state.png'
+import EmptySearchResults from '../EmptySearchResultsComponent/EmptySearchResults';
 
-
-
-
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 const ProductComparisonComponent = () => {
+  const [comparisonProducts, setComparisonProducts] = useState([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [options, setOptions] = useState([]);
-  const [product, setProduct] = useState(null);
-  const [comparisonProducts, setComparisonProducts] = useState([
-    {
-      id: 1,
-      name: 'iPhone 16 128GB',
-      price: 21490000,
-      oldPrice: 22990000,
-      image: 'https://cdn2.fptshop.com.vn/unsafe/384x0/filters:quality(100)/iphone_16_teal_09fe254c00.png',
-      weight: '170 g',
-      material: 'Mặt lưng máy: Kính, Khung máy: Nhôm nguyên khối',
-      cpu: 'Apple A18',
-      cores: 6,
-      ram: '8 GB',
-      screenSize: '6.1 inch',
-      resolution: '2532 x 1170 pixels',
-      rom: '128 GB',
-      battery: '3279 mAh'
-    },
-    {
-      id: 2,
-      name: 'Samsung Galaxy Z Flip4 5G 128GB',
-      price: 9990000,
-      oldPrice: 23000000,
-      image: 'https://cdn2.fptshop.com.vn/unsafe/384x0/filters:quality(100)/iphone_16_teal_09fe254c00.png',
-      weight: '183 g',
-      material: 'Khung máy: Kim loại, Mặt lưng máy: Kính cường lực',
-      cpu: 'Snapdragon 8+ Gen 1',
-      cores: 8,
-      ram: '8 GB',
-      screenSize: '6.7 inch',
-      resolution: '2640 x 1080 pixels',
-      rom: '128 GB',
-      battery: '3700 mAh'
-    }
-  ]);
+  const [loading, setLoading] = useState(true);
 
-  const modalProducts = [
-    {
-      id: 3,
-      name: 'iPhone 16 128GB',
-      price: 21390000,
-      originalPrice: 22990000,
-      image: 'https://cdn2.fptshop.com.vn/unsafe/384x0/filters:quality(100)/iphone_16_teal_09fe254c00.png',
-      chip: 'Chip Apple A18',
-      weight: '170 g',
-      material: 'Mặt lưng máy: Kính, Khung máy: Nhôm nguyên khối',
-      cores: 6,
-      ram: '8 GB',
-      screenSize: '6.1 inch',
-      resolution: '2640 x 1080 pixels',
-      rom: '128 GB',
-      battery: '3700 mAh'
-    },
-    {
-      id: 4,
-      name: 'iPhone 16 Plus 128GB',
-      price: 24790000,
-      originalPrice: 26000000,
-      image: 'https://cdn2.fptshop.com.vn/unsafe/384x0/filters:quality(100)/iphone_16_teal_09fe254c00.png',
-      chip: 'Chip Apple A18', 
-      weight: '175 g',
-      material: 'Mặt lưng máy: Kính, Khung máy: Nhôm nguyên khối',
-      cores: 6,
-      ram: '8 GB',
-      screenSize: '6.7 inch',
-      resolution: '2640 x 1080 pixels',
-      rom: '128 GB',
-      battery: '3700 mAh'
-    },
-    {
-      id: 5,
-      name: 'iPhone 16 Pro 128GB',
-      price: 27490000,
-      originalPrice: 28990000,
-      image: 'https://cdn2.fptshop.com.vn/unsafe/384x0/filters:quality(100)/iphone_16_teal_09fe254c00.png',
-      chip: 'Chip A18 Pro',
-      weight: '180 g',
-      material: 'Mặt lưng máy: Kính, Khung máy: Titan',
-      cores: 6,
-      ram: '8 GB',
-      screenSize: '6.1 inch',
-      resolution: '2640 x 1080 pixels',
-      rom: '128 GB',
-      battery: '3700 mAh'
-    }
-  ];
-
-  const handleAddProduct = (product) => {
-    const newProduct = {
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      oldPrice: product.originalPrice,
-      image: product.image,
-      weight: product.weight,
-      material: product.material,
-      cpu: product.chip,
-      cores: product.cores,
-      ram: product.ram,
-      screenSize: product.screenSize,
-      resolution: product.resolution,
-      rom: product.rom,
-      battery: product.battery
-    };
-    
-    setComparisonProducts([...comparisonProducts, newProduct]);
-    setIsDrawerOpen(false);
+  const handleDeleteProduct = (productId) => {
+    setComparisonProducts(prev => prev.filter(product => product.id !== productId));
   };
+
+  useEffect(() => {
+    const fetchInitialProducts = async () => {
+      try {
+        const response = await fetchProductsAPI();
+        const initialProducts = response.slice(0, 2).map(product => {
+          const firstVariant = product.variants?.[0];
+          return {
+            id: product._id,
+            name: product.name,
+            price: firstVariant?.price,
+            price_discount: firstVariant?.price_discount,
+            image: firstVariant?.images?.[0],
+            color: firstVariant?.color,
+            storage: firstVariant?.storage
+          };
+        });
+        setComparisonProducts(initialProducts);
+      } catch (error) {
+        console.error("Lỗi khi tải sản phẩm ban đầu:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInitialProducts();
+  }, []);
 
   const columns = [
     {
       title: 'Sản phẩm',
       dataIndex: 'name',
       key: 'name',
+      fixed: 'left',
       render: (text, record) => (
-        <Space style={{  minWidth: '250px', paddingTop:'10px',paddingLeft:'10px', paddingBottom:'10px'}} direction="vertical" size="middle" >
-          <Image
-            style={{ height: '100px', width: '100px' }}
-            preview={false}
-            src={record.image}
-            alt={text}
-          />
+        <Space style={{ minWidth: '250px', padding: '10px' }} direction="vertical" size="middle">
+          <div style={{ position: 'relative', width: '100px', height: '100px' }}>
+            <Image
+              style={{ height: '100px', width: '100px' }}
+              preview={false}
+              src={record.image}
+              alt={text}
+            />
+            <Button 
+              type="primary" 
+              danger
+              icon={<DeleteOutlined />}
+              size="small"
+              onClick={() => handleDeleteProduct(record.id)}
+              style={{ 
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                padding: '4px 8px',
+                minWidth: 'unset',
+                borderRadius: '50%'
+              }}
+            />
+          </div>
           <Text strong>{text}</Text>
           <Space direction="vertical" size="small">
-            <Text style={{fontSize:'16px', fontWeight:'700'}}>
-              {record.price.toLocaleString()}đ
+            <Text style={{ fontSize: '16px', fontWeight: '700' }}>
+              {record.price?.toLocaleString('vi-VN')}đ
             </Text>
-            <Text style={{fontSize:'14px', fontWeight:'400', color:'rgb(133, 133, 133)'}} delete  >
-              {record.oldPrice.toLocaleString()}đ
-            </Text>
+            {record.price_discount && (
+              <Text style={{ fontSize: '14px', fontWeight: '400', color: 'rgb(133, 133, 133)' }} delete>
+                {record.price_discount?.toLocaleString('vi-VN')}đ
+              </Text>
+            )}
           </Space>
-          <Button type="primary" >
-            Xem chi tiết
-          </Button>
+           <Button style={{border:'1px solid rgb(133, 133, 133)', fontWeight:'500', color:'rgb(80, 78, 78)'}} type="text" onClick={() => window.location.href = `/product-detail/${record.id}`}>Xem chi tiết</Button>
         </Space>
       ),
     },
     {
-      title: 'Trọng lượng sản phẩm',
-      dataIndex: 'weight',
-      key: 'weight',
+      title: 'Màu sắc',
+      dataIndex: 'color',
+      key: 'color',
     },
     {
-      title: 'Chất liệu',
-      dataIndex: 'material',
-      key: 'material',
-    },
-    {
-      title: 'Phiên bản CPU',
-      dataIndex: 'cpu',
-      key: 'cpu',
-    },
-    {
-      title: 'Số nhân',
-      dataIndex: 'cores',
-      key: 'cores',
-    },
-    {
-      title: 'RAM',
-      dataIndex: 'ram',
-      key: 'ram',
-    },
-    {
-      title: 'Kích thước màn hình',
-      dataIndex: 'screenSize',
-      key: 'screenSize',
-    },
-    {
-      title: 'Độ phân giải',
-      dataIndex: 'resolution',
-      key: 'resolution',
-    },
-    {
-      title: 'Rom',
-      dataIndex: 'rom',
-      key: 'rom',
-    },
-    {
-      title: 'Pin',
-      dataIndex: 'battery',
-      key: 'battery',
-      render: (text) => <Text style={{ color: '#6b7280' }}>{text}</Text>,
-    },
+      title: 'Bộ nhớ',
+      dataIndex: 'storage',
+      key: 'storage',
+    }
   ];
+
+  const handleAddProduct = (product) => {
+    const firstVariant = product.variants?.[0];
+    const newProduct = {
+      id: product._id,
+      name: product.name,
+      price: firstVariant?.price,
+      price_discount: firstVariant?.price_discount,
+      image: firstVariant?.images?.[0],
+      color: firstVariant?.color,
+      storage: firstVariant?.storage,
+    };
+    
+    setComparisonProducts(prev => {
+     
+      return [...prev, newProduct];
+    });
+    setIsDrawerOpen(false);
+  };
 
   const ProductSelectionContent = () => {
     const [searchTerm, setSearchTerm] = useState('');
+    const [searchResults, setSearchResults] = useState([]);
+    const [drawerLoading, setDrawerLoading] = useState(false);
+    const [defaultProducts, setDefaultProducts] = useState([]);
 
-    const filteredProducts = modalProducts.filter(product =>
-      searchTerm.trim() !== '' && product.name.toLowerCase().includes(searchTerm.toLowerCase())
+    useEffect(() => {
+      const fetchDefaultProducts = async () => {
+        try {
+          setDrawerLoading(true);
+          const response = await fetchProductsAPI();
+          setDefaultProducts(response.slice(0, 5));
+        } catch (error) {
+          console.error("Lỗi khi tải sản phẩm mặc định:", error);
+          setDefaultProducts([]);
+        } finally {
+          setDrawerLoading(false);
+        }
+      };
+
+      if (isDrawerOpen) {
+        fetchDefaultProducts();
+      }
+    }, [isDrawerOpen]);
+
+    const searchProducts = useCallback(
+      debounce(async (value) => {
+        if (!value.trim()) {
+          setSearchResults([]);
+          setDrawerLoading(false);
+          return;
+        }
+
+        setDrawerLoading(true);
+        try {
+          const response = await fetchProductsAPI({ search: value });
+          setSearchResults(response);
+        } catch (error) {
+          console.error("Lỗi khi tìm kiếm sản phẩm:", error);
+          setSearchResults([]);
+        } finally {
+          setDrawerLoading(false);
+        }
+      }, 500),
+      []
     );
 
-    const NoResultsFound = () => (
-      <div style={{ textAlign: 'center', padding: '32px 0' }}>
-        <Image
-          src={empty_state}
-          alt="No results found"
-          preview={false}
-          style={{ marginBottom: '16px' }}
-        />
-        <Text strong style={{ display: 'block', fontSize: '16px' }}>
-          Tiếc quá! Chúng tôi không tìm thấy kết quả với từ khóa "<Text type="danger">{searchTerm}</Text>"
-        </Text>
-      </div>
-    );
+    useEffect(() => {
+      searchProducts(searchTerm);
+      return () => searchProducts.cancel();
+    }, [searchTerm, searchProducts]);
+
+    const displayProducts = searchTerm.trim() ? searchResults : defaultProducts;
 
     return (
-      <div >
+      <div>
         <div style={{ marginBottom: '16px' }}>
           <Input
             placeholder="Nhập tên sản phẩm cần tìm..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            suffix={<SearchOutlined className="text-gray-400" />}
+            suffix={drawerLoading ? <span>Đang tìm...</span> : <SearchOutlined />}
           />
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {searchTerm.trim() !== '' && filteredProducts.length === 0 ? (
-            <NoResultsFound />
-          ) : (
-            filteredProducts.map(product => (
-              <Card key={product.id} style={{ marginBottom: '8px' }}>
-                <Row>
-                  <Col span={12}>
-                      <Space align="start">
+          
+        {!drawerLoading && searchTerm.trim() && displayProducts.length === 0 ? (
+          <EmptySearchResults searchTerm={searchTerm}/>
+      ) : (
+        displayProducts.map(product => {
+          const firstVariant = product.variants?.[0];
+          return (
+            <Card key={product._id} style={{ marginBottom: '8px' }}>
+              <Row>
+                <Col span={12}>
+                  <Space align="start">
+                    <div>
+                      <Image
+                        src={firstVariant?.images?.[0]}
+                        alt={product.name}
+                        style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                      />
+                    </div>
+                    <Space direction="vertical">
                       <div>
-                        <Image
-                          src={product.image}
-                          alt={product.name}
-                          style={{ width: '100px', height: '100px', objectFit: 'cover' }}
-                        />
+                        <Text strong>{product.name}</Text>
                       </div>
-
-                      <Space direction="vertical">
-                        <div>
-                          <Text strong>{product.name}</Text>
-                        </div>
-
-                        <div>
-                          <Text>{product.price.toLocaleString()}đ</Text>
+                      <div>
+                        <Text>{firstVariant?.price?.toLocaleString('vi-VN')}đ</Text>
+                        {firstVariant?.price_discount && (
                           <div>
                             <Text type="secondary" delete>
-                              {product.originalPrice.toLocaleString()}đ
+                              {firstVariant.price_discount.toLocaleString('vi-VN')}đ
                             </Text>
                           </div>
-                        </div>
-
-                        
-                      </Space>
+                        )}
+                      </div>
                     </Space>
-                  </Col>
-                  <Col span={12} style={{display:'flex', justifyContent:'center',alignItems:'center'}}>
+                  </Space>
+                </Col>
+                <Col span={12} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                   <Button
-                      type="primary"
-                      onClick={() => handleAddProduct(product)}
-                    >
-                      Thêm vào so sánh
-                    </Button>
-                  </Col>
-                </Row>
-              </Card>
-            ))
-          )}
+                    type="primary"
+                    onClick={() => handleAddProduct(product)}
+                  >
+                    Thêm vào so sánh
+                  </Button>
+                </Col>
+              </Row>
+            </Card>
+          );
+
+        })
+      )}
         </div>
       </div>
     );
@@ -285,7 +246,7 @@ const ProductComparisonComponent = () => {
     <Card>
       <Row>
         <Col span={12}>
-            <span style={{ fontSize: '20px', fontWeight: '600', padding: '16px' }}>So sánh sản phẩm tương tự</span>
+          <span style={{ fontSize: '20px', fontWeight: '600', padding: '16px' }}>So sánh sản phẩm tương tự</span>
         </Col>
         <Col span={12}>
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
@@ -293,20 +254,21 @@ const ProductComparisonComponent = () => {
               type="link"
               icon={<SearchOutlined />}
               onClick={() => setIsDrawerOpen(true)}
-              style={{ fontSize: '16px', fontWeight: '600',color:'rgb(0, 69, 255)' }}
+              style={{ fontSize: '16px', fontWeight: '600', color: 'rgb(0, 69, 255)' }}
             >
               Tìm sản phẩm khác để so sánh
             </Button>
           </div>
         </Col>
       </Row>
-      
+
       <Table
         dataSource={comparisonProducts}
         columns={columns}
         pagination={false}
         rowKey="id"
         scroll={{ x: true }}
+        loading={loading}
       />
 
       <Drawer

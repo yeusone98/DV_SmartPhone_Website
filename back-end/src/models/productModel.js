@@ -22,11 +22,24 @@ const PRODUCT_SCHEMA = Joi.object({
             images: Joi.array().items(Joi.string()).default([]),  // Hình ảnh của phiên bản
         })
     ).default([]),
+    same_specifications: Joi.array().items(
+        Joi.object({
+            weight: Joi.string().required(),
+            material: Joi.string().required(),
+            cpu: Joi.string().required(),
+            cores: Joi.number().integer().required(),
+            ram: Joi.string().required(),
+            screen_size: Joi.string().required(),
+            screen_standard: Joi.string().required(),
+            screen_resolution: Joi.string().required(),
+            storage: Joi.string().required(),
+            battery: Joi.string().required()
+        })
+    ).default([]),
     createdAt: Joi.date().timestamp('javascript').default(Date.now),
     updatedAt: Joi.date().timestamp('javascript').default(null),
     _destroy: Joi.boolean().default(false)
-});
-
+})
 const validateBeforeCreate = async (data) => {
     return await PRODUCT_SCHEMA.validateAsync(data, { abortEarly: false })
 }
