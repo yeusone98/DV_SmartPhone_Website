@@ -12,6 +12,7 @@ const createProduct = async (req, res, next) => {
             .map(file => file.path)
         data.image_urls = mainImages
 
+
         // Parse JSON cho variants nếu cần
         if (typeof data.variants === 'string') {
             try {
@@ -45,6 +46,15 @@ const createProduct = async (req, res, next) => {
         data.variants.forEach((variant, index) => {
             variant.images = variantImagesMap[index] || []
         })
+
+        if (body.same_specifications) {
+            try {
+                data.same_specifications = JSON.parse(body.same_specifications)
+            } catch (error) {
+                console.error('Error parsing same_specifications:', error)
+                data.same_specifications = []
+            }
+        }
 
         // Tạo sản phẩm
         const result = await productModel.createProduct(data)
@@ -141,6 +151,15 @@ const updateProduct = async (req, res, next) => {
             image_urls: updatedMainImages,
             variants: updatedVariants,
             updatedAt: new Date()
+        }
+
+        if (body.same_specifications) {
+            try {
+                updateData.same_specifications = JSON.parse(body.same_specifications)
+            } catch (error) {
+                console.error('Error parsing same_specifications:', error)
+                updateData.same_specifications = []
+            }
         }
 
         const result = await productModel.updateProduct(objectId, updateData)

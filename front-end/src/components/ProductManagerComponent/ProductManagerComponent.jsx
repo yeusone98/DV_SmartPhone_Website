@@ -34,6 +34,8 @@ const ProductManagement = () => {
     const [form] = Form.useForm();
     const [variants, setVariants] = useState([]);
     const [technicalSpecifications, setTechnicalSpecifications] = useState('');
+    const [sameSpecs, setSameSpecs] = useState([{}]);
+
 
     const productStatuses = [
         { label: 'Available', value: 'available', color: 'green' },
@@ -44,6 +46,14 @@ const ProductManagement = () => {
     useEffect(() => {
         fetchProducts();
     }, []);
+
+
+    const handleSameSpecChange = (index, key, value) => {
+        const newSpecs = [...sameSpecs];
+        if (!newSpecs[index]) newSpecs[index] = {};
+        newSpecs[index][key] = value;
+        setSameSpecs(newSpecs);
+    };
 
     // Fetch products from API
     const fetchProducts = async () => {
@@ -107,6 +117,23 @@ const ProductManagement = () => {
         }));
 
         formData.append('variants', JSON.stringify(processedVariants));
+
+        // Xử lý same_specifications
+        const processedSameSpecs = sameSpecs.map(spec => ({
+            weight: spec.weight || '',
+            material: spec.material || '',
+            cpu: spec.cpu || '',
+            cores: spec.cores ? Number(spec.cores) : 0,
+            ram: spec.ram || '',
+            screen_size: spec.screen_size || '',
+            screen_standard: spec.screen_standard || '',
+            screen_resolution: spec.screen_resolution || '',
+            storage: spec.storage || '',
+            battery: spec.battery || ''
+        }));
+
+        console.log('Processed same_specifications:', processedSameSpecs);
+        formData.append('same_specifications', JSON.stringify(processedSameSpecs));
 
         // Xử lý upload ảnh mới cho từng variant
         variants.forEach((variant, index) => {
@@ -443,7 +470,62 @@ const ProductManagement = () => {
                     <Form.Item label="Technical Specifications">
                         <ReactQuill value={technicalSpecifications} onChange={setTechnicalSpecifications} />
                     </Form.Item>
-
+                    <Form.Item label="Same Specifications" required>
+                        <Table
+                            columns={[
+                            {
+                                title: 'Specification',
+                                dataIndex: 'name',
+                                key: 'name',
+                                width: 200,
+                            },
+                            {
+                                title: 'Value',
+                                dataIndex: 'value',
+                                key: 'value',
+                                render: (text, record, rowIndex) => {
+                                const specIndex = 0;
+                                if (record.key === 'cores') {
+                                    return (
+                                    <InputNumber
+                                        required
+                                        value={sameSpecs[specIndex]?.[record.key] || 0}
+                                        onChange={(value) => 
+                                        handleSameSpecChange(specIndex, record.key, value)
+                                        }
+                                        style={{ width: '100%' }}
+                                    />
+                                    );
+                                }
+                                return (
+                                    <Input
+                                    required
+                                    value={sameSpecs[specIndex]?.[record.key] || ''}
+                                    onChange={(e) => 
+                                        handleSameSpecChange(specIndex, record.key, e.target.value)
+                                    }
+                                    />
+                                );
+                                },
+                            },
+                            ]}
+                            dataSource={[
+                            { key: 'weight', name: 'Weight' },
+                            { key: 'material', name: 'Material' },
+                            { key: 'cpu', name: 'CPU' },
+                            { key: 'cores', name: 'Number of Cores' },
+                            { key: 'ram', name: 'RAM' },
+                            { key: 'screen_size', name: 'Screen Size' },
+                            { key: 'screen_standard', name: 'Screen Standard' },
+                            { key: 'screen_resolution', name: 'Screen Resolution' },
+                            { key: 'storage', name: 'Storage' },
+                            { key: 'battery', name: 'Battery' },
+                            ]}
+                            pagination={false}
+                            bordered
+                            size="small"
+                        />
+                        </Form.Item>               
                     <Form.Item label="Upload Images For Slide">
                         <Upload
                             name="images"
@@ -519,6 +601,23 @@ const ProductManagement = () => {
                         {/* Thông số kỹ thuật */}
                         <Descriptions.Item label="Technical Specifications">
                             <WrapperDescription dangerouslySetInnerHTML={{ __html: viewProduct.technical_specifications }} />
+                        </Descriptions.Item>
+
+                        <Descriptions.Item label="Same Specifications">
+                            {viewProduct.same_specifications?.map((spec, index) => (
+                                <Descriptions key={index} column={1} bordered>
+                                <Descriptions.Item label="Weight">{spec.weight}</Descriptions.Item>
+                                <Descriptions.Item label="Material">{spec.material}</Descriptions.Item>
+                                <Descriptions.Item label="CPU">{spec.cpu}</Descriptions.Item>
+                                <Descriptions.Item label="Cores">{spec.cores}</Descriptions.Item>
+                                <Descriptions.Item label="RAM">{spec.ram}</Descriptions.Item>
+                                <Descriptions.Item label="Screen Size">{spec.screen_size}</Descriptions.Item>
+                                <Descriptions.Item label="Screen Standard">{spec.screen_standard}</Descriptions.Item>
+                                <Descriptions.Item label="Resolution">{spec.screen_resolution}</Descriptions.Item>
+                                <Descriptions.Item label="Storage">{spec.storage}</Descriptions.Item>
+                                <Descriptions.Item label="Battery">{spec.battery}</Descriptions.Item>
+                                </Descriptions>
+                            ))}
                         </Descriptions.Item>
 
                         {/* Danh sách phiên bản */}
