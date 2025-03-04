@@ -67,7 +67,7 @@ const placeOrder = async (req, res, next) => {
             total_price = orderProducts.reduce((sum, item) => sum + item.total_price_per_product, 0)
         }
 
-        // Phần còn lại giữ nguyên
+        // Trạng thái thanh toán ban đầu
         const initialPaymentStatus = paymentMethod === 'VNPAY' ? 'Pending' : 'Paid'
 
         const orderData = {

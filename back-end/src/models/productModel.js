@@ -14,12 +14,12 @@ const PRODUCT_SCHEMA = Joi.object({
     youtube_link: Joi.string().uri().allow(null).default(null),
     variants: Joi.array().items(
         Joi.object({
-            storage: Joi.string().required(),  // Dung lượng (String is okay for storage)
-            color: Joi.string().required(),    // Màu sắc (String is okay for color)
-            price: Joi.number().required(),    // Giá của phiên bản (Price should be a number)
-            price_discount: Joi.number().allow(null).default(null),  // Giá khuyến mãi (Price discount should be a number)
-            stock: Joi.number().integer().min(0).required(),  // Số lượng hàng
-            images: Joi.array().items(Joi.string()).default([]),  // Hình ảnh của phiên bản
+            storage: Joi.string().required(), // Dung lượng (String is okay for storage)
+            color: Joi.string().required(), // Màu sắc (String is okay for color)
+            price: Joi.number().required(), // Giá của phiên bản (Price should be a number)
+            price_discount: Joi.number().allow(null).default(null), // Giá khuyến mãi (Price discount should be a number)
+            stock: Joi.number().integer().min(0).required(), // Số lượng hàng
+            images: Joi.array().items(Joi.string()).default([]) // Hình ảnh của phiên bản
         })
     ).default([]),
     same_specifications: Joi.array().items(
@@ -79,7 +79,7 @@ const updateProduct = async (id, updateData) => {
             { returnDocument: 'after' }
         )
     return result.value
-};
+}
 
 const deleteProduct = async (id) => {
     const result = await GET_DB()

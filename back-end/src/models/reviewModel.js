@@ -64,9 +64,6 @@ const addReplyToReview = async (reviewId, replyData) => {
 }
 
 
-
-
-
 export const reviewModel = {
     createReview,
     getReviewsByProduct,

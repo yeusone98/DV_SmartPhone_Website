@@ -217,7 +217,7 @@ const CartComponent = () => {
               <TotalAmount>{`${totalPrice.toLocaleString()} đ`}</TotalAmount>
               <WrapperNote>(Bao gồm thuế VAT)</WrapperNote>
             </div>
-            <CheckoutButton size="large" type="primary" onClick={handleCheckout}>
+            <CheckoutButton size="large" type="primary" onClick={handleCheckout} disabled={cartItems.length === 0}>
               Thanh toán
             </CheckoutButton>
           </TotalContainer>

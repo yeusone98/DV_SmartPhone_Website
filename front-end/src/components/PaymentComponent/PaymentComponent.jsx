@@ -85,29 +85,28 @@ const PaymentComponent = () => {
       message.error("Vui lòng chọn phương thức thanh toán");
       return;
     }
-
-
     try {
       const orderData = {
-          province: shippingInfo.province,
-          district: shippingInfo.district,
-          ward: shippingInfo.ward,
-          address_detail: shippingInfo.address,
-          full_name: shippingInfo.fullName,
-          phone_number: shippingInfo.phone,
-          paymentMethod,
-          products: items.map(item => ({
-              product_id: item.product_id,
-              product_name: item.product_name,
-              image_url: item.image_url,
-              color: item.color,
-              storage: item.storage,
-              quantity: item.quantity,
-              unit_price: item.unit_price,
-              total_price_per_product: item.unit_price * item.quantity
-          })),
-          total_price: totalPrice
-      };
+        province: shippingInfo.province,
+        district: shippingInfo.district,
+        ward: shippingInfo.ward,
+        address_detail: shippingInfo.address,
+        full_name: shippingInfo.fullName,
+        phone_number: shippingInfo.phone,
+        paymentMethod,
+        // Chỉ gửi products khi là mua ngay (có productItems)
+        products: productItems ? productItems.map(item => ({
+            product_id: item.product_id,
+            product_name: item.product_name,
+            image_url: item.image_url,
+            color: item.color,
+            storage: item.storage,
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            total_price_per_product: item.unit_price * item.quantity
+        })) : undefined, // Không gửi products khi mua từ giỏ hàng
+        total_price: totalPrice
+    };
       console.log("Order Data to Send:", orderData);
       console.log("Items to be ordered:", items);
 
@@ -132,8 +131,6 @@ const PaymentComponent = () => {
         return;
       }
 
-      
-      
        // Gọi API đặt hàng
        const response = await placeOrderAPI(orderData);
       
